@@ -6,6 +6,7 @@ import { dbService, SessionRecord } from '../services/db.service';
 import { format } from 'date-fns';
 import { Clock, FileText, Trash2 } from 'lucide-react';
 import { useSessionStore } from '../store/useSessionStore';
+import { motion, AnimatePresence } from 'motion/react';
 
 export function SessionsPage() {
   const [sessionFile, setSessionFile] = useState<File | null>(null);
@@ -45,80 +46,135 @@ export function SessionsPage() {
     setSessionId(null);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <>
+    <div className="flex flex-col h-full">
       <Header 
         title={sessionFile || sessionId ? 'Session Analysis' : 'Sessions Workspace'} 
         subtitle={sessionFile || sessionId ? 'Reviewing and analyzing patient session' : 'Upload a new session or review past sessions'} 
       />
-      <div className="flex-1 overflow-auto p-6 lg:p-8 relative">
-        {sessionToDelete && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Delete Session?</h3>
-              <p className="text-slate-500 mb-6">Are you sure you want to delete this session? This action cannot be undone.</p>
-              <div className="flex justify-end gap-3">
-                <button 
-                  onClick={() => setSessionToDelete(null)}
-                  className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={confirmDelete}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="flex-1 overflow-auto p-6 lg:p-8 relative bg-grid-pattern">
+        <AnimatePresence>
+          {sessionToDelete && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md"
+            >
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+              >
+                <h3 className="text-lg font-medium text-slate-100 mb-2 font-serif">Delete Session?</h3>
+                <p className="text-slate-400 mb-6 text-sm">Are you sure you want to delete this session? This action cannot be undone.</p>
+                <div className="flex justify-end gap-3">
+                  <button 
+                    onClick={() => setSessionToDelete(null)}
+                    className="px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition-colors focus-ring"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={confirmDelete}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-900/80 hover:bg-red-800 border border-red-800/50 rounded-lg transition-colors focus-ring"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {(!sessionFile && !sessionId) ? (
           <div className="space-y-8 max-w-5xl mx-auto">
             <UploadView onUpload={setSessionFile} />
             
             {sessions.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Sessions</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <h3 className="text-lg font-medium text-slate-200 mb-4 font-serif">Recent Sessions</h3>
+                <motion.div 
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                >
                   {sessions.map(session => (
-                    <div 
+                    <motion.div 
                       key={session.id}
+                      variants={itemVariants}
                       onClick={() => setSessionId(session.id)}
-                      className="bg-white border border-slate-200 rounded-2xl p-5 hover:border-primary-300 hover:shadow-md transition-all cursor-pointer group"
+                      className="bg-slate-900/80 backdrop-blur-sm border border-slate-800 rounded-2xl p-5 hover:border-primary-500/50 hover:shadow-[0_0_15px_rgba(208,150,59,0.1)] transition-all cursor-pointer group focus-ring"
+                      tabIndex={0}
+                      role="button"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSessionId(session.id);
+                        }
+                      }}
                     >
                       <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center gap-2 text-primary-600 bg-primary-50 px-2.5 py-1 rounded-md text-xs font-medium">
+                        <div className={`flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-medium border ${
+                          session.status === 'completed' ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800/50' : 
+                          session.status === 'processing' ? 'bg-primary-900/20 text-primary-400 border-primary-800/50' : 
+                          'bg-red-900/20 text-red-400 border-red-800/50'
+                        }`}>
                           <FileText className="w-3.5 h-3.5" />
                           {session.status === 'completed' ? 'Completed' : session.status === 'processing' ? 'Processing' : 'Error'}
                         </div>
                         <button 
                           onClick={(e) => handleDelete(e, session.id)}
-                          className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity focus-ring rounded p-1"
+                          aria-label={`Delete session ${session.title}`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <h4 className="font-medium text-slate-900 mb-1 truncate" title={session.title}>{session.title}</h4>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <h4 className="font-medium text-slate-200 mb-1 truncate" title={session.title}>{session.title}</h4>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
                         <Clock className="w-3.5 h-3.5" />
                         {format(new Date(session.date), 'MMM d, yyyy • h:mm a')}
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             )}
           </div>
         ) : (
-          <SessionView 
-            file={sessionFile} 
-            sessionId={sessionId}
-            onBack={handleBack} 
-          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="h-full"
+          >
+            <SessionView 
+              file={sessionFile} 
+              sessionId={sessionId}
+              onBack={handleBack} 
+            />
+          </motion.div>
         )}
       </div>
-    </>
+    </div>
   );
 }

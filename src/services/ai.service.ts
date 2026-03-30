@@ -69,7 +69,8 @@ class AIService {
       return response.text || "No transcript generated.";
     } catch (error) {
       console.error("Transcription error:", error);
-      throw new Error("Failed to transcribe the session after multiple attempts. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      throw new Error(`Failed to transcribe the session: ${errorMessage}`);
     }
   }
 
@@ -87,7 +88,8 @@ class AIService {
       return response.text || "No response generated.";
     } catch (error) {
       console.error("Analysis error:", error);
-      throw new Error("Failed to analyze the session after multiple attempts. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      throw new Error(`Failed to analyze the session: ${errorMessage}`);
     }
   }
 }

@@ -40,17 +40,19 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 export const useSessionStore = create<SessionStore>((set, get) => {
-  const saveToDb = (updates: Partial<SessionRecord>) => {
+  const saveToDb = (sessionId: string, updates: Partial<SessionRecord>) => {
     const { session } = get();
-    if (!session) return;
+    
+    // If the session is still active in the store, update the store state
+    if (session && session.id === sessionId) {
+      set({ session: { ...session, ...updates } });
+    }
 
-    const updated = { ...session, ...updates };
-    set({ session: updated });
-
+    // Always save to DB, even if the user navigated away
     saveQueue = saveQueue.then(async () => {
-      const existing = await dbService.getSession(updated.id);
+      const existing = await dbService.getSession(sessionId);
       if (existing) {
-        await dbService.saveSession(updated);
+        await dbService.saveSession({ ...existing, ...updates });
       }
     }).catch(console.error);
   };
@@ -93,6 +95,19 @@ export const useSessionStore = create<SessionStore>((set, get) => {
     },
 
     processFile: async (file: File) => {
+      // 20MB limit for inline base64 processing
+      const MAX_FILE_SIZE = 20 * 1024 * 1024; 
+      if (file.size > MAX_FILE_SIZE) {
+        const errorState: TranscriptionState = { 
+          step: 'error', 
+          progress: 0, 
+          message: 'File too large', 
+          error: `File size exceeds the 20MB limit. Please upload a smaller file.` 
+        };
+        set({ transcriptionState: errorState });
+        return;
+      }
+
       const newSession: SessionRecord = {
         id: crypto.randomUUID(),
         title: file.name,
@@ -120,7 +135,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
 
       try {
         set({ transcriptionState: { step: 'extracting_audio', progress: 10, message: 'Reading file...' } });
-        saveToDb({ transcriptionState: { step: 'extracting_audio', progress: 10, message: 'Reading file...' } });
+        saveToDb(newSession.id, { transcriptionState: { step: 'extracting_audio', progress: 10, message: 'Reading file...' } });
         
         const base64data = await fileToBase64(file);
         
@@ -134,7 +149,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
               message: 'Analyzing with AI...' 
             };
             set({ transcriptionState: newState });
-            saveToDb({ transcriptionState: newState });
+            saveToDb(newSession.id, { transcriptionState: newState });
           }
         );
 
@@ -143,7 +158,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
           transcript: finalTranscript,
           transcriptionState: completedState
         });
-        saveToDb({
+        saveToDb(newSession.id, {
           transcript: finalTranscript,
           status: 'completed',
           transcriptionState: completedState
@@ -157,7 +172,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
           error: error instanceof Error ? error.message : 'Unknown error' 
         };
         set({ transcriptionState: errorState });
-        saveToDb({
+        saveToDb(newSession.id, {
           status: 'error',
           transcriptionState: errorState
         });
@@ -177,7 +192,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
 
       const updatedMessages = [...messages, userMessage];
       set({ messages: updatedMessages, isAnalyzing: true });
-      saveToDb({ messages: updatedMessages });
+      saveToDb(session.id, { messages: updatedMessages });
 
       try {
         const response = await aiService.analyzeSession(transcript, content);
@@ -191,16 +206,26 @@ export const useSessionStore = create<SessionStore>((set, get) => {
 
         const finalMessages = [...updatedMessages, aiMessage];
         set({ messages: finalMessages, isAnalyzing: false });
-        saveToDb({ messages: finalMessages });
+        saveToDb(session.id, { messages: finalMessages });
       } catch (error) {
         console.error('Analysis error:', error);
-        set({ isAnalyzing: false });
+        const errorMessage: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: `**Error:** ${error instanceof Error ? error.message : 'Failed to analyze request. Please try again.'}`,
+          timestamp: Date.now()
+        };
+        const finalMessages = [...updatedMessages, errorMessage];
+        set({ messages: finalMessages, isAnalyzing: false });
+        saveToDb(session.id, { messages: finalMessages });
       }
     },
 
     updateTranscript: (text: string) => {
+      const { session } = get();
+      if (!session) return;
       set({ transcript: text });
-      saveToDb({ transcript: text });
+      saveToDb(session.id, { transcript: text });
     }
   };
 });

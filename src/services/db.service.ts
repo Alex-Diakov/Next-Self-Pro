@@ -77,10 +77,18 @@ class DBService {
   }
 
   async saveSession(session: SessionRecord): Promise<void> {
-    const db = await this.dbPromise;
-    // Ensure the data conforms to the schema before saving
-    const parsed = SessionRecordSchema.parse(session);
-    await db.put('sessions', parsed as SessionRecord);
+    try {
+      const db = await this.dbPromise;
+      // Ensure the data conforms to the schema before saving
+      const parsed = SessionRecordSchema.parse(session);
+      await db.put('sessions', parsed as SessionRecord);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        console.error('Storage quota exceeded. Please delete old sessions.');
+        throw new Error('Storage quota exceeded. Please delete old sessions to free up space.');
+      }
+      throw error;
+    }
   }
 
   async deleteSession(id: string): Promise<void> {

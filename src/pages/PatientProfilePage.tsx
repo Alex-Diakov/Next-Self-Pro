@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Routes, Route, useLocation } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
 import { useSessionStore } from '../store/useSessionStore';
 import { dbService } from '../services/db.service';
@@ -11,15 +11,27 @@ import { Clock, FileText, Trash2, ArrowLeft, User, Calendar, Activity, FileVideo
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, safeFormatDate } from '../lib/utils';
 
+const SessionAnalysisWrapper = ({ onBack, projectId }: { onBack: () => void, projectId?: string }) => {
+  const { sessionId } = useParams<{ sessionId: string }>();
+  return (
+    <SessionView 
+      file={null} 
+      sessionId={sessionId || null}
+      projectId={projectId}
+      onBack={onBack} 
+    />
+  );
+};
+
 export function PatientProfilePage() {
-  const { projectId } = useParams<{ projectId: string }>();
+  const { projectId, sessionId: urlSessionId } = useParams<{ projectId: string, sessionId?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const { activeProject, projectSessions, loadProject, loadProjectSessions, isLoading } = useProjectStore();
   const { clearSession } = useSessionStore();
 
   const [sessionFile, setSessionFile] = useState<File | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
@@ -32,10 +44,10 @@ export function PatientProfilePage() {
 
   // If a session is completed/deleted, reload sessions
   useEffect(() => {
-    if (!sessionFile && !sessionId && projectId) {
+    if (!sessionFile && !urlSessionId && projectId) {
       loadProjectSessions(projectId);
     }
-  }, [sessionFile, sessionId, projectId, loadProjectSessions]);
+  }, [sessionFile, urlSessionId, projectId, loadProjectSessions]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -53,7 +65,11 @@ export function PatientProfilePage() {
   const handleBackToWorkspace = () => {
     clearSession();
     setSessionFile(null);
-    setSessionId(null);
+    navigate(`/patients/${projectId}`);
+  };
+
+  const handleSessionClick = (id: string) => {
+    navigate(`/patients/${projectId}/sessions/${id}`);
   };
 
   const containerVariants = {
@@ -74,7 +90,7 @@ export function PatientProfilePage() {
       <div className="flex flex-col h-full">
         <Header title="Loading Patient..." />
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-accent/30 border-t-accent rounded-full animate-spin"></div>
         </div>
       </div>
     );
@@ -84,11 +100,11 @@ export function PatientProfilePage() {
     return (
       <div className="flex flex-col h-full">
         <Header title="Patient Not Found" />
-        <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
+        <div className="flex-1 flex flex-col items-center justify-center text-muted">
           <p>The patient you are looking for does not exist.</p>
           <button 
             onClick={() => navigate('/patients')}
-            className="mt-4 text-primary-400 hover:text-primary-300"
+            className="mt-4 text-accent-hover hover:text-accent-muted"
           >
             Return to Patients
           </button>
@@ -97,15 +113,17 @@ export function PatientProfilePage() {
     );
   }
 
+  const isSessionView = location.pathname.includes('/sessions/') || location.pathname.includes('/upload');
+
   return (
     <div className="flex flex-col h-full">
       <Header 
-        title={sessionFile || sessionId ? 'Session Analysis' : activeProject.name} 
-        subtitle={sessionFile || sessionId ? 'Reviewing and analyzing patient session' : 'Patient Workspace'} 
-        action={(!sessionFile && !sessionId) ? (
+        title={isSessionView ? 'Session Analysis' : activeProject.name} 
+        subtitle={isSessionView ? 'Reviewing and analyzing patient session' : 'Patient Workspace'} 
+        action={!isSessionView ? (
           <button 
             onClick={() => setIsUploadModalOpen(true)}
-            className="flex items-center gap-2 bg-primary-500 hover:bg-primary-400 text-slate-900 px-5 py-2.5 rounded-full font-bold transition-all duration-300 shadow-[0_0_20px_rgba(55,114,255,0.3)] hover:shadow-[0_0_30px_rgba(55,114,255,0.5)] focus-ring"
+            className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-background px-5 py-2.5 rounded-full font-bold transition-all duration-300 shadow-lg shadow-accent/30 hover:shadow-xl shadow-accent/50 focus-ring"
           >
             <Plus className="w-5 h-5" />
             New Session
@@ -120,24 +138,25 @@ export function PatientProfilePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-6"
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-md p-4 sm:p-6"
             >
               <motion.div 
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 max-w-3xl w-full shadow-2xl relative"
+                className="bg-surface border border-border rounded-[32px] p-6 sm:p-8 max-w-3xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar"
               >
                 <button 
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-200 bg-slate-800/50 hover:bg-slate-800 rounded-full transition-colors"
+                  className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-muted hover:text-secondary bg-surface-hover/50 hover:bg-surface-hover rounded-full transition-colors z-10"
                 >
                   <X className="w-5 h-5" />
                 </button>
-                <h3 className="text-2xl font-bold text-slate-100 mb-6 tracking-tight">Upload New Session</h3>
+                <h3 className="text-2xl font-bold text-primary mb-6 tracking-tight pr-10">Upload New Session</h3>
                 <UploadView onUpload={(file) => {
                   setSessionFile(file);
                   setIsUploadModalOpen(false);
+                  navigate(`/patients/${projectId}/upload`);
                 }} />
               </motion.div>
             </motion.div>
@@ -148,26 +167,26 @@ export function PatientProfilePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md"
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-md p-4"
             >
               <motion.div 
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+                className="bg-surface border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl relative"
               >
-                <h3 className="text-lg font-medium text-slate-100 mb-2">Delete Session?</h3>
-                <p className="text-slate-400 mb-6 text-sm">Are you sure you want to delete this session? This action cannot be undone.</p>
+                <h3 className="text-lg font-medium text-primary mb-2">Delete Session?</h3>
+                <p className="text-muted mb-6 text-sm">Are you sure you want to delete this session? This action cannot be undone.</p>
                 <div className="flex justify-end gap-3">
                   <button 
                     onClick={() => setSessionToDelete(null)}
-                    className="px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition-colors focus-ring"
+                    className="px-4 py-2 text-sm font-medium text-secondary hover:bg-surface-hover rounded-lg transition-colors focus-ring"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={confirmDelete}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-900/80 hover:bg-red-800 border border-red-800/50 rounded-lg transition-colors focus-ring"
+                    className="px-4 py-2 text-sm font-medium text-primary bg-error-bg/80 hover:bg-error-bg border border-error-bg/50 rounded-lg transition-colors focus-ring"
                   >
                     Delete
                   </button>
@@ -177,163 +196,179 @@ export function PatientProfilePage() {
           )}
         </AnimatePresence>
 
-        {(!sessionFile && !sessionId) ? (
-          <div className="space-y-8 max-w-5xl mx-auto">
-            {/* Patient Header Info */}
-            <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between bg-slate-900/60 border border-slate-800/60 p-8 rounded-[32px] backdrop-blur-xl shadow-2xl relative overflow-hidden">
-              {/* Subtle background glow */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+        <Routes>
+          <Route index element={
+            <div className="space-y-8 max-w-5xl mx-auto">
+              {/* Patient Header Info */}
+              <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between card-premium p-8 relative overflow-hidden">
+                {/* Subtle background glow */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-[80px] pointer-events-none"></div>
 
-              <div className="flex items-center gap-6 relative z-10">
-                <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center text-primary-500 shadow-inner border border-white/5">
-                  <User className="w-10 h-10" />
+                <div className="flex items-center gap-6 relative z-10">
+                  <div className="w-20 h-20 bg-surface-hover rounded-full flex items-center justify-center text-accent shadow-inner border border-border-subtle">
+                    <User className="w-10 h-10" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-primary tracking-tight">{activeProject.name}</h2>
+                    <div className="flex items-center gap-5 mt-3 text-sm text-muted font-medium">
+                      <span className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Added {safeFormatDate(activeProject.createdAt, 'MMM d, yyyy')}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <Activity className="w-4 h-4" />
+                        {projectSessions.length} Sessions
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-3xl font-bold text-slate-100 tracking-tight">{activeProject.name}</h2>
-                  <div className="flex items-center gap-5 mt-3 text-sm text-slate-400 font-medium">
-                    <span className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Added {safeFormatDate(activeProject.createdAt, 'MMM d, yyyy')}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <Activity className="w-4 h-4" />
-                      {projectSessions.length} Sessions
-                    </span>
+                
+                <div className="flex flex-col gap-3 min-w-[200px] relative z-10">
+                  <div className="text-sm text-subtle font-semibold uppercase tracking-wider">Status</div>
+                  <div className={cn(
+                    "px-4 py-2 rounded-full text-sm font-bold tracking-wide border text-center",
+                    activeProject.status === 'active' ? "bg-success/10 text-success-muted border-success/20" :
+                    activeProject.status === 'completed' ? "bg-info/10 text-info-muted border-info/20" :
+                    "bg-surface-hover text-muted border-border-hover"
+                  )}>
+                    {activeProject.status ? activeProject.status.toUpperCase() : 'UNKNOWN'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Patient Dashboard Area */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Progress Chart Placeholder */}
+                <div className="lg:col-span-2 card-premium p-8 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-success/5 rounded-full blur-[80px] pointer-events-none"></div>
+                  <div className="flex items-center justify-between mb-6 relative z-10">
+                    <h3 className="text-xl font-bold text-primary tracking-tight flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-success-muted" />
+                      Therapy Progress
+                    </h3>
+                    <span className="text-sm font-medium text-subtle bg-background/50 px-3 py-1 rounded-full border border-border/50">Last 6 Months</span>
+                  </div>
+                  <div className="h-48 flex items-end justify-between gap-2 relative z-10">
+                    {/* Mock Chart Bars */}
+                    {[40, 55, 45, 60, 75, 85].map((height, i) => (
+                      <div key={i} className="w-full bg-surface-hover/50 rounded-t-xl relative group-hover:bg-surface-hover transition-colors duration-300">
+                        <motion.div 
+                          initial={{ height: 0 }}
+                          animate={{ height: `${height}%` }}
+                          transition={{ duration: 1, delay: i * 0.1 }}
+                          className="absolute bottom-0 w-full bg-success/20 border-t-2 border-success-muted rounded-t-xl"
+                        ></motion.div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tags / Key Themes */}
+                <div className="card-premium p-8 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-accent/5 rounded-full blur-[60px] pointer-events-none"></div>
+                  <h3 className="text-xl font-bold text-primary mb-6 tracking-tight flex items-center gap-2 relative z-10">
+                    <Tag className="w-5 h-5 text-accent-hover" />
+                    Key Themes
+                  </h3>
+                  <div className="flex flex-wrap gap-2 relative z-10">
+                    {['Anxiety', 'Work Stress', 'Family Dynamics', 'Self-Esteem', 'Sleep Issues'].map((tag, i) => (
+                      <span key={i} className="px-4 py-2 bg-background/50 border border-border/80 rounded-full text-sm font-medium text-secondary hover:border-accent/30 hover:text-accent-muted transition-colors cursor-default">
+                        {tag}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
               
-              <div className="flex flex-col gap-3 min-w-[200px] relative z-10">
-                <div className="text-sm text-slate-500 font-semibold uppercase tracking-wider">Status</div>
-                <div className={cn(
-                  "px-4 py-2 rounded-full text-sm font-bold tracking-wide border text-center",
-                  activeProject.status === 'active' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                  activeProject.status === 'completed' ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
-                  "bg-slate-800 text-slate-400 border-slate-700"
-                )}>
-                  {activeProject.status ? activeProject.status.toUpperCase() : 'UNKNOWN'}
-                </div>
-              </div>
-            </div>
-
-            {/* Patient Dashboard Area */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Progress Chart Placeholder */}
-              <div className="lg:col-span-2 bg-slate-900/60 border border-slate-800/60 rounded-[32px] p-8 backdrop-blur-xl shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] pointer-events-none"></div>
-                <div className="flex items-center justify-between mb-6 relative z-10">
-                  <h3 className="text-xl font-bold text-slate-100 tracking-tight flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-emerald-400" />
-                    Therapy Progress
-                  </h3>
-                  <span className="text-sm font-medium text-slate-500 bg-slate-950/50 px-3 py-1 rounded-full border border-slate-800/50">Last 6 Months</span>
-                </div>
-                <div className="h-48 flex items-end justify-between gap-2 relative z-10">
-                  {/* Mock Chart Bars */}
-                  {[40, 55, 45, 60, 75, 85].map((height, i) => (
-                    <div key={i} className="w-full bg-slate-800/50 rounded-t-xl relative group-hover:bg-slate-800 transition-colors duration-300">
-                      <motion.div 
-                        initial={{ height: 0 }}
-                        animate={{ height: `${height}%` }}
-                        transition={{ duration: 1, delay: i * 0.1 }}
-                        className="absolute bottom-0 w-full bg-emerald-500/20 border-t-2 border-emerald-400 rounded-t-xl"
-                      ></motion.div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tags / Key Themes */}
-              <div className="bg-slate-900/60 border border-slate-800/60 rounded-[32px] p-8 backdrop-blur-xl shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-primary-500/5 rounded-full blur-[60px] pointer-events-none"></div>
-                <h3 className="text-xl font-bold text-slate-100 mb-6 tracking-tight flex items-center gap-2 relative z-10">
-                  <Tag className="w-5 h-5 text-primary-400" />
-                  Key Themes
-                </h3>
-                <div className="flex flex-wrap gap-2 relative z-10">
-                  {['Anxiety', 'Work Stress', 'Family Dynamics', 'Self-Esteem', 'Sleep Issues'].map((tag, i) => (
-                    <span key={i} className="px-4 py-2 bg-slate-950/50 border border-slate-800/80 rounded-full text-sm font-medium text-slate-300 hover:border-primary-500/30 hover:text-primary-300 transition-colors cursor-default">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {/* Sessions List */}
-            {projectSessions.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <h3 className="text-xl font-bold text-slate-100 mb-6 tracking-tight">Patient Sessions</h3>
-                <motion.div 
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="show"
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              {/* Sessions List */}
+              {projectSessions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  {projectSessions.map(session => (
-                    <motion.div 
-                      key={session.id}
-                      variants={itemVariants}
-                      onClick={() => setSessionId(session.id)}
-                      className="bg-slate-900/60 backdrop-blur-xl border border-slate-800/60 rounded-[24px] p-6 hover:border-slate-700 transition-all duration-300 cursor-pointer group shadow-xl hover:shadow-[0_10px_40px_rgba(0,0,0,0.4)] focus-ring relative overflow-hidden"
-                      tabIndex={0}
-                      role="button"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setSessionId(session.id);
-                        }
-                      }}
-                    >
-                      {/* Subtle hover gradient */}
-                      <div className="absolute -inset-px bg-gradient-to-b from-primary-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[24px] pointer-events-none"></div>
+                  <h3 className="text-xl font-bold text-primary mb-6 tracking-tight">Patient Sessions</h3>
+                  <motion.div 
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="show"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  >
+                    {projectSessions.map(session => (
+                      <motion.div 
+                        key={session.id}
+                        variants={itemVariants}
+                        onClick={() => handleSessionClick(session.id)}
+                        className="card-premium p-6 cursor-pointer group focus-ring relative overflow-hidden"
+                        tabIndex={0}
+                        role="button"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleSessionClick(session.id);
+                          }
+                        }}
+                      >
+                        {/* Subtle hover gradient */}
+                        <div className="absolute -inset-px bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[24px] pointer-events-none"></div>
 
-                      <div className="flex justify-between items-start mb-5 relative z-10">
-                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide border ${
-                          session.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
-                          session.status === 'processing' ? 'bg-primary-500/10 text-primary-400 border-primary-500/20' : 
-                          'bg-red-500/10 text-red-400 border-red-500/20'
-                        }`}>
-                          <FileVideo className="w-3.5 h-3.5" />
-                          {session.status === 'completed' ? 'Completed' : session.status === 'processing' ? 'Processing' : 'Error'}
+                        <div className="flex justify-between items-start mb-5 relative z-10">
+                          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide border ${
+                            session.status === 'completed' ? 'bg-success/10 text-success-muted border-success/20' : 
+                            session.status === 'processing' ? 'bg-accent/10 text-accent-hover border-accent/20' : 
+                            'bg-error/10 text-error-muted border-error/20'
+                          }`}>
+                            <FileVideo className="w-3.5 h-3.5" />
+                            {session.status === 'completed' ? 'Completed' : session.status === 'processing' ? 'Processing' : 'Error'}
+                          </div>
+                          <button 
+                            onClick={(e) => handleDelete(e, session.id)}
+                            className="text-subtle hover:text-error-muted opacity-0 group-hover:opacity-100 transition-opacity focus-ring rounded-full p-1.5 hover:bg-error/10"
+                            aria-label={`Delete session ${session.title}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
-                        <button 
-                          onClick={(e) => handleDelete(e, session.id)}
-                          className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity focus-ring rounded-full p-1.5 hover:bg-red-500/10"
-                          aria-label={`Delete session ${session.title}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <h4 className="font-bold text-slate-100 mb-2 truncate text-lg relative z-10" title={session.title}>{session.title}</h4>
-                      <div className="flex items-center gap-2 text-sm text-slate-500 font-medium relative z-10">
-                        <Clock className="w-4 h-4" />
-                        {safeFormatDate(session.date, 'MMM d, yyyy • h:mm a')}
-                      </div>
-                    </motion.div>
-                  ))}
+                        <h4 className="font-bold text-primary mb-2 truncate text-lg relative z-10" title={session.title}>{session.title}</h4>
+                        <div className="flex items-center gap-2 text-sm text-subtle font-medium relative z-10">
+                          <Clock className="w-4 h-4" />
+                          {safeFormatDate(session.date, 'MMM d, yyyy • h:mm a')}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
                 </motion.div>
+              )}
+            </div>
+          } />
+          
+          <Route path="sessions/:sessionId" element={
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="h-full"
+            >
+              <SessionAnalysisWrapper onBack={handleBackToWorkspace} projectId={projectId} />
+            </motion.div>
+          } />
+
+          {sessionFile && (
+            <Route path="upload" element={
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="h-full"
+              >
+                <SessionView 
+                  file={sessionFile} 
+                  sessionId={null}
+                  projectId={projectId}
+                  onBack={handleBackToWorkspace} 
+                />
               </motion.div>
-            )}
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="h-full"
-          >
-            <SessionView 
-              file={sessionFile} 
-              sessionId={sessionId}
-              projectId={projectId}
-              onBack={handleBackToWorkspace} 
-            />
-          </motion.div>
-        )}
+            } />
+          )}
+        </Routes>
       </div>
     </div>
   );

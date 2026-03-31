@@ -6,10 +6,10 @@ import { motion } from 'motion/react';
 
 export function DashboardPage() {
   const stats = [
-    { label: 'Total Sessions', value: '124', icon: Video, color: 'text-primary-400', bg: 'bg-primary-900/20' },
-    { label: 'Active Patients', value: '32', icon: Users, color: 'text-emerald-400', bg: 'bg-emerald-900/20' },
-    { label: 'AI Insights Generated', value: '89', icon: BrainCircuit, color: 'text-purple-400', bg: 'bg-purple-900/20' },
-    { label: 'Patient Progress', value: '+14%', icon: TrendingUp, color: 'text-amber-400', bg: 'bg-amber-900/20' },
+    { label: 'Total Sessions', value: '124', icon: Video, color: 'text-accent-hover', bg: 'bg-accent-active/20' },
+    { label: 'Active Patients', value: '32', icon: Users, color: 'text-success-muted', bg: 'bg-success-bg/20' },
+    { label: 'AI Insights Generated', value: '89', icon: BrainCircuit, color: 'text-info-muted', bg: 'bg-info/10' },
+    { label: 'Patient Progress', value: '+14%', icon: TrendingUp, color: 'text-warning-muted', bg: 'bg-warning/10' },
   ];
 
   const containerVariants = {
@@ -39,16 +39,16 @@ export function DashboardPage() {
             <motion.div 
               key={stat.label} 
               variants={itemVariants}
-              className="bg-slate-900/60 backdrop-blur-xl p-7 rounded-[24px] border border-slate-800/60 shadow-xl hover:border-slate-700 transition-all duration-300 group relative overflow-hidden"
+              className="card-premium p-7 group relative overflow-hidden"
             >
               {/* Subtle hover gradient */}
-              <div className="absolute -inset-px bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+              <div className="absolute -inset-px bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
-              <div className={`w-14 h-14 rounded-full ${stat.bg} ${stat.color} flex items-center justify-center mb-5 border border-white/5 group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
+              <div className={`w-14 h-14 rounded-full ${stat.bg} ${stat.color} flex items-center justify-center mb-5 border border-border-subtle group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
                 <stat.icon className="w-6 h-6" />
               </div>
-              <p className="text-slate-400 text-sm font-medium mb-1">{stat.label}</p>
-              <p className="text-3xl font-bold text-slate-100 tracking-tight">{stat.value}</p>
+              <p className="text-muted text-sm font-medium mb-1">{stat.label}</p>
+              <p className="text-3xl font-bold text-primary tracking-tight">{stat.value}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -57,15 +57,15 @@ export function DashboardPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4, type: "spring", stiffness: 200, damping: 20 }}
-          className="bg-slate-900/60 backdrop-blur-xl rounded-[32px] border border-slate-800/60 shadow-2xl p-16 text-center relative overflow-hidden"
+          className="card-premium rounded-[40px] p-16 text-center relative overflow-hidden"
         >
           {/* Subtle background glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] pointer-events-none"></div>
           
           <div className="relative z-10">
-            <h2 className="text-3xl font-bold text-slate-100 mb-4 tracking-tight">Ready for your next session?</h2>
-            <p className="text-slate-400 mb-10 max-w-lg mx-auto leading-relaxed text-lg">Upload a new video or audio recording to get instant AI-powered clinical insights and transcriptions.</p>
-            <Link to="/sessions" className="inline-flex items-center justify-center px-10 py-4 bg-primary-500 text-white rounded-full font-bold hover:bg-primary-600 transition-all duration-300 shadow-[0_4px_20px_rgba(55,114,255,0.3)] hover:shadow-[0_6px_30px_rgba(55,114,255,0.5)] hover:-translate-y-1 focus-ring">
+            <h2 className="text-4xl font-bold text-primary mb-4 tracking-tight">Ready for your next session?</h2>
+            <p className="text-muted mb-10 max-w-lg mx-auto leading-relaxed text-lg">Upload a new video or audio recording to get instant AI-powered clinical insights and transcriptions.</p>
+            <Link to="/sessions" className="inline-flex items-center justify-center px-10 py-4 bg-accent text-primary rounded-full font-bold hover:bg-accent-active transition-all duration-300 shadow-lg shadow-accent/30 hover:shadow-xl hover:shadow-accent/50 hover:-translate-y-1 focus-ring">
               Go to Sessions
             </Link>
           </div>

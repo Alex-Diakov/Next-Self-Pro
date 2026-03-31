@@ -1,11 +1,14 @@
 import { BrowserRouter } from 'react-router-dom';
 import { MainLayout } from './layouts/MainLayout';
+import { ErrorBoundary } from './components/layout/ErrorBoundary';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <MainLayout />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <MainLayout />
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

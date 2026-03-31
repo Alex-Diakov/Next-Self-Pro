@@ -30,38 +30,56 @@
   --color-primary-800: #132d66;
   --color-primary-900: #0a1633;
 
-  /* Semantic Colors */
-  --color-emerald-400: #34d399;
-  --color-emerald-500: #10b981;
-  --color-emerald-900: #064e3b;
+  /* Semantic Design System Tokens */
+  --color-background: var(--color-slate-950);
+  --color-surface: var(--color-slate-900);
+  --color-surface-hover: var(--color-slate-800);
+  --color-surface-elevated: var(--color-slate-800);
+  --color-surface-highlight: var(--color-slate-700);
+  --color-card-background: var(--color-surface);
   
-  --color-red-400: #f87171;
-  --color-red-500: #ef4444;
-  --color-red-900: #7f1d1d;
+  --color-border: var(--color-slate-800);
+  --color-border-hover: var(--color-slate-700);
+  --color-border-subtle: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--color-text-primary) 10%, transparent);
   
-  --color-yellow-400: #facc15;
-  --color-yellow-500: #eab308;
+  --color-text-primary: var(--color-slate-100);
+  --color-text-secondary: var(--color-slate-200);
+  --color-text-muted: var(--color-slate-400);
+  --color-text-subtle: var(--color-slate-500);
+  --color-text-inverse: #000000;
   
-  --color-cyan-400: #22d3ee;
-  --color-cyan-500: #06b6d4;
+  --color-accent: var(--color-primary-500);
+  --color-accent-hover: var(--color-primary-400);
+  --color-accent-active: var(--color-primary-600);
 
-  /* Surface & Borders */
-  --color-surface: #121212;
-  --color-surface-elevated: #1e1e1e;
-  --color-surface-highlight: #27272a;
-  --color-border-subtle: rgba(255, 255, 255, 0.05);
-  --color-border-strong: rgba(255, 255, 255, 0.1);
+  /* Semantic Status Tokens */
+  --color-success: #10b981;
+  --color-success-muted: #34d399;
+  --color-success-bg: #064e3b;
+  
+  --color-error: #ef4444;
+  --color-error-muted: #f87171;
+  --color-error-bg: #7f1d1d;
+  
+  --color-warning: #eab308;
+  --color-warning-muted: #facc15;
+  --color-warning-bg: #713f12;
+  
+  --color-info: #3b82f6; /* blue-500 */
+  --color-info-muted: #60a5fa; /* blue-400 */
+  --color-info-bg: #1e3a8a;
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #141416;
-  color: #FCFCFD;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Selection color */
   ::selection {
-    background-color: #3772FF;
+    background-color: var(--color-accent);
     color: #ffffff;
   }
 }
@@ -75,20 +93,36 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--color-text-primary) 10%, transparent);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--color-text-primary) 20%, transparent);
 }
 
 /* Base utilities for glassmorphism */
 .glass-panel {
-  background: rgba(30, 30, 30, 0.6);
+  background: color-mix(in srgb, var(--color-surface) 60%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 1rem;
+}
+
+/* Card Token */
+.card-premium {
+  background-color: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  border-radius: 1.5rem; /* rounded-3xl */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-premium:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
 }
 
 /* Elite Focus State */
@@ -96,13 +130,13 @@ body {
   outline: none;
 }
 .focus-ring:focus-visible {
-  box-shadow: 0 0 0 2px #09090b, 0 0 0 4px #8b5cf6;
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-accent);
   border-radius: inherit;
 }
 
 /* Text Glow */
 .text-glow {
-  text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--color-accent) 40%, transparent);
 }
 
 /* Scanning animation for video player */

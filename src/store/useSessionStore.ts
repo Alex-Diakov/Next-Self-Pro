@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ChatMessage, TranscriptionState } from '../types';
 import { dbService, SessionRecord } from '../services/db.service';
 import { aiService } from '../services/ai.service';
+import { generateId } from '../lib/utils';
 
 interface SessionStore {
   session: SessionRecord | null;
@@ -13,7 +14,7 @@ interface SessionStore {
 
   // Actions
   loadSession: (sessionId: string) => Promise<void>;
-  processFile: (file: File) => Promise<void>;
+  processFile: (file: File, projectId?: string) => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
   updateTranscript: (text: string) => void;
   clearSession: () => void;
@@ -94,7 +95,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
       }
     },
 
-    processFile: async (file: File) => {
+    processFile: async (file: File, projectId: string = 'default-project') => {
       // 20MB limit for inline base64 processing
       const MAX_FILE_SIZE = 20 * 1024 * 1024; 
       if (file.size > MAX_FILE_SIZE) {
@@ -109,7 +110,8 @@ export const useSessionStore = create<SessionStore>((set, get) => {
       }
 
       const newSession: SessionRecord = {
-        id: crypto.randomUUID(),
+        id: generateId(),
+        projectId,
         title: file.name,
         date: Date.now(),
         file: file,
@@ -184,7 +186,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
       if (!session || !transcript) return;
 
       const userMessage: ChatMessage = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         role: 'user',
         content,
         timestamp: Date.now()
@@ -198,7 +200,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
         const response = await aiService.analyzeSession(transcript, content);
         
         const aiMessage: ChatMessage = {
-          id: crypto.randomUUID(),
+          id: generateId(),
           role: 'assistant',
           content: response,
           timestamp: Date.now()
@@ -210,7 +212,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
       } catch (error) {
         console.error('Analysis error:', error);
         const errorMessage: ChatMessage = {
-          id: crypto.randomUUID(),
+          id: generateId(),
           role: 'assistant',
           content: `**Error:** ${error instanceof Error ? error.message : 'Failed to analyze request. Please try again.'}`,
           timestamp: Date.now()

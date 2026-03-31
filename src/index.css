@@ -1,67 +1,75 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Dark Luxury Palette - Slate/Graphite Base */
-  --color-slate-950: #050505;
-  --color-slate-900: #0A0A0A;
-  --color-slate-800: #141414;
-  --color-slate-700: #1F1F1F;
-  --color-slate-600: #2E2E2E;
-  --color-slate-500: #525252;
-  --color-slate-400: #737373;
-  --color-slate-300: #A3A3A3;
-  --color-slate-200: #D4D4D4;
-  --color-slate-100: #E5E5E5;
-  --color-slate-50: #FAFAFA;
+  /* Modern Dark Theme Palette */
+  --color-slate-950: #141416;
+  --color-slate-900: #1F2128;
+  --color-slate-800: #23262F;
+  --color-slate-700: #353945;
+  --color-slate-600: #777E90;
+  --color-slate-500: #777E90;
+  --color-slate-400: #777E90;
+  --color-slate-300: #B1B5C3;
+  --color-slate-200: #E6E8EC;
+  --color-slate-100: #FCFCFD;
+  --color-slate-50: #FCFCFD;
 
-  /* Accent - Muted Gold / Bronze */
-  --color-primary-50: #fdfaf3;
-  --color-primary-100: #f8f1de;
-  --color-primary-200: #f0e0ba;
-  --color-primary-300: #e5c98e;
-  --color-primary-400: #d9ae5d;
-  --color-primary-500: #d0963b;
-  --color-primary-600: #c17e30;
-  --color-primary-700: #a1612a;
-  --color-primary-800: #834f28;
-  --color-primary-900: #6a4123;
+  /* Accents based on the reference image */
+  --color-primary-50: #eef3ff;
+  --color-primary-100: #dce7ff;
+  --color-primary-200: #b9cfff;
+  --color-primary-300: #8baaff;
+  --color-primary-400: #5c85ff;
+  --color-primary-500: #3772FF; /* Vibrant Blue accent */
+  --color-primary-600: #2b5bcc;
+  --color-primary-700: #1f4499;
+  --color-primary-800: #132d66;
+  --color-primary-900: #0a1633;
 
   /* Semantic Colors */
+  --color-emerald-400: #34d399;
   --color-emerald-500: #10b981;
   --color-emerald-900: #064e3b;
+  
+  --color-red-400: #f87171;
   --color-red-500: #ef4444;
   --color-red-900: #7f1d1d;
+  
+  --color-yellow-400: #facc15;
+  --color-yellow-500: #eab308;
+  
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
 
   /* Surface & Borders */
-  --color-surface: #0A0A0A;
-  --color-surface-elevated: #141414;
-  --color-surface-highlight: #1F1F1F;
-  --color-border-subtle: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.15);
+  --color-surface: #121212;
+  --color-surface-elevated: #1e1e1e;
+  --color-surface-highlight: #27272a;
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
+  --color-border-strong: rgba(255, 255, 255, 0.1);
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #050505;
-  color: #E5E5E5;
+  background-color: #141416;
+  color: #FCFCFD;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Selection color */
   ::selection {
-    background-color: #d0963b;
-    color: #050505;
+    background-color: #3772FF;
+    color: #ffffff;
   }
 }
 
 /* Custom scrollbar for a premium look */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -76,10 +84,11 @@ body {
 
 /* Base utilities for glassmorphism */
 .glass-panel {
-  background: rgba(20, 20, 20, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
 }
 
 /* Elite Focus State */
@@ -87,20 +96,13 @@ body {
   outline: none;
 }
 .focus-ring:focus-visible {
-  box-shadow: 0 0 0 2px #050505, 0 0 0 4px #d0963b;
+  box-shadow: 0 0 0 2px #09090b, 0 0 0 4px #8b5cf6;
   border-radius: inherit;
 }
 
 /* Text Glow */
 .text-glow {
-  text-shadow: 0 0 20px rgba(208,150,59,0.4);
-}
-
-/* Technical Grid Background */
-.bg-grid-pattern {
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 24px 24px;
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
 }
 
 /* Scanning animation for video player */

@@ -1,8 +1,27 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { format, isValid } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function safeFormatDate(date: string | number | Date | undefined | null, formatStr: string = 'MMM d, yyyy'): string {
+  if (!date) return 'Unknown';
+  const d = new Date(date);
+  if (!isValid(d)) return 'Unknown';
+  try {
+    return format(d, formatStr);
+  } catch (e) {
+    return 'Unknown';
+  }
+}
+
+export function generateId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
 export function fileToBase64(file: File): Promise<string> {

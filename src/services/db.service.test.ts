@@ -5,6 +5,7 @@ import { dbService, SessionRecord } from './db.service';
 describe('DBService', () => {
   const mockSession: SessionRecord = {
     id: 'test-123',
+    projectId: 'test-project',
     title: 'Test Meeting',
     date: Date.now(),
     fileName: 'meeting.mp3',

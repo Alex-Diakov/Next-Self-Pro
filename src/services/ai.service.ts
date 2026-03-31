@@ -50,15 +50,17 @@ class AIService {
 
       const response = await this.withRetry(() => this.ai.models.generateContent({
         model: this.defaultModel,
-        contents: [
-          {
-            inlineData: {
-              mimeType: mimeType,
-              data: base64Data
-            }
-          },
-          { text: prompt }
-        ],
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                mimeType: mimeType,
+                data: base64Data
+              }
+            },
+            { text: prompt }
+          ]
+        },
         config: {
           systemInstruction: "You are an expert clinical psychologist and psychotherapist supervisor. Your goal is to help therapists analyze their sessions, identify cognitive distortions, suggest therapeutic interventions (CBT, ACT, DBT, etc.), and provide professional, empathetic, and scientifically-backed insights. Always maintain a professional, clinical, yet supportive tone."
         }

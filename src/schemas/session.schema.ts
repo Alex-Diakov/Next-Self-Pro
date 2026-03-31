@@ -16,8 +16,18 @@ export const TranscriptionStateSchema = z.object({
   error: z.string().optional().catch(undefined),
 });
 
+export const ProjectSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  status: z.enum(['active', 'archived', 'completed']).catch('active'),
+  createdAt: z.string().catch(() => new Date().toISOString()),
+  updatedAt: z.string().catch(() => new Date().toISOString()),
+});
+
 export const SessionRecordSchema = z.object({
   id: z.string(),
+  projectId: z.string().catch('default-project'),
   title: z.string().catch('Untitled Session'),
   date: z.union([z.number(), z.string()]).transform(val => 
     typeof val === 'string' ? new Date(val).getTime() : val

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
-import { Loader2, Send } from 'lucide-react';
+import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { ChatMessage } from '../../../../types';
 
@@ -56,7 +56,7 @@ export function AnalysisPanel({
             className="flex max-w-[85%] mr-auto"
           >
             <div className="p-5 rounded-3xl bg-surface-highlight border border-border rounded-tl-sm flex items-center gap-3 text-muted backdrop-blur-md shadow-lg">
-              <Loader2 className="w-5 h-5 animate-spin text-accent" />
+              <Icon name="sync" className="text-xl animate-spin text-accent" />
               <span className="text-sm font-mono font-medium">Analyzing...</span>
             </div>
           </motion.div>
@@ -82,7 +82,7 @@ export function AnalysisPanel({
             disabled={!inputMessage.trim() || isAnalyzing}
             className="absolute right-3 w-12 h-12 flex items-center justify-center bg-premium-gradient text-background rounded-xl hover:scale-105 disabled:opacity-50 disabled:scale-100 transition-all duration-300 shadow-lg shadow-accent/20 border-t border-white/20 glow-accent"
           >
-            <Send className="w-5 h-5 ml-1" />
+            <Icon name="send" filled className="text-xl ml-1" />
           </button>
         </form>
       </div>

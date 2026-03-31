@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import { CheckCircle2, AlertCircle, PlayCircle } from 'lucide-react';
+import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { TranscriptionState } from '../../../../types';
 
@@ -65,7 +65,7 @@ export function TranscriptPanel({
                   isCurrent ? "border-accent/50 text-accent-hover bg-accent/10 shadow-sm shadow-accent/20" :
                   "border-border text-subtle bg-surface/50"
                 )}>
-                  {isPast ? <CheckCircle2 className="w-3.5 h-3.5" /> : <div className={cn("w-2 h-2 rounded-full", isCurrent ? "bg-accent shadow-sm shadow-accent/80" : "bg-transparent")} />}
+                  {isPast ? <Icon name="check_circle" filled className="text-xs" /> : <div className={cn("w-2 h-2 rounded-full", isCurrent ? "bg-accent shadow-sm shadow-accent/80" : "bg-transparent")} />}
                 </div>
                 <span className={cn(
                   "font-medium transition-colors duration-300",
@@ -84,7 +84,7 @@ export function TranscriptPanel({
   if (transcriptionState.step === 'error') {
     return (
       <div className="h-full flex flex-col items-center justify-center text-error p-8 text-center bg-error/5 rounded-[32px] border border-error/20 m-8">
-        <AlertCircle className="w-16 h-16 mb-6 text-error-muted drop-shadow-md drop-shadow-error/30" />
+        <Icon name="error" filled className="text-6xl mb-6 text-error-muted drop-shadow-md drop-shadow-error/30" />
         <h4 className="text-2xl font-bold text-error-muted mb-3 tracking-tight">Transcription Failed</h4>
         <p className="text-sm text-error-muted/80 font-mono bg-background/50 px-4 py-2 rounded-lg border border-error-bg/50">{transcriptionState.error}</p>
       </div>
@@ -118,7 +118,7 @@ export function TranscriptPanel({
                     className="inline-flex items-center justify-center px-2 py-0.5 mx-1 bg-accent/20 text-accent-hover hover:bg-accent/30 hover:text-accent-muted rounded text-xs font-mono border border-accent/30 transition-colors focus-ring"
                     title={`Jump to ${time}`}
                   >
-                    <PlayCircle className="w-3 h-3 mr-1" />
+                    <Icon name="play_circle" className="text-xs mr-1" />
                     {children}
                   </button>
                 );

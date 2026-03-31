@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { UploadCloud, FileVideo, AlertCircle, FileAudio } from 'lucide-react';
+import { Icon } from '../../../components/ui/Icon';
 import { motion } from 'motion/react';
 import { cn } from '../../../lib/utils';
 
@@ -76,7 +76,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
               "w-24 h-24 mb-6 rounded-full flex items-center justify-center transition-all duration-500 border shadow-inner",
               isDragging ? "bg-accent/20 text-accent-hover border-accent/50 scale-110" : "bg-surface-highlight text-muted border-border-hover group-hover:bg-accent/10 group-hover:text-accent-hover group-hover:border-accent/30 group-hover:scale-105"
             )}>
-              <UploadCloud className="w-12 h-12" />
+              <Icon name="cloud_upload" filled className="text-5xl" />
             </div>
             <p className="text-2xl font-bold text-primary mb-2 tracking-tight">
               Drag & drop your session file here
@@ -96,7 +96,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
             animate={{ opacity: 1, height: 'auto' }}
             className="mt-6 p-4 bg-error/10 border border-error/20 rounded-2xl flex items-start gap-3 text-error-muted shadow-lg shadow-error/15 backdrop-blur-md"
           >
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <Icon name="error" filled className="text-xl shrink-0 mt-0.5" />
             <p className="text-sm font-medium">{error}</p>
           </motion.div>
         )}
@@ -105,7 +105,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
           <div className="p-8 bg-surface-hover backdrop-blur-xl rounded-[32px] border border-border border-t-white/10 shadow-2xl flex items-start gap-6 hover:border-border-hover transition-all duration-300 group relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-info/20 to-transparent"></div>
             <div className="w-16 h-16 rounded-2xl bg-info/10 text-info-muted border border-info/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-              <FileVideo className="w-8 h-8" />
+              <Icon name="video_file" filled className="text-3xl" />
             </div>
             <div>
               <h3 className="font-bold text-primary mb-2 text-xl tracking-tight">Video Sessions</h3>
@@ -115,7 +115,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
           <div className="p-8 bg-surface-hover backdrop-blur-xl rounded-[32px] border border-border border-t-white/10 shadow-2xl flex items-start gap-6 hover:border-border-hover transition-all duration-300 group relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-info/20 to-transparent"></div>
             <div className="w-16 h-16 rounded-2xl bg-info/10 text-info-muted border border-info/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-              <FileAudio className="w-8 h-8" />
+              <Icon name="audio_file" filled className="text-3xl" />
             </div>
             <div>
               <h3 className="font-bold text-primary mb-2 text-xl tracking-tight">Audio Sessions</h3>

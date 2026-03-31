@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, PlayCircle, AlertCircle, Loader2, Info, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { SessionRecord } from '../../../../services/db.service';
 import { TranscriptionState } from '../../../../types';
@@ -36,7 +36,7 @@ export function MediaPanel({
         onClick={onBack}
         className="flex items-center gap-2 text-sm font-bold text-muted hover:text-accent-hover transition-colors w-fit bg-surface-hover px-5 py-2.5 rounded-xl border border-border border-t-white/10 backdrop-blur-md hover:border-accent/30 shadow-lg"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <Icon name="arrow_back" className="text-lg" />
         Back to Workspace
       </button>
       
@@ -59,18 +59,18 @@ export function MediaPanel({
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle">
-              <PlayCircle className="w-16 h-16 mb-4 opacity-30" />
+              <Icon name="play_circle" className="text-6xl mb-4 opacity-30" />
               <audio ref={audioRef} src={videoUrl} controls className="w-3/4" />
             </div>
           )
         ) : transcriptionState.step === 'completed' && !file ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle">
-            <AlertCircle className="w-12 h-12 mb-4 opacity-30 text-error" />
+            <Icon name="error" filled className="text-5xl mb-4 opacity-30 text-error" />
             <span className="text-sm font-mono">No media file found for this session</span>
           </div>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle">
-            <Loader2 className="w-8 h-8 animate-spin mb-4 text-accent" />
+            <Icon name="sync" className="text-4xl animate-spin mb-4 text-accent" />
             <span className="text-sm font-mono">Loading media...</span>
           </div>
         )}
@@ -82,7 +82,7 @@ export function MediaPanel({
           className="w-full flex items-center justify-between p-4 hover:bg-surface-hover/30 transition-colors focus-ring"
         >
           <div className="flex items-center gap-2 text-secondary font-bold">
-            <Info className="w-4 h-4 text-accent-hover" />
+            <Icon name="info" filled className="text-lg text-accent-hover" />
             Session Details
           </div>
           <div className="flex items-center gap-3">
@@ -92,12 +92,12 @@ export function MediaPanel({
               transcriptionState.step === 'error' ? "bg-error/10 text-error-muted border-error/20" :
               "bg-accent/10 text-accent-hover border-accent/20"
             )}>
-              {transcriptionState.step === 'completed' && <CheckCircle2 className="w-3 h-3" />}
-              {transcriptionState.step === 'error' && <AlertCircle className="w-3 h-3" />}
-              {isProcessing && <Loader2 className="w-3 h-3 animate-spin" />}
+              {transcriptionState.step === 'completed' && <Icon name="check_circle" filled className="text-xs" />}
+              {transcriptionState.step === 'error' && <Icon name="error" filled className="text-xs" />}
+              {isProcessing && <Icon name="sync" className="text-xs animate-spin" />}
               {transcriptionState.step === 'completed' ? 'Ready' : isProcessing ? 'Processing' : 'Error'}
             </span>
-            {isDetailsExpanded ? <ChevronUp className="w-4 h-4 text-subtle" /> : <ChevronDown className="w-4 h-4 text-subtle" />}
+            <Icon name={isDetailsExpanded ? "expand_less" : "expand_more"} className="text-lg text-subtle" />
           </div>
         </button>
 

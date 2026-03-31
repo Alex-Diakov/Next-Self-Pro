@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, Video, Settings, BrainCircuit, X, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { Icon } from '../ui/Icon';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: Video, label: 'Sessions', path: '/sessions' },
-  { icon: Users, label: 'Patients', path: '/patients' },
-  { icon: BrainCircuit, label: 'AI Insights', path: '/insights' },
+  { iconName: 'dashboard', label: 'Dashboard', path: '/' },
+  { iconName: 'videocam', label: 'Sessions', path: '/sessions' },
+  { iconName: 'group', label: 'Patients', path: '/patients' },
+  { iconName: 'monitoring', label: 'AI Insights', path: '/insights' },
 ];
 
 interface SidebarProps {
@@ -25,15 +25,15 @@ export function Sidebar({ onClose, hideLogo }: SidebarProps) {
       {!hideLogo && (
         <div className="h-[70px] flex items-center justify-between px-8 shrink-0">
           <div className="flex items-center gap-3 text-accent">
-            <BrainCircuit className="w-8 h-8" />
+            <Icon name="psychology" filled className="text-[40px]" />
             <span className="text-xl font-bold tracking-tight text-primary">NextSelf<span className="text-accent">Pro</span></span>
           </div>
           {onClose && (
             <button 
               onClick={onClose}
-              className="p-2 -mr-2 text-muted hover:text-secondary lg:hidden focus-ring rounded-full"
+              className="p-2 -mr-2 text-muted hover:text-secondary lg:hidden focus-ring rounded-full flex items-center justify-center"
             >
-              <X className="w-5 h-5" />
+              <Icon name="close" className="text-[40px]" />
             </button>
           )}
         </div>
@@ -44,9 +44,9 @@ export function Sidebar({ onClose, hideLogo }: SidebarProps) {
         <div className="flex justify-end p-4 lg:hidden shrink-0">
           <button 
             onClick={onClose}
-            className="p-2 text-muted hover:text-secondary focus-ring rounded-full"
+            className="p-2 text-muted hover:text-secondary focus-ring rounded-full flex items-center justify-center"
           >
-            <X className="w-5 h-5" />
+            <Icon name="close" className="text-[40px]" />
           </button>
         </div>
       )}
@@ -59,18 +59,25 @@ export function Sidebar({ onClose, hideLogo }: SidebarProps) {
             to={item.path}
             onClick={onClose}
             className={({ isActive }) => cn(
-              "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 focus-ring relative group",
+              "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 focus-ring relative overflow-hidden group",
               isActive 
-                ? "bg-premium-gradient text-background shadow-lg shadow-accent/20 glow-accent border-t border-white/20" 
+                ? "bg-white/5 text-primary border-t border-white/10" 
                 : "text-muted hover:bg-surface-hover hover:text-secondary"
             )}
           >
             {({ isActive }) => (
               <>
-                <item.icon className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", isActive ? "text-background" : "text-subtle")} />
-                {item.label}
+                <Icon 
+                  name={item.iconName} 
+                  filled={isActive} 
+                  className={cn("text-[40px] transition-transform duration-300 group-hover:scale-110 relative z-10", isActive ? "text-primary" : "text-subtle")} 
+                />
+                <span className="relative z-10">{item.label}</span>
                 {isActive && (
-                  <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-full blur-[2px]"></div>
+                  <>
+                    <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_rgba(67,97,238,0.5)]"></div>
+                    <div className="absolute right-[-16px] top-0 bottom-0 w-20 bg-accent blur-[20px] opacity-50 pointer-events-none z-0" />
+                  </>
                 )}
               </>
             )}
@@ -86,7 +93,7 @@ export function Sidebar({ onClose, hideLogo }: SidebarProps) {
           <div className="absolute -top-10 -right-10 w-24 h-24 bg-accent/10 rounded-full blur-2xl group-hover:bg-accent/20 transition-all duration-500"></div>
           
           <div className="flex items-center gap-2 text-accent">
-            <Zap className="w-5 h-5 fill-accent/20 animate-pulse" />
+            <Icon name="bolt" filled className="text-[40px] animate-pulse" />
             <span className="font-bold text-sm text-primary tracking-tight">Upgrade to Pro</span>
           </div>
           <p className="text-xs text-subtle leading-relaxed font-medium">
@@ -102,18 +109,25 @@ export function Sidebar({ onClose, hideLogo }: SidebarProps) {
           to="/settings"
           onClick={onClose}
           className={({ isActive }) => cn(
-            "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 focus-ring relative group",
+            "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 focus-ring relative overflow-hidden group",
             isActive 
-              ? "bg-premium-gradient text-background shadow-lg shadow-accent/20 glow-accent border-t border-white/20" 
+              ? "bg-white/5 text-primary border-t border-white/10" 
               : "text-muted hover:bg-surface-hover hover:text-secondary"
           )}
         >
           {({ isActive }) => (
             <>
-              <Settings className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", isActive ? "text-background" : "text-subtle")} />
-              Settings
+              <Icon 
+                name="settings" 
+                filled={isActive} 
+                className={cn("text-[40px] transition-transform duration-300 group-hover:scale-110 relative z-10", isActive ? "text-primary" : "text-subtle")} 
+              />
+              <span className="relative z-10">Settings</span>
               {isActive && (
-                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-full blur-[2px]"></div>
+                <>
+                  <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_rgba(67,97,238,0.5)]"></div>
+                  <div className="absolute right-[-16px] top-0 bottom-0 w-20 bg-accent blur-[20px] opacity-50 pointer-events-none z-0" />
+                </>
               )}
             </>
           )}

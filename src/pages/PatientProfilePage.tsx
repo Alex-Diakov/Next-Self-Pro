@@ -7,7 +7,7 @@ import { Header } from '../components/layout/Header';
 import { UploadView } from '../components/features/sessions/UploadView';
 import { SessionView } from '../components/features/sessions/SessionView';
 import { format } from 'date-fns';
-import { Clock, FileText, Trash2, ArrowLeft, User, Calendar, Activity, FileVideo, Plus, X, Tag, TrendingUp } from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, safeFormatDate } from '../lib/utils';
 
@@ -125,7 +125,7 @@ export function PatientProfilePage() {
             onClick={() => setIsUploadModalOpen(true)}
             className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-background px-5 py-2.5 rounded-full font-bold transition-all duration-300 shadow-lg shadow-accent/30 hover:shadow-xl shadow-accent/50 focus-ring"
           >
-            <Plus className="w-5 h-5" />
+            <Icon name="add" className="text-xl" />
             New Session
           </button>
         ) : undefined}
@@ -148,9 +148,9 @@ export function PatientProfilePage() {
               >
                 <button 
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-muted hover:text-secondary bg-surface-hover/50 hover:bg-surface-hover rounded-full transition-colors z-10"
+                  className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-muted hover:text-secondary bg-surface-hover/50 hover:bg-surface-hover rounded-full transition-colors z-10 flex items-center justify-center"
                 >
-                  <X className="w-5 h-5" />
+                  <Icon name="close" className="text-xl" />
                 </button>
                 <h3 className="text-2xl font-bold text-primary mb-6 tracking-tight pr-10">Upload New Session</h3>
                 <UploadView onUpload={(file) => {
@@ -206,17 +206,17 @@ export function PatientProfilePage() {
 
                 <div className="flex items-center gap-6 relative z-10">
                   <div className="w-20 h-20 bg-surface-hover rounded-full flex items-center justify-center text-accent shadow-inner border border-border-subtle">
-                    <User className="w-10 h-10" />
+                    <Icon name="person" filled className="text-4xl" />
                   </div>
                   <div>
                     <h2 className="text-3xl font-bold text-primary tracking-tight">{activeProject.name}</h2>
                     <div className="flex items-center gap-5 mt-3 text-sm text-muted font-medium">
                       <span className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
+                        <Icon name="calendar_today" className="text-lg" />
                         Added {safeFormatDate(activeProject.createdAt, 'MMM d, yyyy')}
                       </span>
                       <span className="flex items-center gap-2">
-                        <Activity className="w-4 h-4" />
+                        <Icon name="activity_zone" className="text-lg" />
                         {projectSessions.length} Sessions
                       </span>
                     </div>
@@ -243,7 +243,7 @@ export function PatientProfilePage() {
                   <div className="absolute top-0 right-0 w-64 h-64 bg-success/5 rounded-full blur-[80px] pointer-events-none"></div>
                   <div className="flex items-center justify-between mb-6 relative z-10">
                     <h3 className="text-xl font-bold text-primary tracking-tight flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-success-muted" />
+                      <Icon name="trending_up" className="text-xl text-success-muted" />
                       Therapy Progress
                     </h3>
                     <span className="text-sm font-medium text-subtle bg-background/50 px-3 py-1 rounded-full border border-border/50">Last 6 Months</span>
@@ -267,7 +267,7 @@ export function PatientProfilePage() {
                 <div className="card-premium p-8 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-48 h-48 bg-accent/5 rounded-full blur-[60px] pointer-events-none"></div>
                   <h3 className="text-xl font-bold text-primary mb-6 tracking-tight flex items-center gap-2 relative z-10">
-                    <Tag className="w-5 h-5 text-accent-hover" />
+                    <Icon name="sell" className="text-xl text-accent-hover" />
                     Key Themes
                   </h3>
                   <div className="flex flex-wrap gap-2 relative z-10">
@@ -318,20 +318,20 @@ export function PatientProfilePage() {
                             session.status === 'processing' ? 'bg-accent/10 text-accent-hover border-accent/20' : 
                             'bg-error/10 text-error-muted border-error/20'
                           }`}>
-                            <FileVideo className="w-3.5 h-3.5" />
+                            <Icon name="video_file" className="text-sm" />
                             {session.status === 'completed' ? 'Completed' : session.status === 'processing' ? 'Processing' : 'Error'}
                           </div>
                           <button 
                             onClick={(e) => handleDelete(e, session.id)}
-                            className="text-subtle hover:text-error-muted opacity-0 group-hover:opacity-100 transition-opacity focus-ring rounded-full p-1.5 hover:bg-error/10"
+                            className="text-subtle hover:text-error-muted opacity-0 group-hover:opacity-100 transition-opacity focus-ring rounded-full p-1.5 hover:bg-error/10 flex items-center justify-center"
                             aria-label={`Delete session ${session.title}`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Icon name="delete" className="text-lg" />
                           </button>
                         </div>
                         <h4 className="font-bold text-primary mb-2 truncate text-lg relative z-10" title={session.title}>{session.title}</h4>
                         <div className="flex items-center gap-2 text-sm text-subtle font-medium relative z-10">
-                          <Clock className="w-4 h-4" />
+                          <Icon name="schedule" className="text-lg" />
                           {safeFormatDate(session.date, 'MMM d, yyyy • h:mm a')}
                         </div>
                       </motion.div>

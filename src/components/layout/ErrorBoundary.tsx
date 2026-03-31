@@ -1,5 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertCircle, RefreshCcw, Home } from 'lucide-react';
+import { Icon } from '../ui/Icon';
 
 interface Props {
   children: ReactNode;
@@ -46,7 +46,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="max-w-md w-full card-premium p-8 text-center space-y-6 border-error/20">
             <div className="flex justify-center">
               <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-8 h-8 text-error" />
+                <Icon name="error" filled className="text-4xl text-error" />
               </div>
             </div>
             
@@ -68,14 +68,14 @@ export class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleReset}
                 className="flex-1 flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-background px-4 py-2.5 rounded-xl font-bold transition-all focus-ring"
               >
-                <RefreshCcw className="w-4 h-4" />
+                <Icon name="refresh" className="text-xl" />
                 Retry
               </button>
               <button
                 onClick={this.handleGoHome}
                 className="flex-1 flex items-center justify-center gap-2 bg-surface hover:bg-surface-hover text-primary px-4 py-2.5 rounded-xl font-bold border border-border transition-all focus-ring"
               >
-                <Home className="w-4 h-4" />
+                <Icon name="home" className="text-xl" />
                 Go Home
               </button>
             </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
-import { Users, Plus, Folder, Clock, Activity, X, User, ChevronRight } from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 import { cn, safeFormatDate } from '../lib/utils';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
@@ -53,9 +53,9 @@ export function PatientsPage() {
               <div className="absolute top-0 left-0 w-full h-32 bg-accent/5 blur-3xl pointer-events-none"></div>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-4 right-4 text-subtle hover:text-secondary transition-colors focus-ring rounded-lg p-1"
+                className="absolute top-4 right-4 text-subtle hover:text-secondary transition-colors focus-ring rounded-lg p-1 flex items-center justify-center"
               >
-                <X className="w-5 h-5" />
+                <Icon name="close" className="text-xl" />
               </button>
               
               <h3 className="text-xl font-semibold text-primary mb-2">New Patient</h3>
@@ -102,7 +102,7 @@ export function PatientsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-3">
-            <Users className="w-8 h-8 text-accent" />
+            <Icon name="group" filled className="text-4xl text-accent" />
             Patients
           </h1>
           <p className="text-muted mt-2 font-mono text-sm">
@@ -114,7 +114,7 @@ export function PatientsPage() {
           onClick={handleCreatePatient}
           className="flex items-center justify-center gap-2 bg-premium-gradient text-background px-8 py-3.5 rounded-xl font-bold transition-all duration-300 shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 border-t border-white/20 glow-accent"
         >
-          <Plus className="w-5 h-5" />
+          <Icon name="add" className="text-xl" />
           New Patient
         </button>
       </div>
@@ -126,7 +126,7 @@ export function PatientsPage() {
       ) : projects.length === 0 ? (
         <div className="card-premium rounded-[40px] p-16 text-center flex flex-col items-center justify-center">
           <div className="w-24 h-24 bg-surface-highlight rounded-full flex items-center justify-center mb-8 shadow-inner border border-border-subtle">
-            <Users className="w-10 h-10 text-subtle" />
+            <Icon name="group" className="text-5xl text-subtle" />
           </div>
           <h3 className="text-2xl font-bold text-primary mb-3">No patients yet</h3>
           <p className="text-muted max-w-md mx-auto mb-10 text-sm leading-relaxed">
@@ -136,7 +136,7 @@ export function PatientsPage() {
             onClick={handleCreatePatient}
             className="flex items-center gap-2 bg-surface-highlight hover:bg-border-hover text-secondary px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 border border-border-hover focus-ring hover:shadow-lg hover:-translate-y-0.5"
           >
-            <Plus className="w-5 h-5" />
+            <Icon name="add" className="text-xl" />
             Add First Patient
           </button>
         </div>
@@ -153,7 +153,7 @@ export function PatientsPage() {
               
               <div className="flex items-center gap-5 relative z-10">
                 <div className="w-14 h-14 bg-surface-highlight rounded-full flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-primary transition-colors duration-300 shadow-inner border border-border-subtle shrink-0">
-                  <User className="w-6 h-6" />
+                  <Icon name="person" filled className="text-2xl" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-primary group-hover:text-accent-hover transition-colors">
@@ -161,7 +161,7 @@ export function PatientsPage() {
                   </h3>
                   <div className="flex items-center gap-3 text-sm text-subtle font-medium mt-1">
                     <span className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4" /> 
+                      <Icon name="schedule" className="text-lg" /> 
                       Last updated: {safeFormatDate(project.updatedAt, 'MMM d, yyyy')}
                     </span>
                   </div>
@@ -182,7 +182,7 @@ export function PatientsPage() {
                 )}>
                   {project.status}
                 </span>
-                <ChevronRight className="w-6 h-6 text-subtle group-hover:text-accent-hover transition-colors" />
+                <Icon name="chevron_right" className="text-2xl text-subtle group-hover:text-accent-hover transition-colors" />
               </div>
             </div>
           ))}

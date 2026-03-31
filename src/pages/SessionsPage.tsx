@@ -5,7 +5,7 @@ import { UploadView } from '../components/features/sessions/UploadView';
 import { SessionView } from '../components/features/sessions/SessionView';
 import { dbService, SessionRecord } from '../services/db.service';
 import { format } from 'date-fns';
-import { Clock, FileText, Trash2 } from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 import { useSessionStore } from '../store/useSessionStore';
 import { motion, AnimatePresence } from 'motion/react';
 import { safeFormatDate } from '../lib/utils';
@@ -169,20 +169,20 @@ export function SessionsPage() {
                             session.status === 'processing' ? 'bg-accent/10 text-accent-hover border-accent/20' : 
                             'bg-error/10 text-error-muted border-error/20'
                           }`}>
-                            <FileText className="w-3.5 h-3.5" />
+                            <Icon name="description" className="text-sm" />
                             {session.status === 'completed' ? 'Completed' : session.status === 'processing' ? 'Processing' : 'Error'}
                           </div>
                           <button 
                             onClick={(e) => handleDelete(e, session.id)}
-                            className="text-subtle hover:text-error-muted opacity-0 group-hover:opacity-100 transition-opacity focus-ring rounded-xl p-1.5 hover:bg-error/10"
+                            className="text-subtle hover:text-error-muted opacity-0 group-hover:opacity-100 transition-opacity focus-ring rounded-xl p-1.5 hover:bg-error/10 flex items-center justify-center"
                             aria-label={`Delete session ${session.title}`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Icon name="delete" className="text-lg" />
                           </button>
                         </div>
                         <h4 className="font-bold text-primary mb-2 truncate text-lg relative z-10" title={session.title}>{session.title}</h4>
                         <div className="flex items-center gap-2 text-sm text-subtle font-medium relative z-10">
-                          <Clock className="w-4 h-4" />
+                          <Icon name="schedule" className="text-lg" />
                           {safeFormatDate(session.date, 'MMM d, yyyy • h:mm a')}
                         </div>
                       </motion.div>

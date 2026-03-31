@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, Sparkles, Edit2, Save, X } from 'lucide-react';
+import { Icon } from '../../../components/ui/Icon';
 import { cn } from '../../../lib/utils';
 import { useSessionStore } from '../../../store/useSessionStore';
 import { MediaPanel } from './components/MediaPanel';
@@ -131,7 +131,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
                   : "text-subtle hover:text-secondary hover:bg-surface/50"
               )}
             >
-              <FileText className="w-4 h-4" />
+              <Icon name="description" filled={activeTab === 'transcript'} className="text-lg" />
               Transcription
             </button>
             <button
@@ -144,7 +144,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
                   : "text-subtle hover:text-secondary hover:bg-surface/50 disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
-              <Sparkles className="w-4 h-4" />
+              <Icon name="auto_awesome" filled={activeTab === 'analysis'} className="text-lg" />
               AI Analysis
             </button>
           </div>
@@ -154,7 +154,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
               onClick={handleStartEdit}
               className="mr-2 flex items-center gap-1.5 text-sm font-medium text-muted hover:text-accent-hover transition-colors px-3 py-1.5 rounded-xl hover:bg-surface-hover focus-ring"
             >
-              <Edit2 className="w-4 h-4" />
+              <Icon name="edit" className="text-lg" />
               Edit
             </button>
           )}
@@ -164,14 +164,14 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
                 onClick={() => setIsEditingTranscript(false)}
                 className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-secondary transition-colors px-3 py-1.5 rounded-xl hover:bg-surface-hover focus-ring"
               >
-                <X className="w-4 h-4" />
+                <Icon name="close" className="text-lg" />
                 Cancel
               </button>
               <button 
                 onClick={handleSaveTranscript}
                 className="flex items-center gap-1.5 text-sm font-bold text-background bg-premium-gradient hover:scale-105 transition-all px-4 py-2 rounded-xl shadow-lg shadow-accent/20 border-t border-white/20 glow-accent"
               >
-                <Save className="w-4 h-4" />
+                <Icon name="save" className="text-lg" />
                 Save
               </button>
             </div>

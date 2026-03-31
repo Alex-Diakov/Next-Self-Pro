@@ -1,15 +1,15 @@
 import React from 'react';
 import { Header } from '../components/layout/Header';
-import { Users, Video, BrainCircuit, TrendingUp } from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 
 export function DashboardPage() {
   const stats = [
-    { label: 'Total Sessions', value: '124', icon: Video, color: 'text-accent-hover', bg: 'bg-accent-active/20' },
-    { label: 'Active Patients', value: '32', icon: Users, color: 'text-success-muted', bg: 'bg-success-bg/20' },
-    { label: 'AI Insights Generated', value: '89', icon: BrainCircuit, color: 'text-info-muted', bg: 'bg-info/10' },
-    { label: 'Patient Progress', value: '+14%', icon: TrendingUp, color: 'text-warning-muted', bg: 'bg-warning/10' },
+    { label: 'Total Sessions', value: '124', iconName: 'videocam', color: 'text-accent-hover', bg: 'bg-accent-active/20' },
+    { label: 'Active Patients', value: '32', iconName: 'group', color: 'text-success-muted', bg: 'bg-success-bg/20' },
+    { label: 'AI Insights Generated', value: '89', iconName: 'psychology', color: 'text-info-muted', bg: 'bg-info/10' },
+    { label: 'Patient Progress', value: '+14%', iconName: 'trending_up', color: 'text-warning-muted', bg: 'bg-warning/10' },
   ];
 
   const containerVariants = {
@@ -45,7 +45,7 @@ export function DashboardPage() {
               <div className="absolute -inset-px bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
               <div className={`w-14 h-14 rounded-full ${stat.bg} ${stat.color} flex items-center justify-center mb-5 border border-border-subtle group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
-                <stat.icon className="w-6 h-6" />
+                <Icon name={stat.iconName} filled className="text-2xl" />
               </div>
               <p className="text-muted text-sm font-medium mb-1">{stat.label}</p>
               <p className="text-3xl font-bold text-primary tracking-tight">{stat.value}</p>

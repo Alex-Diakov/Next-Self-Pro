@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/layout/Sidebar';
-import { Menu, Search, Bell, BrainCircuit } from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 import { cn } from '../lib/utils';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -61,15 +61,15 @@ export function MainLayout() {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2 -ml-2 text-muted hover:text-secondary focus-ring rounded-xl lg:hidden"
+            className="p-2 -ml-2 text-muted hover:text-secondary focus-ring rounded-xl lg:hidden flex items-center justify-center"
             aria-label="Open menu"
           >
-            <Menu className="w-6 h-6" />
+            <Icon name="menu" className="text-2xl" />
           </button>
           
           {/* Logo */}
           <div className="flex items-center gap-3 text-accent">
-            <BrainCircuit className="w-8 h-8" />
+            <Icon name="psychology" filled className="text-3xl" />
             <span className="text-xl font-bold tracking-tight text-primary hidden sm:block">NextSelf<span className="text-accent">Pro</span></span>
           </div>
           
@@ -82,7 +82,7 @@ export function MainLayout() {
         <div className="flex items-center gap-4">
           {/* Search */}
           <div className="hidden md:flex items-center relative group">
-            <Search className="w-4 h-4 text-subtle absolute left-3 group-focus-within:text-accent transition-colors" />
+            <Icon name="search" className="text-lg text-subtle absolute left-3 group-focus-within:text-accent transition-colors" />
             <input 
               type="text" 
               placeholder="Search..." 
@@ -91,8 +91,8 @@ export function MainLayout() {
           </div>
           
           {/* Notifications */}
-          <button className="p-2.5 text-muted hover:text-secondary rounded-xl relative bg-surface border border-border border-t-white/10 shadow-lg hover:scale-105 transition-all active:scale-95">
-            <Bell className="w-5 h-5" />
+          <button className="p-2.5 text-muted hover:text-secondary rounded-xl relative bg-surface border border-border border-t-white/10 shadow-lg hover:scale-105 transition-all active:scale-95 flex items-center justify-center">
+            <Icon name="notifications" className="text-xl" />
             <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full glow-accent"></span>
           </button>
           

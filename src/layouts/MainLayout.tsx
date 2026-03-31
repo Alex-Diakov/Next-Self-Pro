@@ -13,6 +13,7 @@ import { PatientProfilePage } from '../pages/PatientProfilePage';
 
 export function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
   // Generate breadcrumbs based on location
@@ -107,14 +108,14 @@ export function MainLayout() {
       <div className="flex-1 overflow-hidden flex flex-row gap-6 relative">
         {/* Sidebar Island */}
         <aside className={cn(
-          "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 w-72 shrink-0 flex flex-col h-full",
+          "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 shrink-0 flex flex-col h-full",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
-          <Sidebar onClose={() => setIsMobileMenuOpen(false)} hideLogo />
+          <Sidebar onClose={() => setIsMobileMenuOpen(false)} hideLogo isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         </aside>
 
         {/* Main Content Island */}
-        <main className="flex-1 h-full overflow-y-auto custom-scrollbar p-6 lg:p-8 bg-surface rounded-[32px] border border-border border-t-white/10 shadow-2xl relative">
+        <main className="flex-1 h-full overflow-y-auto custom-scrollbar p-6 lg:p-8 bg-surface rounded-[32px] border border-border border-t-white/10 shadow-2xl relative transition-all duration-300">
           {/* Subtle background glow */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[100px] pointer-events-none"></div>
           

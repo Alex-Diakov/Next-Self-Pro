@@ -125,9 +125,9 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
             <button
               onClick={() => setActiveTab('transcript')}
               className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 focus-ring",
+                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 focus-ring border-t border-transparent",
                 activeTab === 'transcript' 
-                  ? "bg-surface-hover text-primary shadow-md border border-border-hover" 
+                  ? "bg-surface-hover text-primary shadow-md border-border-hover border-t-white/10" 
                   : "text-subtle hover:text-secondary hover:bg-surface/50"
               )}
             >
@@ -138,9 +138,9 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
               onClick={() => setActiveTab('analysis')}
               disabled={isProcessing || transcriptionState.step === 'error'}
               className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 focus-ring",
+                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 focus-ring border-t border-transparent",
                 activeTab === 'analysis' 
-                  ? "bg-accent/10 text-accent-hover shadow-md border border-accent/20" 
+                  ? "bg-accent/10 text-accent-hover shadow-md border-accent/20 border-t-white/10 glow-accent" 
                   : "text-subtle hover:text-secondary hover:bg-surface/50 disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
@@ -152,7 +152,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
           {activeTab === 'transcript' && transcriptionState.step === 'completed' && !isEditingTranscript && (
             <button 
               onClick={handleStartEdit}
-              className="mr-2 flex items-center gap-1.5 text-sm font-medium text-muted hover:text-accent-hover transition-colors px-3 py-1.5 rounded-lg hover:bg-surface-hover focus-ring"
+              className="mr-2 flex items-center gap-1.5 text-sm font-medium text-muted hover:text-accent-hover transition-colors px-3 py-1.5 rounded-xl hover:bg-surface-hover focus-ring"
             >
               <Edit2 className="w-4 h-4" />
               Edit
@@ -162,14 +162,14 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
             <div className="flex items-center gap-2 mr-2">
               <button 
                 onClick={() => setIsEditingTranscript(false)}
-                className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-secondary transition-colors px-3 py-1.5 rounded-lg hover:bg-surface-hover focus-ring"
+                className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-secondary transition-colors px-3 py-1.5 rounded-xl hover:bg-surface-hover focus-ring"
               >
                 <X className="w-4 h-4" />
                 Cancel
               </button>
               <button 
                 onClick={handleSaveTranscript}
-                className="flex items-center gap-1.5 text-sm font-medium text-background bg-accent hover:bg-accent-hover transition-colors px-3 py-1.5 rounded-lg shadow-md shadow-accent/30 focus-ring"
+                className="flex items-center gap-1.5 text-sm font-bold text-background bg-premium-gradient hover:scale-105 transition-all px-4 py-2 rounded-xl shadow-lg shadow-accent/20 border-t border-white/20 glow-accent"
               >
                 <Save className="w-4 h-4" />
                 Save

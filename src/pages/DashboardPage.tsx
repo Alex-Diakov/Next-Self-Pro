@@ -57,15 +57,16 @@ export function DashboardPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4, type: "spring", stiffness: 200, damping: 20 }}
-          className="card-premium rounded-[40px] p-16 text-center relative overflow-hidden"
+          className="card-premium rounded-[40px] p-16 text-center relative overflow-hidden border-t-white/20"
         >
           {/* Subtle background glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] pointer-events-none"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-accent/10 via-transparent to-accent/5 pointer-events-none"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px] pointer-events-none"></div>
           
           <div className="relative z-10">
-            <h2 className="text-4xl font-bold text-primary mb-4 tracking-tight">Ready for your next session?</h2>
-            <p className="text-muted mb-10 max-w-lg mx-auto leading-relaxed text-lg">Upload a new video or audio recording to get instant AI-powered clinical insights and transcriptions.</p>
-            <Link to="/sessions" className="inline-flex items-center justify-center px-10 py-4 bg-accent text-primary rounded-full font-bold hover:bg-accent-active transition-all duration-300 shadow-lg shadow-accent/30 hover:shadow-xl hover:shadow-accent/50 hover:-translate-y-1 focus-ring">
+            <h2 className="text-5xl font-bold text-primary mb-6 tracking-tight leading-tight">Ready for your next session?</h2>
+            <p className="text-muted mb-10 max-w-xl mx-auto leading-relaxed text-xl font-medium">Upload a new video or audio recording to get instant AI-powered clinical insights and transcriptions.</p>
+            <Link to="/sessions" className="inline-flex items-center justify-center px-12 py-4.5 bg-premium-gradient text-background rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-2xl shadow-accent/40 border-t border-white/20 glow-accent">
               Go to Sessions
             </Link>
           </div>

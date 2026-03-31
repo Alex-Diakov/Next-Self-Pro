@@ -55,10 +55,10 @@ export function UploadView({ onUpload }: UploadViewProps) {
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           className={cn(
-            "relative group flex flex-col items-center justify-center w-full h-80 border-2 border-dashed rounded-[40px] transition-all duration-500 bg-surface-hover backdrop-blur-xl cursor-pointer overflow-hidden",
+            "relative group flex flex-col items-center justify-center w-full h-80 border-2 border-dashed rounded-[40px] transition-all duration-500 bg-surface-hover backdrop-blur-xl cursor-pointer overflow-hidden border-t-white/5",
             isDragging 
               ? "border-accent bg-accent/10 shadow-2xl shadow-accent/20" 
-              : "border-border hover:border-accent/50 hover:bg-surface-highlight hover:shadow-xl shadow-accent/10"
+              : "border-border hover:border-accent/50 hover:bg-surface-highlight hover:shadow-2xl shadow-accent/10"
           )}
         >
           {/* Subtle background glow */}
@@ -84,7 +84,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
             <p className="text-sm text-subtle mb-8 font-medium">
               Supports MP4, WebM, MP3, WAV (Max 20MB for prototype)
             </p>
-            <button className="px-8 py-3 bg-surface-highlight border border-border-hover rounded-full text-sm font-bold text-secondary shadow-lg group-hover:border-accent/50 group-hover:text-accent-hover group-hover:bg-surface-highlight/80 transition-all duration-300 pointer-events-none focus-ring">
+            <button className="px-10 py-3.5 bg-premium-gradient border-t border-white/20 rounded-xl text-sm font-bold text-background shadow-xl hover:scale-105 transition-all duration-300 pointer-events-none glow-accent">
               Browse Files
             </button>
           </div>
@@ -102,21 +102,23 @@ export function UploadView({ onUpload }: UploadViewProps) {
         )}
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-6 bg-surface-hover backdrop-blur-xl rounded-3xl border border-border shadow-xl flex items-start gap-5 hover:border-border-hover transition-all duration-300 group">
-            <div className="w-14 h-14 rounded-full bg-info/10 text-info-muted border border-info/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-              <FileVideo className="w-7 h-7" />
+          <div className="p-8 bg-surface-hover backdrop-blur-xl rounded-[32px] border border-border border-t-white/10 shadow-2xl flex items-start gap-6 hover:border-border-hover transition-all duration-300 group relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-info/20 to-transparent"></div>
+            <div className="w-16 h-16 rounded-2xl bg-info/10 text-info-muted border border-info/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <FileVideo className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="font-bold text-primary mb-2 text-lg">Video Sessions</h3>
+              <h3 className="font-bold text-primary mb-2 text-xl tracking-tight">Video Sessions</h3>
               <p className="text-sm text-muted leading-relaxed font-medium">Upload video recordings to analyze both verbal communication and visual cues.</p>
             </div>
           </div>
-          <div className="p-6 bg-surface-hover backdrop-blur-xl rounded-3xl border border-border shadow-xl flex items-start gap-5 hover:border-border-hover transition-all duration-300 group">
-            <div className="w-14 h-14 rounded-full bg-info/10 text-info-muted border border-info/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-              <FileAudio className="w-7 h-7" />
+          <div className="p-8 bg-surface-hover backdrop-blur-xl rounded-[32px] border border-border border-t-white/10 shadow-2xl flex items-start gap-6 hover:border-border-hover transition-all duration-300 group relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-info/20 to-transparent"></div>
+            <div className="w-16 h-16 rounded-2xl bg-info/10 text-info-muted border border-info/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <FileAudio className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="font-bold text-primary mb-2 text-lg">Audio Sessions</h3>
+              <h3 className="font-bold text-primary mb-2 text-xl tracking-tight">Audio Sessions</h3>
               <p className="text-sm text-muted leading-relaxed font-medium">Upload audio-only recordings for fast, accurate transcription and clinical insights.</p>
             </div>
           </div>

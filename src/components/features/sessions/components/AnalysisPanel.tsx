@@ -36,9 +36,9 @@ export function AnalysisPanel({
             )}
           >
             <div className={cn(
-              "p-5 rounded-3xl text-sm leading-relaxed shadow-lg",
+              "p-5 rounded-3xl text-sm leading-relaxed shadow-xl border-t border-white/10",
               msg.role === 'user' 
-                ? "bg-accent/20 border border-accent/30 text-primary rounded-tr-sm backdrop-blur-md" 
+                ? "bg-accent/20 border border-accent/30 text-primary rounded-tr-sm backdrop-blur-md glow-accent" 
                 : "bg-surface-highlight border border-border text-secondary rounded-tl-sm backdrop-blur-md prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-headings:text-primary prose-headings:font-bold prose-strong:text-primary"
             )}>
               {msg.role === 'user' ? (
@@ -80,7 +80,7 @@ export function AnalysisPanel({
           <button
             type="submit"
             disabled={!inputMessage.trim() || isAnalyzing}
-            className="absolute right-3 w-12 h-12 flex items-center justify-center bg-accent/20 text-accent-hover rounded-full hover:bg-accent/30 disabled:opacity-50 disabled:hover:bg-accent/20 transition-all duration-300 focus-ring shadow-sm"
+            className="absolute right-3 w-12 h-12 flex items-center justify-center bg-premium-gradient text-background rounded-xl hover:scale-105 disabled:opacity-50 disabled:scale-100 transition-all duration-300 shadow-lg shadow-accent/20 border-t border-white/20 glow-accent"
           >
             <Send className="w-5 h-5 ml-1" />
           </button>

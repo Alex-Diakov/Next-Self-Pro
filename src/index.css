@@ -18,17 +18,17 @@
   --color-slate-100: #FCFCFD;
   --color-slate-50: #FCFCFD;
 
-  /* Accents based on the reference image */
-  --color-primary-50: #eef3ff;
-  --color-primary-100: #dce7ff;
-  --color-primary-200: #b9cfff;
-  --color-primary-300: #8baaff;
+  /* Accents based on the reference image - Calmer Sapphire */
+  --color-primary-50: #f0f4ff;
+  --color-primary-100: #e1e9ff;
+  --color-primary-200: #c2d3ff;
+  --color-primary-300: #94b2ff;
   --color-primary-400: #5c85ff;
-  --color-primary-500: #3772FF; /* Vibrant Blue accent */
-  --color-primary-600: #2b5bcc;
-  --color-primary-700: #1f4499;
-  --color-primary-800: #132d66;
-  --color-primary-900: #0a1633;
+  --color-primary-500: #4361EE; /* Calmer Sapphire accent */
+  --color-primary-600: #3a56e4;
+  --color-primary-700: #2f45c5;
+  --color-primary-800: #2536a0;
+  --color-primary-900: #1a2570;
 
   /* Semantic Design System Tokens */
   --color-background: var(--color-slate-950);
@@ -113,16 +113,41 @@ body {
 .card-premium {
   background-color: var(--color-surface-hover);
   border: 1px solid var(--color-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.1); /* Light-catching top border */
   border-radius: 1.5rem; /* rounded-3xl */
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .card-premium:hover {
   border-color: var(--color-border-hover);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Premium Gradients & Effects */
+.bg-premium-gradient {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-active) 100%);
+}
+
+.glow-accent {
+  box-shadow: 0 0 20px 0 color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.border-highlight {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Elite Focus State */

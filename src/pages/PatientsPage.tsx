@@ -48,8 +48,9 @@ export function PatientsPage() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-surface border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl relative"
+              className="bg-surface border border-border border-t-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden"
             >
+              <div className="absolute top-0 left-0 w-full h-32 bg-accent/5 blur-3xl pointer-events-none"></div>
               <button 
                 onClick={() => setIsModalOpen(false)}
                 className="absolute top-4 right-4 text-subtle hover:text-secondary transition-colors focus-ring rounded-lg p-1"
@@ -87,7 +88,7 @@ export function PatientsPage() {
                   <button 
                     type="submit"
                     disabled={!newPatientName.trim()}
-                    className="px-5 py-2 text-sm font-medium text-primary bg-accent-active hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all shadow-md shadow-accent/30 focus-ring"
+                    className="px-6 py-2.5 text-sm font-bold text-background bg-premium-gradient hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all shadow-lg shadow-accent/20 border-t border-white/20 glow-accent"
                   >
                     Create Patient
                   </button>
@@ -111,7 +112,7 @@ export function PatientsPage() {
         
         <button 
           onClick={handleCreatePatient}
-          className="flex items-center justify-center gap-2 bg-accent hover:bg-accent-active text-primary px-6 py-3 rounded-full font-semibold transition-all duration-300 shadow-lg shadow-accent/30 hover:shadow-xl shadow-accent/40 hover:-translate-y-0.5 focus-ring"
+          className="flex items-center justify-center gap-2 bg-premium-gradient text-background px-8 py-3.5 rounded-xl font-bold transition-all duration-300 shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 border-t border-white/20 glow-accent"
         >
           <Plus className="w-5 h-5" />
           New Patient
@@ -133,7 +134,7 @@ export function PatientsPage() {
           </p>
           <button 
             onClick={handleCreatePatient}
-            className="flex items-center gap-2 bg-surface-highlight hover:bg-border-hover text-secondary px-8 py-3.5 rounded-full font-semibold transition-all duration-300 border border-border-hover focus-ring hover:shadow-lg hover:-translate-y-0.5"
+            className="flex items-center gap-2 bg-surface-highlight hover:bg-border-hover text-secondary px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 border border-border-hover focus-ring hover:shadow-lg hover:-translate-y-0.5"
           >
             <Plus className="w-5 h-5" />
             Add First Patient
@@ -174,7 +175,7 @@ export function PatientsPage() {
                    <span className="px-3 py-1 bg-background/50 border border-border/80 rounded-lg text-xs font-medium text-muted">Stress</span>
                 </div>
                 <span className={cn(
-                  "px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wide border uppercase hidden sm:block",
+                  "px-4 py-1.5 rounded-xl text-[11px] font-bold tracking-wide border uppercase hidden sm:block",
                   project.status === 'active' ? "bg-success/10 text-success-muted border-success/20" :
                   project.status === 'completed' ? "bg-info/10 text-info-muted border-info/20" :
                   "bg-surface-highlight text-muted border-border-hover"

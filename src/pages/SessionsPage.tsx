@@ -100,20 +100,21 @@ export function SessionsPage() {
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="bg-surface border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+                className="bg-surface border border-border border-t-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl relative overflow-hidden"
               >
-                <h3 className="text-lg font-medium text-primary mb-2">Delete Session?</h3>
-                <p className="text-muted mb-6 text-sm">Are you sure you want to delete this session? This action cannot be undone.</p>
-                <div className="flex justify-end gap-3">
+                <div className="absolute top-0 left-0 w-full h-32 bg-error/5 blur-3xl pointer-events-none"></div>
+                <h3 className="text-xl font-bold text-primary mb-2 relative z-10">Delete Session?</h3>
+                <p className="text-muted mb-8 text-sm font-medium relative z-10">Are you sure you want to delete this session? This action cannot be undone.</p>
+                <div className="flex justify-end gap-3 relative z-10">
                   <button 
                     onClick={() => setSessionToDelete(null)}
-                    className="px-4 py-2 text-sm font-medium text-secondary hover:bg-surface-hover rounded-lg transition-colors focus-ring"
+                    className="px-5 py-2.5 text-sm font-bold text-secondary hover:bg-surface-hover rounded-xl transition-colors border border-border"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={confirmDelete}
-                    className="px-4 py-2 text-sm font-medium text-primary bg-error-bg/80 hover:bg-error-bg border border-error-bg/50 rounded-lg transition-colors focus-ring"
+                    className="px-5 py-2.5 text-sm font-bold text-primary bg-error-bg/80 hover:bg-error-bg border border-error-bg/50 border-t-white/10 rounded-xl transition-all shadow-lg shadow-error/20"
                   >
                     Delete
                   </button>
@@ -163,7 +164,7 @@ export function SessionsPage() {
                         <div className="absolute -inset-px bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"></div>
 
                         <div className="flex justify-between items-start mb-5 relative z-10">
-                          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide border ${
+                          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide border ${
                             session.status === 'completed' ? 'bg-success/10 text-success-muted border-success/20' : 
                             session.status === 'processing' ? 'bg-accent/10 text-accent-hover border-accent/20' : 
                             'bg-error/10 text-error-muted border-error/20'
@@ -173,7 +174,7 @@ export function SessionsPage() {
                           </div>
                           <button 
                             onClick={(e) => handleDelete(e, session.id)}
-                            className="text-subtle hover:text-error-muted opacity-0 group-hover:opacity-100 transition-opacity focus-ring rounded-full p-1.5 hover:bg-error/10"
+                            className="text-subtle hover:text-error-muted opacity-0 group-hover:opacity-100 transition-opacity focus-ring rounded-xl p-1.5 hover:bg-error/10"
                             aria-label={`Delete session ${session.title}`}
                           >
                             <Trash2 className="w-4 h-4" />

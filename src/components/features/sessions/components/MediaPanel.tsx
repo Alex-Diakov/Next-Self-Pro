@@ -34,13 +34,13 @@ export function MediaPanel({
     <div className="w-full lg:w-4/12 flex flex-col gap-4">
       <button 
         onClick={onBack}
-        className="flex items-center gap-2 text-sm font-bold text-muted hover:text-accent-hover transition-colors w-fit bg-surface-hover px-4 py-2 rounded-full border border-border backdrop-blur-md hover:border-accent/30 shadow-sm"
+        className="flex items-center gap-2 text-sm font-bold text-muted hover:text-accent-hover transition-colors w-fit bg-surface-hover px-5 py-2.5 rounded-xl border border-border border-t-white/10 backdrop-blur-md hover:border-accent/30 shadow-lg"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Workspace
       </button>
       
-      <div className="bg-background rounded-[32px] overflow-hidden shadow-2xl aspect-video relative flex items-center justify-center border border-border group">
+      <div className="bg-background rounded-[32px] overflow-hidden shadow-2xl aspect-video relative flex items-center justify-center border border-border border-t-white/10 group">
         <div className="absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
         {isProcessing && (
@@ -87,7 +87,7 @@ export function MediaPanel({
           </div>
           <div className="flex items-center gap-3">
             <span className={cn(
-              "font-bold flex items-center gap-1.5 text-[10px] uppercase px-2 py-1 rounded-full border tracking-wide",
+              "font-bold flex items-center gap-1.5 text-[10px] uppercase px-2 py-1 rounded-xl border tracking-wide",
               transcriptionState.step === 'completed' ? "bg-success/10 text-success-muted border-success/20" :
               transcriptionState.step === 'error' ? "bg-error/10 text-error-muted border-error/20" :
               "bg-accent/10 text-accent-hover border-accent/20"

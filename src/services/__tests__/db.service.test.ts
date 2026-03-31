@@ -79,7 +79,7 @@ describe('DBService', () => {
   });
 
   it('should delete a project', async () => {
-    const p1 = { id: 'p1', name: 'P1', createdAt: '2024-01-01', updatedAt: '2024-01-01' };
+    const p1 = { id: 'p1', name: 'P1', status: 'active' as const, createdAt: '2024-01-01', updatedAt: '2024-01-01' };
     await dbService.saveProject(p1);
     
     await dbService.deleteProject('p1');

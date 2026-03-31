@@ -137,9 +137,9 @@ export function TranscriptPanel({
                     isTherapist ? "justify-end" : "justify-start"
                   )}>
                     <div className={cn(
-                      "max-w-[85%] p-4 rounded-3xl text-sm leading-relaxed shadow-md",
+                      "max-w-[85%] p-5 rounded-3xl text-sm leading-relaxed shadow-xl border-t border-white/10",
                       isTherapist 
-                        ? "bg-accent/10 border border-accent/20 text-secondary rounded-tr-sm" 
+                        ? "bg-accent/10 border border-accent/20 text-secondary rounded-tr-sm glow-accent" 
                         : "bg-surface-highlight border border-border text-secondary rounded-tl-sm"
                     )}>
                       {children}

@@ -28,12 +28,9 @@ export function RecentActivity() {
     >
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-primary tracking-tight">Recent Sessions</h2>
-        <button className="text-sm font-semibold text-accent-hover hover:text-accent transition-colors">
-          View All
-        </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
         {activities.map((activity) => (
           <motion.div 
             key={activity.id}
@@ -72,14 +69,6 @@ export function RecentActivity() {
         ))}
       </div>
 
-      <div className="mt-6 pt-6 border-t border-white/5">
-        <div className="bg-premium-gradient/5 rounded-2xl p-4 border border-accent/10">
-          <p className="text-xs font-bold text-accent-hover mb-1 tracking-tight uppercase">Pro Tip</p>
-          <p className="text-[11px] font-medium text-muted leading-relaxed">
-            Use shortcuts like <kbd className="bg-white/10 px-1.5 py-0.5 rounded border border-white/10 text-primary">Cmd+U</kbd> to upload files from anywhere.
-          </p>
-        </div>
-      </div>
     </motion.div>
   );
 }

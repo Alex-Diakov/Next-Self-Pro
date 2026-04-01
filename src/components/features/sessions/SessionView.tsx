@@ -52,7 +52,6 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   useEffect(() => {
     if (sessionFile) {
       const url = URL.createObjectURL(sessionFile);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVideoUrl(url);
       return () => URL.revokeObjectURL(url);
     }

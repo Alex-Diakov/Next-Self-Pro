@@ -12,12 +12,11 @@ const navItems = [
 
 interface SidebarProps {
   onClose?: () => void;
-  hideLogo?: boolean;
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
 }
 
-export function Sidebar({ onClose, hideLogo, isCollapsed, setIsCollapsed }: SidebarProps) {
+export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) {
   return (
     <aside className={cn(
       "h-full bg-surface flex flex-col shrink-0 rounded-premium border border-border border-t-white/10 shadow-premium relative transition-[width] duration-300 ease-in-out overflow-visible",

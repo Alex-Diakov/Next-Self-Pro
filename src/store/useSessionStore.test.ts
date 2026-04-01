@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useSessionStore } from './useSessionStore';
 import { dbService, SessionRecord } from '../services/db.service';
-import { aiService } from '../services/ai.service';
 
 // Mock the services
 vi.mock('../services/db.service', () => ({
@@ -24,12 +23,12 @@ vi.mock('../services/ai.service', () => ({
 vi.mock('../workers/fileProcessor.worker?worker', () => {
   return {
     default: class MockWorker {
-      onmessage: any;
-      onerror: any;
-      postMessage(data: any) {
+      onmessage: ((ev: MessageEvent) => void) | null = null;
+      onerror: ((ev: ErrorEvent) => void) | null = null;
+      postMessage(_data: unknown) {
         setTimeout(() => {
           if (this.onmessage) {
-            this.onmessage({ data: { success: true, base64data: 'mock-base64' } });
+            this.onmessage({ data: { success: true, base64data: 'mock-base64' } } as MessageEvent);
           }
         }, 10);
       }

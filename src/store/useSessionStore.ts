@@ -146,7 +146,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
           file.type,
           (step, progress) => {
             const newState: TranscriptionState = { 
-              step: step as any, 
+              step: step as TranscriptionState['step'], 
               progress, 
               message: 'Analyzing with AI...' 
             };

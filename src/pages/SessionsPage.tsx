@@ -4,7 +4,6 @@ import { Header } from '../components/layout/Header';
 import { UploadView } from '../components/features/sessions/UploadView';
 import { SessionView } from '../components/features/sessions/SessionView';
 import { dbService, SessionRecord } from '../services/db.service';
-import { format } from 'date-fns';
 import { Icon } from '../components/ui/Icon';
 import { useSessionStore } from '../store/useSessionStore';
 import { motion, AnimatePresence } from 'motion/react';

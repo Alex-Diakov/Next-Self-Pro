@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { aiService } from '../ai.service';
-import { GoogleGenAI } from '@google/genai';
 
 // Mock the @google/genai module
 vi.mock('@google/genai', () => {

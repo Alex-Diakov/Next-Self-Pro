@@ -12,7 +12,7 @@ export function safeFormatDate(date: string | number | Date | undefined | null, 
   if (!isValid(d)) return 'Unknown';
   try {
     return format(d, formatStr);
-  } catch (e) {
+  } catch {
     return 'Unknown';
   }
 }

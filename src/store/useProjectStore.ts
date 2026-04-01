@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Project, Session } from '../types';
+import { Project } from '../types';
 import { dbService, SessionRecord } from '../services/db.service';
 import { generateId } from '../lib/utils';
 

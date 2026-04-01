@@ -111,7 +111,7 @@ export function MainLayout() {
           "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 shrink-0 flex flex-col h-full",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
-          <Sidebar onClose={() => setIsMobileMenuOpen(false)} hideLogo isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          <Sidebar onClose={() => setIsMobileMenuOpen(false)} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         </aside>
 
         {/* Main Content Island */}

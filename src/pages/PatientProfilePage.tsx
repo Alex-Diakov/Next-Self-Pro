@@ -6,7 +6,6 @@ import { dbService } from '../services/db.service';
 import { Header } from '../components/layout/Header';
 import { UploadView } from '../components/features/sessions/UploadView';
 import { SessionView } from '../components/features/sessions/SessionView';
-import { format } from 'date-fns';
 import { Icon } from '../components/ui/Icon';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, safeFormatDate } from '../lib/utils';

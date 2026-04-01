@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
 import { Icon } from '../components/ui/Icon';
 import { cn, safeFormatDate } from '../lib/utils';
-import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 
 export function PatientsPage() {

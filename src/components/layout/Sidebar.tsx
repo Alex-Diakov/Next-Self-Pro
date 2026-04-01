@@ -20,7 +20,7 @@ interface SidebarProps {
 export function Sidebar({ onClose, hideLogo, isCollapsed, setIsCollapsed }: SidebarProps) {
   return (
     <aside className={cn(
-      "h-full bg-surface flex flex-col shrink-0 rounded-[32px] border border-border border-t-white/10 overflow-y-auto custom-scrollbar shadow-2xl relative transition-[width] duration-300 ease-in-out",
+      "h-full bg-surface flex flex-col shrink-0 rounded-premium border border-border border-t-white/10 shadow-premium relative transition-[width] duration-300 ease-in-out overflow-visible",
       isCollapsed ? "w-24" : "w-72"
     )}>
       {/* Subtle background glow */}
@@ -37,16 +37,16 @@ export function Sidebar({ onClose, hideLogo, isCollapsed, setIsCollapsed }: Side
         <Icon name={isCollapsed ? "menu" : "menu_open"} className="text-2xl" />
       </button>
       
-      {/* НАВИГАЦИЯ */}
-      <nav className={cn("pt-20 space-y-2", isCollapsed ? "px-2" : "px-6")}>
+      <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+        {/* НАВИГАЦИЯ */}
+        <nav className={cn("pt-20 space-y-2", isCollapsed ? "px-2" : "px-6")}>
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             onClick={onClose}
-            title={item.label}
             className={({ isActive }) => cn(
-              "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 focus-ring relative overflow-hidden group",
+              "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl overflow-hidden text-sm font-semibold transition-all duration-300 focus-ring relative group",
               isCollapsed ? "justify-center px-0" : "",
               isActive 
                 ? "bg-white/5 text-primary border-t border-white/10" 
@@ -61,9 +61,17 @@ export function Sidebar({ onClose, hideLogo, isCollapsed, setIsCollapsed }: Side
                   className={cn("text-[40px] transition-transform duration-300 group-hover:scale-110 relative z-10", isActive ? "text-primary" : "text-subtle")} 
                 />
                 {!isCollapsed && <span className="relative z-10">{item.label}</span>}
+                
+                {/* Кастомный тултип для свернутого вида */}
+                {isCollapsed && (
+                  <span className="absolute left-full ml-4 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-md text-xs font-semibold text-zinc-200 whitespace-nowrap shadow-xl shadow-black/50 z-50 pointer-events-none opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0">
+                    {item.label}
+                  </span>
+                )}
+
                 {isActive && (
                   <>
-                    <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_rgba(67,97,238,0.5)]"></div>
+                    <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_rgba(67,97,238,0.5)]"></div>
                     <div className={cn(
                       "absolute top-0 bottom-0 z-0 pointer-events-none",
                       isCollapsed ? "right-0 w-1 blur-[6px] bg-accent/50" : "right-[-16px] w-20 bg-accent blur-[20px] opacity-50"
@@ -80,7 +88,7 @@ export function Sidebar({ onClose, hideLogo, isCollapsed, setIsCollapsed }: Side
       <div className={cn("mt-auto p-6 shrink-0 flex flex-col gap-4", isCollapsed ? "items-center" : "")}>
         
         {/* ПЛАШКА: Upgrade to Pro */}
-        <div className={cn("rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-border border-t-white/10 shadow-xl relative overflow-hidden group", isCollapsed ? "p-3" : "p-5 flex flex-col gap-3")}>
+        <div className={cn("rounded-2xl bg-gradient-to-br from-surface-hover to-surface border border-border border-t-white/10 shadow-xl relative overflow-hidden group", isCollapsed ? "p-3" : "p-5 flex flex-col gap-3")}>
           <div className="absolute -top-10 -right-10 w-24 h-24 bg-accent/10 rounded-full blur-2xl group-hover:bg-accent/20 transition-all duration-500"></div>
           
           <div className={cn("flex items-center gap-2 text-accent", isCollapsed ? "justify-center" : "")}>
@@ -103,9 +111,8 @@ export function Sidebar({ onClose, hideLogo, isCollapsed, setIsCollapsed }: Side
         <NavLink
           to="/settings"
           onClick={onClose}
-          title="Settings"
           className={({ isActive }) => cn(
-            "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 focus-ring relative overflow-hidden group",
+            "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl overflow-hidden text-sm font-semibold transition-all duration-300 focus-ring relative group",
             isCollapsed ? "justify-center px-0" : "",
             isActive 
               ? "bg-white/5 text-primary border-t border-white/10" 
@@ -120,9 +127,17 @@ export function Sidebar({ onClose, hideLogo, isCollapsed, setIsCollapsed }: Side
                 className={cn("text-[40px] transition-transform duration-300 group-hover:scale-110 relative z-10", isActive ? "text-primary" : "text-subtle")} 
               />
               {!isCollapsed && <span className="relative z-10">Settings</span>}
+              
+              {/* Кастомный тултип для свернутого вида */}
+              {isCollapsed && (
+                <span className="absolute left-full ml-4 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-md text-xs font-semibold text-zinc-200 whitespace-nowrap shadow-xl shadow-black/50 z-50 pointer-events-none opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0">
+                  Settings
+                </span>
+              )}
+
               {isActive && (
                 <>
-                  <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_rgba(67,97,238,0.5)]"></div>
+                  <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_rgba(67,97,238,0.5)]"></div>
                   <div className={cn(
                     "absolute top-0 bottom-0 z-0 pointer-events-none",
                     isCollapsed ? "right-0 w-1 blur-[6px] bg-accent/50" : "right-[-16px] w-20 bg-accent blur-[20px] opacity-50"
@@ -133,6 +148,7 @@ export function Sidebar({ onClose, hideLogo, isCollapsed, setIsCollapsed }: Side
           )}
         </NavLink>
       </div>
+    </div>
     </aside>
   );
 }

@@ -144,7 +144,7 @@ export function PatientProfilePage() {
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                className="bg-surface border border-border rounded-[32px] p-6 sm:p-8 max-w-3xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar"
+                className="bg-surface border border-border rounded-premium p-6 sm:p-8 max-w-3xl w-full shadow-premium relative max-h-[90vh] overflow-y-auto custom-scrollbar"
               >
                 <button 
                   onClick={() => setIsUploadModalOpen(false)}
@@ -310,7 +310,7 @@ export function PatientProfilePage() {
                         }}
                       >
                         {/* Subtle hover gradient */}
-                        <div className="absolute -inset-px bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[24px] pointer-events-none"></div>
+                        <div className="absolute -inset-px bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-premium pointer-events-none"></div>
 
                         <div className="flex justify-between items-start mb-5 relative z-10">
                           <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide border ${

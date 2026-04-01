@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { dbService } from '../db.service';
+import { dbService, SessionRecord } from '../db.service';
 
 describe('DBService', () => {
   beforeEach(async () => {
@@ -60,7 +60,7 @@ describe('DBService', () => {
       transcriptionState: { step: 'completed' as const, progress: 100, message: 'Done' },
     };
 
-    await dbService.saveSession(session as any);
+    await dbService.saveSession(session as unknown as SessionRecord);
     const retrieved = await dbService.getSession('s1');
     
     expect(retrieved).toEqual(session);
@@ -70,8 +70,8 @@ describe('DBService', () => {
     const s1 = { id: 's1', projectId: 'p1', fileName: 'f1', fileType: 'v', fileSize: 1, transcript: '', messages: [], transcriptionState: { step: 'idle' as const, progress: 0, message: '' }, createdAt: '2024-01-01', updatedAt: '2024-01-01' };
     const s2 = { id: 's2', projectId: 'p2', fileName: 'f2', fileType: 'v', fileSize: 1, transcript: '', messages: [], transcriptionState: { step: 'idle' as const, progress: 0, message: '' }, createdAt: '2024-01-02', updatedAt: '2024-01-02' };
 
-    await dbService.saveSession(s1 as any);
-    await dbService.saveSession(s2 as any);
+    await dbService.saveSession(s1 as unknown as SessionRecord);
+    await dbService.saveSession(s2 as unknown as SessionRecord);
 
     const p1Sessions = await dbService.getSessionsByProject('p1');
     expect(p1Sessions).toHaveLength(1);

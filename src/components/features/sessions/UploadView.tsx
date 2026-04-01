@@ -11,22 +11,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    setError(null);
-
-    const file = e.dataTransfer.files?.[0];
-    if (file) validateAndUpload(file);
-  }, [onUpload]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError(null);
-    const file = e.target.files?.[0];
-    if (file) validateAndUpload(file);
-  };
-
-  const validateAndUpload = (file: File) => {
+  const validateAndUpload = useCallback((file: File) => {
     if (file.size > 20 * 1024 * 1024) {
       setError("For this prototype, please keep files under 20MB. Consider using a compressed audio file instead.");
       return;
@@ -36,6 +21,21 @@ export function UploadView({ onUpload }: UploadViewProps) {
       return;
     }
     onUpload(file);
+  }, [onUpload]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    setError(null);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) validateAndUpload(file);
+  }, [validateAndUpload]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null);
+    const file = e.target.files?.[0];
+    if (file) validateAndUpload(file);
   };
 
   return (
@@ -102,7 +102,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
         )}
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-8 bg-surface-hover backdrop-blur-xl rounded-[32px] border border-border border-t-white/10 shadow-2xl flex items-start gap-6 hover:border-border-hover transition-all duration-300 group relative overflow-hidden">
+          <div className="p-8 card-premium flex items-start gap-6 group">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-info/20 to-transparent"></div>
             <div className="w-16 h-16 rounded-2xl bg-info/10 text-info-muted border border-info/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
               <Icon name="video_file" filled className="text-3xl" />
@@ -112,7 +112,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
               <p className="text-sm text-muted leading-relaxed font-medium">Upload video recordings to analyze both verbal communication and visual cues.</p>
             </div>
           </div>
-          <div className="p-8 bg-surface-hover backdrop-blur-xl rounded-[32px] border border-border border-t-white/10 shadow-2xl flex items-start gap-6 hover:border-border-hover transition-all duration-300 group relative overflow-hidden">
+          <div className="p-8 card-premium flex items-start gap-6 group">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-info/20 to-transparent"></div>
             <div className="w-16 h-16 rounded-2xl bg-info/10 text-info-muted border border-info/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
               <Icon name="audio_file" filled className="text-3xl" />

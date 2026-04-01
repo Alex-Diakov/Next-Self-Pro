@@ -40,7 +40,7 @@ export function MediaPanel({
         Back to Workspace
       </button>
       
-      <div className="bg-background rounded-[32px] overflow-hidden shadow-2xl aspect-video relative flex items-center justify-center border border-border border-t-white/10 group">
+      <div className="bg-background rounded-[32px] overflow-hidden shadow-premium aspect-video relative flex items-center justify-center border border-border border-t-white/10 group">
         <div className="absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
         {isProcessing && (
@@ -76,7 +76,7 @@ export function MediaPanel({
         )}
       </div>
 
-      <div className="card-premium backdrop-blur-xl relative overflow-hidden transition-all duration-300">
+      <div className="card-premium relative overflow-hidden transition-all duration-300">
         <button 
           onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
           className="w-full flex items-center justify-between p-4 hover:bg-surface-hover/30 transition-colors focus-ring"

@@ -39,6 +39,7 @@ export function SessionsPage() {
 
   useEffect(() => {
     if (!sessionFile && !urlSessionId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadSessions();
     }
   }, [sessionFile, urlSessionId]);

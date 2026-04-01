@@ -83,7 +83,7 @@ export function TranscriptPanel({
 
   if (transcriptionState.step === 'error') {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-error p-8 text-center bg-error/5 rounded-[32px] border border-error/20 m-8">
+      <div className="h-full flex flex-col items-center justify-center text-error p-8 text-center bg-error/5 rounded-premium border border-error/20 m-8">
         <Icon name="error" filled className="text-6xl mb-6 text-error-muted drop-shadow-md drop-shadow-error/30" />
         <h4 className="text-2xl font-bold text-error-muted mb-3 tracking-tight">Transcription Failed</h4>
         <p className="text-sm text-error-muted/80 font-mono bg-background/50 px-4 py-2 rounded-lg border border-error-bg/50">{transcriptionState.error}</p>
@@ -97,7 +97,7 @@ export function TranscriptPanel({
         <textarea
           value={editedTranscript}
           onChange={(e) => setEditedTranscript(e.target.value)}
-          className="w-full h-full min-h-[300px] p-6 bg-background/50 border border-border/60 rounded-[24px] focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/50 resize-none font-mono text-sm leading-relaxed text-secondary custom-scrollbar shadow-inner"
+          className="w-full h-full min-h-[300px] p-6 bg-background/50 border border-border/60 rounded-premium focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/50 resize-none font-mono text-sm leading-relaxed text-secondary custom-scrollbar shadow-inner"
           placeholder="Edit transcript here..."
         />
       </div>

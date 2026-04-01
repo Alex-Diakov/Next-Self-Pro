@@ -57,7 +57,7 @@ export function DashboardPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4, type: "spring", stiffness: 200, damping: 20 }}
-          className="card-premium rounded-[40px] p-16 text-center relative overflow-hidden border-t-white/20"
+          className="card-premium p-16 text-center relative overflow-hidden border-t-white/20"
         >
           {/* Subtle background glow */}
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-accent/10 via-transparent to-accent/5 pointer-events-none"></div>

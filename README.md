@@ -1,20 +1,50 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# NextSelf Pro
 
-# Run and deploy your AI Studio app
+AI-powered video transcription and analysis platform for psychotherapists.
 
-This contains everything you need to run your app locally.
+NextSelf Pro is a professional tool designed to help therapists analyze their sessions, identify cognitive distortions, suggest therapeutic interventions (CBT, ACT, DBT, etc.), and provide professional, empathetic, and scientifically-backed insights.
 
-View your app in AI Studio: https://ai.studio/apps/f98bc0d9-22c9-4d10-a166-72bf9768e6f7
+## Features
 
-## Run Locally
+- **Secure Session Upload**: Upload video or audio recordings of therapy sessions.
+- **AI Transcription**: Highly accurate, verbatim transcripts with speaker identification.
+- **Clinical Analysis**: Identify cognitive distortions, suggest interventions, and gain professional insights.
+- **Session Management**: Organize, review, and manage past therapy sessions.
 
-**Prerequisites:**  Node.js
+## Technology Stack
 
+- **Frontend**: React 18+, TypeScript, Tailwind CSS, Motion.
+- **Backend**: Express.js (for server-side logic).
+- **AI**: Powered by Google Gemini models via `@google/genai` SDK.
+- **Storage**: IndexedDB for local session storage.
+- **CI/CD**: GitHub Actions pipeline for automated testing and Docker image deployment.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v20+)
+- npm
+
+### Installation
+
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables (see `.env.example`).
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## Development
+
+- **Linting**: `npm run lint`
+- **Testing**: `npm test`
+- **Build**: `npm run build`
+
+## License
+
+This project is proprietary.

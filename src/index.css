@@ -1,90 +1,183 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+/* ==========================================
+   1. Base Primitives (Static Colors & Values)
+   ========================================== */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Modern Dark Theme Palette */
+  /* Fixed Slate Scale (Neutral) - Fixed duplicates */
   --color-slate-950: #141416;
   --color-slate-900: #1F2128;
   --color-slate-800: #23262F;
   --color-slate-700: #353945;
-  --color-slate-600: #777E90;
-  --color-slate-500: #777E90;
+  --color-slate-600: #474D5C;
+  --color-slate-500: #5E6578;
   --color-slate-400: #777E90;
   --color-slate-300: #B1B5C3;
   --color-slate-200: #E6E8EC;
-  --color-slate-100: #FCFCFD;
+  --color-slate-100: #F4F5F6;
   --color-slate-50: #FCFCFD;
 
-  /* Accents based on the reference image - Calmer Sapphire */
-  --color-primary-50: #f0f4ff;
-  --color-primary-100: #e1e9ff;
-  --color-primary-200: #c2d3ff;
-  --color-primary-300: #94b2ff;
-  --color-primary-400: #5c85ff;
-  --color-primary-500: #4361EE; /* Calmer Sapphire accent */
-  --color-primary-600: #3a56e4;
-  --color-primary-700: #2f45c5;
-  --color-primary-800: #2536a0;
+  /* Fixed Primary Scale (Sapphire) */
+  --color-primary-950: #11184b;
   --color-primary-900: #1a2570;
+  --color-primary-800: #2536a0;
+  --color-primary-700: #2f45c5;
+  --color-primary-600: #3a56e4;
+  --color-primary-500: #4361EE;
+  --color-primary-400: #5c85ff;
+  --color-primary-300: #94b2ff;
+  --color-primary-200: #c2d3ff;
+  --color-primary-100: #e1e9ff;
+  --color-primary-50: #f0f4ff;
 
-  /* Semantic Design System Tokens */
-  --color-background: var(--color-slate-950);
-  --color-surface: var(--color-slate-900);
-  --color-surface-hover: var(--color-slate-800);
-  --color-surface-elevated: var(--color-slate-800);
-  --color-surface-highlight: var(--color-slate-700);
-  --color-card-background: var(--color-surface);
+  /* Status Base Colors */
+  --color-green-500: #10b981;
+  --color-green-400: #34d399;
+  --color-green-900: #064e3b;
   
-  --color-border: var(--color-slate-800);
-  --color-border-hover: var(--color-slate-700);
-  --color-border-subtle: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
-  --color-border-strong: color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+  --color-red-500: #ef4444;
+  --color-red-400: #f87171;
+  --color-red-900: #7f1d1d;
   
-  --color-text-primary: var(--color-slate-100);
-  --color-text-secondary: var(--color-slate-200);
-  --color-text-muted: var(--color-slate-400);
-  --color-text-subtle: var(--color-slate-500);
-  --color-text-inverse: #000000;
+  --color-yellow-500: #eab308;
+  --color-yellow-400: #facc15;
+  --color-yellow-900: #713f12;
   
-  --color-accent: var(--color-primary-500);
-  --color-accent-hover: var(--color-primary-400);
-  --color-accent-active: var(--color-primary-600);
+  --color-blue-500: #3b82f6;
+  --color-blue-400: #60a5fa;
+  --color-blue-900: #1e3a8a;
 
-  /* Semantic Status Tokens */
-  --color-success: #10b981;
-  --color-success-muted: #34d399;
-  --color-success-bg: #064e3b;
+  /* Map Semantic Tokens to CSS Variables (for theming) */
+  --color-background: var(--bg-default);
+  --color-surface: var(--bg-surface);
+  --color-surface-hover: var(--bg-surface-hover);
+  --color-surface-highlight: var(--bg-surface-highlight);
   
-  --color-error: #ef4444;
-  --color-error-muted: #f87171;
-  --color-error-bg: #7f1d1d;
+  --color-border: var(--border-default);
+  --color-border-hover: var(--border-hover);
+  --color-border-subtle: var(--border-subtle);
   
-  --color-warning: #eab308;
-  --color-warning-muted: #facc15;
-  --color-warning-bg: #713f12;
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-text-inverse: var(--text-inverse);
   
-  --color-info: #3b82f6; /* blue-500 */
-  --color-info-muted: #60a5fa; /* blue-400 */
-  --color-info-bg: #1e3a8a;
+  --color-accent: var(--accent-default);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-active: var(--accent-active);
+
+  --color-success: var(--status-success);
+  --color-success-muted: var(--status-success-muted);
+  --color-success-bg: var(--status-success-bg);
+  
+  --color-error: var(--status-error);
+  --color-error-muted: var(--status-error-muted);
+  --color-error-bg: var(--status-error-bg);
+  
+  --color-warning: var(--status-warning);
+  --color-warning-muted: var(--status-warning-muted);
+  --color-warning-bg: var(--status-warning-bg);
+  
+  --color-info: var(--status-info);
+  --color-info-muted: var(--status-info-muted);
+  --color-info-bg: var(--status-info-bg);
+
+  /* Design Tokens for Radius, Shadow, Blur */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+  --radius-premium: 1.5rem;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 20px 0 color-mix(in srgb, var(--color-accent) 40%, transparent);
+  --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-premium-hover: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+
+  --blur-glass: 20px;
+  --blur-premium: 24px;
+
+  /* Z-Index Scale */
+  --z-base: 0;
+  --z-elevated: 10;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 400;
 }
 
+/* ==========================================
+   2. Semantic Variables (Theming Layer)
+   ========================================== */
+:root {
+  /* Dark Theme Defaults */
+  --bg-default: var(--color-slate-950);
+  --bg-surface: var(--color-slate-900);
+  --bg-surface-hover: var(--color-slate-800);
+  --bg-surface-highlight: var(--color-slate-700);
+
+  --border-default: var(--color-slate-800);
+  --border-hover: var(--color-slate-700);
+  --border-subtle: color-mix(in srgb, var(--text-primary) 5%, transparent);
+
+  --text-primary: var(--color-slate-50);
+  --text-secondary: var(--color-slate-200);
+  --text-muted: var(--color-slate-400);
+  --text-subtle: var(--color-slate-500);
+  --text-inverse: #000000;
+
+  --accent-default: var(--color-primary-500);
+  --accent-hover: var(--color-primary-400);
+  --accent-active: var(--color-primary-600);
+
+  --status-success: var(--color-green-500);
+  --status-success-muted: var(--color-green-400);
+  --status-success-bg: var(--color-green-900);
+  
+  --status-error: var(--color-red-500);
+  --status-error-muted: var(--color-red-400);
+  --status-error-bg: var(--color-red-900);
+  
+  --status-warning: var(--color-yellow-500);
+  --status-warning-muted: var(--color-yellow-400);
+  --status-warning-bg: var(--color-yellow-900);
+  
+  --status-info: var(--color-blue-500);
+  --status-info-muted: var(--color-blue-400);
+  --status-info-bg: var(--color-blue-900);
+}
+
+/* ==========================================
+   3. Base Styles
+   ========================================== */
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--color-background);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Selection color */
-  ::selection {
-    background-color: var(--color-accent);
-    color: #ffffff;
-  }
 }
 
-/* Custom scrollbar for a premium look */
+::selection {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -100,24 +193,61 @@ body {
   background: color-mix(in srgb, var(--color-text-primary) 20%, transparent);
 }
 
-/* Base utilities for glassmorphism */
+/* ==========================================
+   4. Components (Using Tokens)
+   ========================================== */
+
+/* Interactive States (Hover, Active, Disabled) */
+.interactive-base {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-hover:hover {
+  background-color: var(--color-surface-highlight);
+  border-color: var(--color-border-hover);
+}
+
+.interactive-active:active {
+  transform: scale(0.98);
+  background-color: var(--color-surface-hover);
+}
+
+.interactive-disabled:disabled,
+.interactive-disabled[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Layer Utilities */
+.layer-base {
+  z-index: var(--z-base);
+}
+.layer-elevated {
+  z-index: var(--z-elevated);
+  box-shadow: var(--shadow-md);
+}
+.layer-floating {
+  z-index: var(--z-dropdown);
+  box-shadow: var(--shadow-xl);
+}
+
 .glass-panel {
   background: color-mix(in srgb, var(--color-surface) 60%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
   border: 1px solid var(--color-border-subtle);
   border-radius: 1rem;
 }
 
-/* Card Token */
 .card-premium {
   background-color: var(--color-surface-hover);
   border: 1px solid var(--color-border);
-  border-top: 1px solid rgba(255, 255, 255, 0.1); /* Light-catching top border */
-  border-radius: 1.5rem; /* rounded-3xl */
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-premium);
+  backdrop-filter: blur(var(--blur-premium));
+  -webkit-backdrop-filter: blur(var(--blur-premium));
+  box-shadow: var(--shadow-premium);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -133,7 +263,7 @@ body {
 
 .card-premium:hover {
   border-color: var(--color-border-hover);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-premium-hover);
   transform: translateY(-2px);
 }
 

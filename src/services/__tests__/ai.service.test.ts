@@ -20,7 +20,7 @@ describe('AIService', () => {
     const mockResponse = { text: 'Mocked transcript' };
     const mockGenerateContent = vi.fn().mockResolvedValue(mockResponse);
     
-    // @ts-ignore - accessing private property for testing
+    // @ts-expect-error - accessing private property for testing
     aiService.ai.models.generateContent = mockGenerateContent;
 
     const result = await aiService.transcribeSession('base64data', 'audio/wav');
@@ -34,7 +34,7 @@ describe('AIService', () => {
       .mockRejectedValueOnce(new Error('API Error'))
       .mockResolvedValueOnce({ text: 'Success after retry' });
 
-    // @ts-ignore
+    // @ts-expect-error - accessing private property for testing
     aiService.ai.models.generateContent = mockGenerateContent;
 
     const result = await aiService.transcribeSession('base64data', 'audio/wav');
@@ -47,7 +47,7 @@ describe('AIService', () => {
     const mockResponse = { text: 'Mocked analysis' };
     const mockGenerateContent = vi.fn().mockResolvedValue(mockResponse);
     
-    // @ts-ignore
+    // @ts-expect-error - accessing private property for testing
     aiService.ai.models.generateContent = mockGenerateContent;
 
     const result = await aiService.analyzeSession('Transcript text', 'Analyze this');

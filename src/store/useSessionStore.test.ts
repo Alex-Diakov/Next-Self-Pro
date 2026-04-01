@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useSessionStore } from './useSessionStore';
-import { dbService } from '../services/db.service';
+import { dbService, SessionRecord } from '../services/db.service';
 import { aiService } from '../services/ai.service';
 
 // Mock the services
@@ -84,7 +84,7 @@ describe('useSessionStore', () => {
       transcriptionState: { step: 'completed', progress: 100, message: 'Done' }
     };
 
-    vi.mocked(dbService.getSession).mockResolvedValueOnce(mockSession as any);
+    vi.mocked(dbService.getSession).mockResolvedValueOnce(mockSession as unknown as SessionRecord);
 
     await useSessionStore.getState().loadSession('test-123');
 
@@ -97,7 +97,7 @@ describe('useSessionStore', () => {
 
   it('should update transcript and save to DB', () => {
     useSessionStore.setState({
-      session: { id: 'test-123' } as any
+      session: { id: 'test-123' } as unknown as SessionRecord
     });
 
     useSessionStore.getState().updateTranscript('New transcript');

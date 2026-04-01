@@ -48,7 +48,7 @@ export function PatientsPage() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-surface border border-border border-t-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden"
+              className="bg-surface border border-border border-t-white/10 rounded-premium p-8 max-w-md w-full shadow-premium relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-32 bg-accent/5 blur-3xl pointer-events-none"></div>
               <button 
@@ -124,7 +124,7 @@ export function PatientsPage() {
           <div className="w-8 h-8 border-4 border-accent/30 border-t-accent rounded-full animate-spin"></div>
         </div>
       ) : projects.length === 0 ? (
-        <div className="card-premium rounded-[40px] p-16 text-center flex flex-col items-center justify-center">
+        <div className="card-premium p-16 text-center flex flex-col items-center justify-center">
           <div className="w-24 h-24 bg-surface-highlight rounded-full flex items-center justify-center mb-8 shadow-inner border border-border-subtle">
             <Icon name="group" className="text-5xl text-subtle" />
           </div>

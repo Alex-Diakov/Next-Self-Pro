@@ -100,7 +100,7 @@ class DBService {
     } catch (error) {
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
         console.error('Storage quota exceeded. Please delete old sessions.');
-        throw new Error('Storage quota exceeded. Please delete old sessions to free up space.');
+        throw new Error('Storage quota exceeded. Please delete old sessions to free up space.', { cause: error });
       }
       throw error;
     }

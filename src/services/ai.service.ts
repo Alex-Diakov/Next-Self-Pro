@@ -72,7 +72,7 @@ class AIService {
     } catch (error) {
       console.error("Transcription error:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      throw new Error(`Failed to transcribe the session: ${errorMessage}`);
+      throw new Error(`Failed to transcribe the session: ${errorMessage}`, { cause: error });
     }
   }
 
@@ -91,7 +91,7 @@ class AIService {
     } catch (error) {
       console.error("Analysis error:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      throw new Error(`Failed to analyze the session: ${errorMessage}`);
+      throw new Error(`Failed to analyze the session: ${errorMessage}`, { cause: error });
     }
   }
 }

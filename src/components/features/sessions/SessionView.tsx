@@ -52,6 +52,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   useEffect(() => {
     if (sessionFile) {
       const url = URL.createObjectURL(sessionFile);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVideoUrl(url);
       return () => URL.revokeObjectURL(url);
     }
@@ -117,8 +118,8 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
         audioRef={audioRef}
       />
 
-      <div className="w-full lg:w-8/12 flex flex-col card-premium backdrop-blur-xl overflow-hidden h-[calc(100vh-8rem)] relative">
-        <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-accent/5 to-transparent pointer-events-none"></div>
+      <div className="w-full lg:w-8/12 flex flex-col card-premium overflow-hidden h-[calc(100vh-8rem)] relative">
+        <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-accent/5 to-transparent pointer-events-none z-0"></div>
 
         <div className="flex items-center justify-between p-4 border-b border-border bg-background/40 relative z-10">
           <div className="flex bg-background/80 p-1.5 rounded-2xl w-full max-w-md border border-border shadow-inner">

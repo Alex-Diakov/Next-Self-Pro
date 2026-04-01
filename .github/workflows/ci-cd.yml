@@ -40,6 +40,14 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
       - name: Verify build
         run: npm run build
 

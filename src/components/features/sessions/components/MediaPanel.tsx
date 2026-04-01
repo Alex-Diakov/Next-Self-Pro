@@ -34,13 +34,13 @@ export function MediaPanel({
     <div className="w-full lg:w-4/12 flex flex-col gap-4">
       <button 
         onClick={onBack}
-        className="flex items-center gap-2 text-sm font-bold text-muted hover:text-accent-hover transition-colors w-fit bg-surface-hover px-5 py-2.5 rounded-xl border border-border border-t-white/10 backdrop-blur-md hover:border-accent/30 shadow-lg"
+        className="flex items-center gap-2 text-sm font-bold text-muted hover:text-accent-hover transition-colors w-fit bg-surface-hover px-5 py-2.5 rounded-xl border border-border border-t-border-glass backdrop-blur-md hover:border-accent/30 shadow-lg"
       >
         <Icon name="arrow_back" className="text-lg" />
         Back to Workspace
       </button>
       
-      <div className="bg-background rounded-[32px] overflow-hidden shadow-premium aspect-video relative flex items-center justify-center border border-border border-t-white/10 group">
+      <div className="bg-background rounded-[32px] overflow-hidden shadow-premium aspect-video relative flex items-center justify-center border border-border border-t-border-glass group">
         <div className="absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
         {isProcessing && (

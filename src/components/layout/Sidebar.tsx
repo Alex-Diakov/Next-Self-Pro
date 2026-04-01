@@ -19,7 +19,7 @@ interface SidebarProps {
 export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) {
   return (
     <aside className={cn(
-      "h-full bg-surface flex flex-col shrink-0 rounded-premium border border-border border-t-white/10 shadow-premium relative transition-[width] duration-300 ease-in-out overflow-visible",
+      "h-full bg-surface flex flex-col shrink-0 rounded-premium border border-border border-t-border-glass shadow-premium relative transition-[width] duration-300 ease-in-out overflow-visible",
       isCollapsed ? "w-24" : "w-72"
     )}>
       {/* Subtle background glow */}
@@ -29,7 +29,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
       <button 
         onClick={() => setIsCollapsed(!isCollapsed)}
         className={cn(
-          "absolute top-6 z-20 w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-muted hover:text-primary transition-all duration-300",
+          "absolute top-6 z-20 w-8 h-8 rounded-lg hover:bg-surface-glass flex items-center justify-center text-muted hover:text-primary transition-all duration-300",
           isCollapsed ? "left-1/2 -translate-x-1/2" : "right-4"
         )}
       >
@@ -48,7 +48,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
               "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl overflow-hidden text-sm font-semibold transition-all duration-300 focus-ring relative group",
               isCollapsed ? "justify-center px-0" : "",
               isActive 
-                ? "bg-white/5 text-primary border-t border-white/10" 
+                ? "bg-surface-glass text-primary border-t border-border-glass" 
                 : "text-muted hover:bg-surface-hover hover:text-secondary"
             )}
           >
@@ -63,7 +63,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
                 
                 {/* Кастомный тултип для свернутого вида */}
                 {isCollapsed && (
-                  <span className="absolute left-full ml-4 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-md text-xs font-semibold text-zinc-200 whitespace-nowrap shadow-xl shadow-black/50 z-50 pointer-events-none opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0">
+                  <span className="absolute left-full ml-4 px-3 py-1.5 bg-surface border border-border-glass rounded-md text-xs font-semibold text-secondary whitespace-nowrap shadow-xl shadow-black/50 z-50 pointer-events-none opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0">
                     {item.label}
                   </span>
                 )}
@@ -87,7 +87,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
       <div className={cn("mt-auto p-5 lg:p-6 shrink-0 flex flex-col gap-4", isCollapsed ? "items-center" : "")}>
         
         {/* ПЛАШКА: Upgrade to Pro */}
-        <div className={cn("rounded-2xl bg-gradient-to-br from-surface-hover to-surface border border-border border-t-white/10 shadow-xl relative overflow-hidden group", isCollapsed ? "p-3" : "p-5 flex flex-col gap-3")}>
+        <div className={cn("rounded-2xl bg-gradient-to-br from-surface-hover to-surface border border-border border-t-border-glass shadow-xl relative overflow-hidden group", isCollapsed ? "p-3" : "p-5 flex flex-col gap-3")}>
           <div className="absolute -top-10 -right-10 w-24 h-24 bg-accent/10 rounded-full blur-2xl group-hover:bg-accent/20 transition-all duration-500"></div>
           
           <div className={cn("flex items-center gap-2 text-accent", isCollapsed ? "justify-center" : "")}>
@@ -99,7 +99,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
               <p className="text-xs text-subtle leading-relaxed font-medium">
                 Unlock advanced AI insights and unlimited patient sessions.
               </p>
-              <button className="w-full py-2.5 mt-1 bg-premium-gradient text-background rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-accent/20 border-t border-white/20">
+              <button className="w-full py-2.5 mt-1 bg-premium-gradient text-background rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-accent/20 border-t border-border-glass">
                 View Plans
               </button>
             </>
@@ -114,7 +114,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
             "w-full flex items-center gap-4 px-5 py-3.5 rounded-xl overflow-hidden text-sm font-semibold transition-all duration-300 focus-ring relative group",
             isCollapsed ? "justify-center px-0" : "",
             isActive 
-              ? "bg-white/5 text-primary border-t border-white/10" 
+              ? "bg-surface-glass text-primary border-t border-border-glass" 
               : "text-muted hover:bg-surface-hover hover:text-secondary"
           )}
         >
@@ -129,7 +129,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
               
               {/* Кастомный тултип для свернутого вида */}
               {isCollapsed && (
-                <span className="absolute left-full ml-4 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-md text-xs font-semibold text-zinc-200 whitespace-nowrap shadow-xl shadow-black/50 z-50 pointer-events-none opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0">
+                <span className="absolute left-full ml-4 px-3 py-1.5 bg-surface border border-border-glass rounded-md text-xs font-semibold text-secondary whitespace-nowrap shadow-xl shadow-black/50 z-50 pointer-events-none opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0">
                   Settings
                 </span>
               )}

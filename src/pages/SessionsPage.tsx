@@ -99,7 +99,7 @@ export function SessionsPage() {
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="bg-surface border border-border border-t-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl relative overflow-hidden"
+                className="bg-surface border border-border border-t-border-glass rounded-2xl p-8 max-w-sm w-full shadow-2xl relative overflow-hidden"
               >
                 <div className="absolute top-0 left-0 w-full h-32 bg-error/5 blur-3xl pointer-events-none"></div>
                 <h3 className="text-xl font-bold text-primary mb-2 relative z-10">Delete Session?</h3>
@@ -113,7 +113,7 @@ export function SessionsPage() {
                   </button>
                   <button 
                     onClick={confirmDelete}
-                    className="px-5 py-2.5 text-sm font-bold text-primary bg-error-bg/80 hover:bg-error-bg border border-error-bg/50 border-t-white/10 rounded-xl transition-all shadow-lg shadow-error/20"
+                    className="px-5 py-2.5 text-sm font-bold text-primary bg-error-bg/80 hover:bg-error-bg border border-error-bg/50 border-t-border-glass rounded-xl transition-all shadow-lg shadow-error/20"
                   >
                     Delete
                   </button>

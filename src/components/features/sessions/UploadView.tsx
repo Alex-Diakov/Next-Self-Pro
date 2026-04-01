@@ -55,7 +55,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           className={cn(
-            "relative group flex flex-col items-center justify-center w-full h-80 border-2 border-dashed rounded-[40px] transition-all duration-500 bg-surface-hover backdrop-blur-xl cursor-pointer overflow-hidden border-t-white/5",
+            "relative group flex flex-col items-center justify-center w-full h-80 border-2 border-dashed rounded-[40px] transition-all duration-500 bg-surface-hover backdrop-blur-xl cursor-pointer overflow-hidden border-t-border-highlight",
             isDragging 
               ? "border-accent bg-accent/10 shadow-2xl shadow-accent/20" 
               : "border-border hover:border-accent/50 hover:bg-surface-highlight hover:shadow-2xl shadow-accent/10"
@@ -84,7 +84,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
             <p className="text-sm text-subtle mb-8 font-medium">
               Supports MP4, WebM, MP3, WAV (Max 20MB for prototype)
             </p>
-            <button className="px-10 py-3.5 bg-premium-gradient border-t border-white/20 rounded-xl text-sm font-bold text-background shadow-xl hover:scale-105 transition-all duration-300 pointer-events-none glow-accent">
+            <button className="px-10 py-3.5 bg-premium-gradient border-t border-border-premium rounded-xl text-sm font-bold text-background shadow-xl hover:scale-105 transition-all duration-300 pointer-events-none glow-accent">
               Browse Files
             </button>
           </div>

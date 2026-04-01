@@ -56,10 +56,14 @@
   --color-surface: var(--bg-surface);
   --color-surface-hover: var(--bg-surface-hover);
   --color-surface-highlight: var(--bg-surface-highlight);
+  --color-surface-glass: var(--bg-glass);
   
   --color-border: var(--border-default);
   --color-border-hover: var(--border-hover);
   --color-border-subtle: var(--border-subtle);
+  --color-border-glass: var(--border-glass);
+  --color-border-highlight: var(--border-highlight);
+  --color-border-premium: var(--border-premium);
   
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
@@ -133,6 +137,12 @@
   --border-default: var(--color-slate-800);
   --border-hover: var(--color-slate-700);
   --border-subtle: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --border-highlight: rgba(255, 255, 255, 0.05);
+  --border-premium: rgba(255, 255, 255, 0.2);
+
+  --bg-glass: rgba(255, 255, 255, 0.03);
+  --bg-highlight: rgba(255, 255, 255, 0.05);
 
   --text-primary: var(--color-slate-50);
   --text-secondary: var(--color-slate-200);

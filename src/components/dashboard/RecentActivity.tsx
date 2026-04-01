@@ -24,7 +24,7 @@ export function RecentActivity() {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.2 }}
-      className="bg-surface rounded-[2rem] p-5 lg:p-6 border border-white/10 h-full flex flex-col"
+      className="bg-surface rounded-[2rem] p-5 lg:p-6 border border-border-glass h-full flex flex-col"
     >
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-primary tracking-tight">Recent Sessions</h2>
@@ -34,11 +34,11 @@ export function RecentActivity() {
         {activities.map((activity) => (
           <motion.div 
             key={activity.id}
-            className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 border border-white/5 group relative"
+            className="flex items-center gap-3 p-3 rounded-2xl bg-surface-glass hover:bg-surface-highlight cursor-pointer transition-all duration-300 border border-border-highlight group relative"
           >
             {/* 1. Thumbnail (Left) */}
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-white/5 transition-all duration-300 ${
-              activity.type === 'video' ? 'bg-blue-500/10 text-blue-500' : 'bg-purple-500/10 text-purple-500'
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-border-highlight transition-all duration-300 ${
+              activity.type === 'video' ? 'bg-info/10 text-info' : 'bg-accent/10 text-accent'
             }`}>
               <Icon name={activity.type === 'video' ? 'videocam' : 'mic'} filled className="text-xl" />
             </div>

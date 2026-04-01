@@ -47,7 +47,7 @@ export function PatientsPage() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-surface border border-border border-t-white/10 rounded-premium p-8 max-w-md w-full shadow-premium relative overflow-hidden"
+              className="bg-surface border border-border border-t-border-glass rounded-premium p-8 max-w-md w-full shadow-premium relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-32 bg-accent/5 blur-3xl pointer-events-none"></div>
               <button 
@@ -87,7 +87,7 @@ export function PatientsPage() {
                   <button 
                     type="submit"
                     disabled={!newPatientName.trim()}
-                    className="px-6 py-2.5 text-sm font-bold text-background bg-premium-gradient hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all shadow-lg shadow-accent/20 border-t border-white/20 glow-accent"
+                    className="px-6 py-2.5 text-sm font-bold text-background bg-premium-gradient hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all shadow-lg shadow-accent/20 border-t border-border-premium glow-accent"
                   >
                     Create Patient
                   </button>
@@ -111,7 +111,7 @@ export function PatientsPage() {
         
         <button 
           onClick={handleCreatePatient}
-          className="flex items-center justify-center gap-2 bg-premium-gradient text-background px-8 py-3.5 rounded-xl font-bold transition-all duration-300 shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 border-t border-white/20 glow-accent"
+          className="flex items-center justify-center gap-2 bg-premium-gradient text-background px-8 py-3.5 rounded-xl font-bold transition-all duration-300 shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 border-t border-border-premium glow-accent"
         >
           <Icon name="add" className="text-xl" />
           New Patient

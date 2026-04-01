@@ -9,7 +9,7 @@ export function QuickWorkspace() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="bg-surface rounded-[2rem] p-5 lg:p-6 border border-white/10 h-full flex flex-col relative overflow-hidden"
+      className="bg-surface rounded-[2rem] p-5 lg:p-6 border border-border-glass h-full flex flex-col relative overflow-hidden"
     >
       {/* Subtle background glow */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-accent/5 via-transparent to-transparent pointer-events-none"></div>
@@ -19,7 +19,7 @@ export function QuickWorkspace() {
           <h2 className="text-xl font-bold text-primary tracking-tight">Quick Workspace</h2>
         </div>
 
-        <div className="flex-1 border-2 border-dashed border-white/10 rounded-3xl bg-background/50 hover:bg-white/5 hover:border-accent/40 transition-all duration-500 group cursor-pointer flex flex-col items-center justify-center p-10 text-center min-h-[350px] w-full">
+        <div className="flex-1 border-2 border-dashed border-border-glass rounded-3xl bg-background/50 hover:bg-surface-glass hover:border-accent/40 transition-all duration-500 group cursor-pointer flex flex-col items-center justify-center p-10 text-center min-h-[350px] w-full">
           <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-accent/20 transition-all duration-500 shadow-inner">
             <Icon name="upload_file" filled className="text-4xl text-accent-hover" />
           </div>
@@ -30,15 +30,15 @@ export function QuickWorkspace() {
           </p>
 
           <div className="flex flex-col gap-3 w-full max-w-sm mx-auto">
-            <button className="w-full px-8 py-3.5 bg-premium-gradient text-background rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl shadow-accent/20 border-t border-white/20 flex items-center justify-center gap-2">
+            <button className="w-full px-8 py-3.5 bg-premium-gradient text-background rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl shadow-accent/20 border-t border-border-premium flex items-center justify-center gap-2">
               <Icon name="cloud_upload" className="text-xl" />
               Upload Media
             </button>
-            <button className="w-full px-8 py-3.5 bg-white/5 text-primary rounded-xl font-bold hover:bg-white/10 active:scale-[0.98] transition-all duration-300 border border-white/10 flex items-center justify-center gap-2">
+            <button className="w-full px-8 py-3.5 bg-surface-glass text-primary rounded-xl font-bold hover:bg-surface-highlight active:scale-[0.98] transition-all duration-300 border border-border-glass flex items-center justify-center gap-2">
               <Icon name="mic" className="text-xl" />
               Dictate Memo
             </button>
-            <button className="w-full px-8 py-3.5 bg-white/5 text-primary rounded-xl font-bold hover:bg-white/10 active:scale-[0.98] transition-all duration-300 border border-white/10 flex items-center justify-center gap-2">
+            <button className="w-full px-8 py-3.5 bg-surface-glass text-primary rounded-xl font-bold hover:bg-surface-highlight active:scale-[0.98] transition-all duration-300 border border-border-glass flex items-center justify-center gap-2">
               <Icon name="screen_record" className="text-xl" />
               Record Screen
             </button>

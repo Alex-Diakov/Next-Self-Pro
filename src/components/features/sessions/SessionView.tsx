@@ -127,7 +127,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 focus-ring border-t border-transparent",
                 activeTab === 'transcript' 
-                  ? "bg-surface-hover text-primary shadow-md border-border-hover border-t-white/10" 
+                  ? "bg-surface-hover text-primary shadow-md border-border-hover border-t-border-glass" 
                   : "text-subtle hover:text-secondary hover:bg-surface/50"
               )}
             >
@@ -140,7 +140,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 focus-ring border-t border-transparent",
                 activeTab === 'analysis' 
-                  ? "bg-accent/10 text-accent-hover shadow-md border-accent/20 border-t-white/10 glow-accent" 
+                  ? "bg-accent/10 text-accent-hover shadow-md border-accent/20 border-t-border-glass glow-accent" 
                   : "text-subtle hover:text-secondary hover:bg-surface/50 disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
@@ -169,7 +169,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
               </button>
               <button 
                 onClick={handleSaveTranscript}
-                className="flex items-center gap-1.5 text-sm font-bold text-background bg-premium-gradient hover:scale-105 transition-all px-4 py-2 rounded-xl shadow-lg shadow-accent/20 border-t border-white/20 glow-accent"
+                className="flex items-center gap-1.5 text-sm font-bold text-background bg-premium-gradient hover:scale-105 transition-all px-4 py-2 rounded-xl shadow-lg shadow-accent/20 border-t border-border-premium glow-accent"
               >
                 <Icon name="save" className="text-lg" />
                 Save

@@ -64,7 +64,7 @@ export function DashboardPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px] pointer-events-none"></div>
           
           <div className="relative z-10">
-            <h2 className="text-5xl font-bold text-primary mb-6 tracking-tight leading-tight">Ready for your next session?</h2>
+            <h2 className="text-5xl font-bold text-primary mb-6 tracking-tight leading-tight">Therapy Progress Overview</h2>
             <p className="text-muted mb-10 max-w-xl mx-auto leading-relaxed text-xl font-medium">Upload a new video or audio recording to get instant AI-powered clinical insights and transcriptions.</p>
             <Link to="/sessions" className="inline-flex items-center justify-center px-12 py-4.5 bg-premium-gradient text-background rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-2xl shadow-accent/40 border-t border-white/20 glow-accent">
               Go to Sessions

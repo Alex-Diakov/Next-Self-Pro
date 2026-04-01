@@ -7,8 +7,8 @@ test.describe('Core Application Flow', () => {
     await expect(page).toHaveTitle(/NextSelfPro/);
 
     // 2. Navigate to Patients page
-    await page.getByRole('link', { name: /Patients/i }).click();
-    await expect(page.getByRole('heading', { name: /Patients/i })).toBeVisible();
+    await page.getByRole('navigation').getByRole('link', { name: /Patients/i }).click();
+    await expect(page.getByRole('heading', { name: 'group Patients' })).toBeVisible();
 
     // 3. Create a new patient
     await page.getByRole('button', { name: /New Patient/i }).click();
@@ -38,7 +38,7 @@ test.describe('Core Application Flow', () => {
     });
 
     // 7. Verify processing starts
-    await expect(page.getByText(/Processing/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Processing Session/i })).toBeVisible();
     await expect(page.getByText(/Analyzing with AI/i)).toBeVisible();
   });
 
@@ -49,11 +49,11 @@ test.describe('Core Application Flow', () => {
     await expect(page.getByText(/Therapy Progress/i)).toBeVisible();
 
     // Check Sessions
-    await page.getByRole('link', { name: /Sessions/i }).click();
+    await page.getByRole('navigation').getByRole('link', { name: /Sessions/i }).click();
     await expect(page.getByText(/Upload a new session/i)).toBeVisible();
 
     // Check Patients
-    await page.getByRole('link', { name: /Patients/i }).click();
-    await expect(page.getByRole('heading', { name: /Patients/i })).toBeVisible();
+    await page.getByRole('navigation').getByRole('link', { name: /Patients/i }).click();
+    await expect(page.getByRole('heading', { name: 'group Patients' })).toBeVisible();
   });
 });

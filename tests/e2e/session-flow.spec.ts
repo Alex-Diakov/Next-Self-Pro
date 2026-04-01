@@ -21,7 +21,7 @@ test.describe('Core Application Flow', () => {
     await patientCard.click();
 
     // 5. Verify we are on the patient profile page
-    await expect(page.getByRole('heading', { name: 'E2E Test Patient' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'E2E Test Patient', level: 1 })).toBeVisible();
 
     // 6. Start a new session (Upload)
     await page.getByRole('button', { name: /New Session/i }).click();

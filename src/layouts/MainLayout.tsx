@@ -48,7 +48,7 @@ export function MainLayout() {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col p-4 lg:p-6 bg-background font-sans text-secondary relative">
+    <div className="h-screen w-screen overflow-hidden flex flex-col p-4 sm:p-6 lg:p-8 bg-background font-sans text-secondary relative">
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
         <div 
@@ -105,7 +105,7 @@ export function MainLayout() {
       </header>
 
       {/* App Window (Islands Container) */}
-      <div className="flex-1 overflow-hidden flex flex-row gap-6 relative">
+      <div className="flex-1 overflow-hidden flex flex-row gap-4 sm:gap-5 lg:gap-6 relative">
         {/* Sidebar Island */}
         <aside className={cn(
           "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 shrink-0 flex flex-col h-full",
@@ -115,7 +115,7 @@ export function MainLayout() {
         </aside>
 
         {/* Main Content Island */}
-        <main className="flex-1 h-full overflow-y-auto custom-scrollbar p-6 lg:p-8 bg-surface rounded-[32px] border border-border border-t-white/10 shadow-premium relative transition-all duration-300">
+        <main className="flex-1 h-full overflow-y-auto custom-scrollbar p-5 lg:p-6 bg-surface rounded-[32px] border border-border border-t-white/10 shadow-premium relative transition-all duration-300">
           {/* Subtle background glow */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[100px] pointer-events-none"></div>
           

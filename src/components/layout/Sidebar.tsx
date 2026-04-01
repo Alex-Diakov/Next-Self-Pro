@@ -84,7 +84,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
       </nav>
 
       {/* НИЖНЯЯ ЧАСТЬ САЙДБАРА (Плашка, Settings) */}
-      <div className={cn("mt-auto p-6 shrink-0 flex flex-col gap-4", isCollapsed ? "items-center" : "")}>
+      <div className={cn("mt-auto p-5 lg:p-6 shrink-0 flex flex-col gap-4", isCollapsed ? "items-center" : "")}>
         
         {/* ПЛАШКА: Upgrade to Pro */}
         <div className={cn("rounded-2xl bg-gradient-to-br from-surface-hover to-surface border border-border border-t-white/10 shadow-xl relative overflow-hidden group", isCollapsed ? "p-3" : "p-5 flex flex-col gap-3")}>

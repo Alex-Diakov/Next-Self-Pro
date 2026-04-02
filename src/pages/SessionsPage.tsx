@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Routes, Route, useLocation } from 'react-router-dom';
-import { Header } from '../components/layout/Header';
 import { UploadView } from '../components/features/sessions/UploadView';
 import { SessionView } from '../components/features/sessions/SessionView';
 import { dbService, SessionRecord } from '../services/db.service';
 import { Icon } from '../components/ui/Icon';
 import { useSessionStore } from '../store/useSessionStore';
 import { motion, AnimatePresence } from 'motion/react';
-import { safeFormatDate } from '../lib/utils';
+import { cn, safeFormatDate } from '../lib/utils';
 
 const SessionAnalysisWrapper = ({ onBack }: { onBack: () => void }) => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -82,11 +81,7 @@ export function SessionsPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header 
-        title={isSessionView ? 'Session Analysis' : 'Sessions Workspace'} 
-        subtitle={isSessionView ? 'Reviewing and analyzing patient session' : 'Upload a new session or review past sessions'} 
-      />
-      <div className="flex-1 overflow-auto p-6 lg:p-8 relative">
+      <div className={cn("flex-1 relative", isSessionView ? "overflow-hidden" : "overflow-auto p-6 lg:p-8")}>
         <AnimatePresence>
           {sessionToDelete && (
             <motion.div 

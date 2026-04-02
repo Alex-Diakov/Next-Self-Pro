@@ -3,7 +3,6 @@ import { useParams, useNavigate, Routes, Route, useLocation } from 'react-router
 import { useProjectStore } from '../store/useProjectStore';
 import { useSessionStore } from '../store/useSessionStore';
 import { dbService } from '../services/db.service';
-import { Header } from '../components/layout/Header';
 import { UploadView } from '../components/features/sessions/UploadView';
 import { SessionView } from '../components/features/sessions/SessionView';
 import { Icon } from '../components/ui/Icon';
@@ -87,7 +86,6 @@ export function PatientProfilePage() {
   if (isLoading && !activeProject) {
     return (
       <div className="flex flex-col h-full">
-        <Header title="Loading Patient..." />
         <div className="flex-1 flex items-center justify-center">
           <div className="w-8 h-8 border-4 border-accent/30 border-t-accent rounded-full animate-spin"></div>
         </div>
@@ -98,7 +96,6 @@ export function PatientProfilePage() {
   if (!activeProject) {
     return (
       <div className="flex flex-col h-full">
-        <Header title="Patient Not Found" />
         <div className="flex-1 flex flex-col items-center justify-center text-muted">
           <p>The patient you are looking for does not exist.</p>
           <button 
@@ -116,10 +113,8 @@ export function PatientProfilePage() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header 
-        title={isSessionView ? 'Session Analysis' : activeProject.name} 
-        subtitle={isSessionView ? 'Reviewing and analyzing patient session' : 'Patient Workspace'} 
-        action={!isSessionView ? (
+      {!isSessionView && (
+        <div className="px-6 lg:px-8 pt-6 flex justify-end">
           <button 
             onClick={() => setIsUploadModalOpen(true)}
             className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-background px-5 py-2.5 rounded-full font-bold transition-all duration-300 shadow-lg shadow-accent/30 hover:shadow-xl shadow-accent/50 focus-ring"
@@ -127,10 +122,10 @@ export function PatientProfilePage() {
             <Icon name="add" className="text-xl" />
             New Session
           </button>
-        ) : undefined}
-      />
+        </div>
+      )}
       
-      <div className="flex-1 overflow-auto p-6 lg:p-8 relative">
+      <div className={cn("flex-1 relative", isSessionView ? "overflow-hidden" : "overflow-auto p-6 lg:p-8")}>
         <AnimatePresence>
           {isUploadModalOpen && (
             <motion.div 

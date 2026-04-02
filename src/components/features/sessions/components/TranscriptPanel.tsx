@@ -105,7 +105,7 @@ export function TranscriptPanel({
   }
 
   return (
-    <div className="absolute inset-0 overflow-auto p-8 lg:p-10 custom-scrollbar">
+    <div className="absolute inset-0 overflow-y-auto p-5 lg:p-6 custom-scrollbar">
       <div className="transcript-chat-container space-y-6 pb-10">
         <ReactMarkdown 
           components={{

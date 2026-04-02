@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Icon } from '../../../components/ui/Icon';
 import { cn } from '../../../lib/utils';
 import { useSessionStore } from '../../../store/useSessionStore';
-import { MediaPanel } from './components/MediaPanel';
-import { TranscriptPanel } from './components/TranscriptPanel';
-import { AnalysisPanel } from './components/AnalysisPanel';
+import { VideoPlayerWidget } from './components/VideoPlayerWidget';
+import { TranscriptionWidget } from './components/TranscriptionWidget';
+import { SessionTimeline } from './components/SessionTimeline';
 
 interface SessionViewProps {
   file: File | null;
@@ -13,7 +13,7 @@ interface SessionViewProps {
   onBack: () => void;
 }
 
-type Tab = 'transcript' | 'analysis';
+type Tab = 'transcript' | 'analysis' | 'emotions' | 'speech';
 
 export function SessionView({ file, sessionId, projectId, onBack }: SessionViewProps) {
   const [activeTab, setActiveTab] = useState<Tab>('transcript');
@@ -26,6 +26,9 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   const audioRef = useRef<HTMLAudioElement>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const processedFileRef = useRef<File | null>(null);
+  
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   const { 
     transcript, 
@@ -63,6 +66,29 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
     }
   }, [messages, activeTab]);
 
+  const isProcessing = transcriptionState.step !== 'completed' && transcriptionState.step !== 'error' && transcriptionState.step !== 'idle';
+  const isVideo = sessionFile?.type?.startsWith('video/') || session?.fileType?.startsWith('video/');
+
+  useEffect(() => {
+    const mediaEl = videoRef.current || audioRef.current;
+    if (!mediaEl) return;
+
+    const updateTime = () => setCurrentTime(mediaEl.currentTime);
+    const updateDuration = () => setDuration(mediaEl.duration);
+
+    mediaEl.addEventListener('timeupdate', updateTime);
+    mediaEl.addEventListener('loadedmetadata', updateDuration);
+    
+    if (mediaEl.readyState >= 1) {
+      setDuration(mediaEl.duration);
+    }
+
+    return () => {
+      mediaEl.removeEventListener('timeupdate', updateTime);
+      mediaEl.removeEventListener('loadedmetadata', updateDuration);
+    };
+  }, [videoUrl, isVideo]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isAnalyzing || !transcript) return;
@@ -82,9 +108,6 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
     setIsEditingTranscript(true);
   };
 
-  const isProcessing = transcriptionState.step !== 'completed' && transcriptionState.step !== 'error' && transcriptionState.step !== 'idle';
-  const isVideo = sessionFile?.type?.startsWith('video/') || session?.fileType?.startsWith('video/');
-
   const handleSeek = (timeString: string) => {
     const parts = timeString.split(':').map(Number);
     let seconds = 0;
@@ -93,7 +116,10 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
     } else if (parts.length === 3) {
       seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
     }
-    
+    handleSeekTo(seconds);
+  };
+
+  const handleSeekTo = (seconds: number) => {
     if (videoRef.current) {
       videoRef.current.currentTime = seconds;
       videoRef.current.play().catch(() => {});
@@ -104,102 +130,49 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   };
 
   return (
-    <div className="h-full flex flex-col lg:flex-row gap-6">
-      <MediaPanel 
-        onBack={onBack}
-        videoUrl={videoUrl}
-        isVideo={isVideo}
-        isProcessing={isProcessing}
-        transcriptionState={transcriptionState}
-        session={session}
-        file={file}
-        videoRef={videoRef}
-        audioRef={audioRef}
-      />
+    <div className="h-full grid grid-cols-1 xl:grid-cols-12 gap-6">
+      {/* Left Column: Media Core */}
+      <div className="xl:col-span-8 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar pr-2 pb-4">
+        <VideoPlayerWidget 
+          onBack={onBack}
+          videoUrl={videoUrl}
+          isVideo={isVideo}
+          isProcessing={isProcessing}
+          transcriptionState={transcriptionState}
+          session={session}
+          file={file}
+          videoRef={videoRef}
+          audioRef={audioRef}
+        />
+        <SessionTimeline 
+          currentTime={currentTime}
+          duration={duration}
+          onSeek={handleSeekTo}
+        />
+      </div>
 
-      <div className="w-full lg:w-8/12 flex flex-col card-premium overflow-hidden h-[calc(100vh-8rem)] relative">
-        <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-accent/5 to-transparent pointer-events-none z-0"></div>
-
-        <div className="flex items-center justify-between p-4 border-b border-border bg-background/40 relative z-10">
-          <div className="flex bg-background/80 p-1.5 rounded-2xl w-full max-w-md border border-border shadow-inner">
-            <button
-              onClick={() => setActiveTab('transcript')}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 focus-ring border-t border-transparent",
-                activeTab === 'transcript' 
-                  ? "bg-surface-hover text-primary shadow-md border-border-hover border-t-border-glass" 
-                  : "text-subtle hover:text-secondary hover:bg-surface/50"
-              )}
-            >
-              <Icon name="description" filled={activeTab === 'transcript'} className="text-lg" />
-              Transcription
-            </button>
-            <button
-              onClick={() => setActiveTab('analysis')}
-              disabled={isProcessing || transcriptionState.step === 'error'}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 focus-ring border-t border-transparent",
-                activeTab === 'analysis' 
-                  ? "bg-accent/10 text-accent-hover shadow-md border-accent/20 border-t-border-glass glow-accent" 
-                  : "text-subtle hover:text-secondary hover:bg-surface/50 disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
-            >
-              <Icon name="auto_awesome" filled={activeTab === 'analysis'} className="text-lg" />
-              AI Analysis
-            </button>
-          </div>
-          
-          {activeTab === 'transcript' && transcriptionState.step === 'completed' && !isEditingTranscript && (
-            <button 
-              onClick={handleStartEdit}
-              className="mr-2 flex items-center gap-1.5 text-sm font-medium text-muted hover:text-accent-hover transition-colors px-3 py-1.5 rounded-xl hover:bg-surface-hover focus-ring"
-            >
-              <Icon name="edit" className="text-lg" />
-              Edit
-            </button>
-          )}
-          {activeTab === 'transcript' && isEditingTranscript && (
-            <div className="flex items-center gap-2 mr-2">
-              <button 
-                onClick={() => setIsEditingTranscript(false)}
-                className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-secondary transition-colors px-3 py-1.5 rounded-xl hover:bg-surface-hover focus-ring"
-              >
-                <Icon name="close" className="text-lg" />
-                Cancel
-              </button>
-              <button 
-                onClick={handleSaveTranscript}
-                className="flex items-center gap-1.5 text-sm font-bold text-background bg-premium-gradient hover:scale-105 transition-all px-4 py-2 rounded-xl shadow-lg shadow-accent/20 border-t border-border-premium glow-accent"
-              >
-                <Icon name="save" className="text-lg" />
-                Save
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="flex-1 overflow-hidden relative z-10">
-          {activeTab === 'transcript' ? (
-            <TranscriptPanel 
-              transcript={transcript}
-              transcriptionState={transcriptionState}
-              isProcessing={isProcessing}
-              isEditingTranscript={isEditingTranscript}
-              editedTranscript={editedTranscript}
-              setEditedTranscript={setEditedTranscript}
-              handleSeek={handleSeek}
-            />
-          ) : (
-            <AnalysisPanel 
-              messages={messages}
-              isAnalyzing={isAnalyzing}
-              inputMessage={inputMessage}
-              setInputMessage={setInputMessage}
-              handleSendMessage={handleSendMessage}
-              messagesEndRef={messagesEndRef}
-            />
-          )}
-        </div>
+      {/* Right Column: Multifunctional Sidebar */}
+      <div className="xl:col-span-4 flex flex-col h-full overflow-hidden">
+        <TranscriptionWidget 
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          isProcessing={isProcessing}
+          transcriptionState={transcriptionState}
+          isEditingTranscript={isEditingTranscript}
+          setIsEditingTranscript={setIsEditingTranscript}
+          handleStartEdit={handleStartEdit}
+          handleSaveTranscript={handleSaveTranscript}
+          transcript={transcript}
+          editedTranscript={editedTranscript}
+          setEditedTranscript={setEditedTranscript}
+          handleSeek={handleSeek}
+          messages={messages}
+          isAnalyzing={isAnalyzing}
+          inputMessage={inputMessage}
+          setInputMessage={setInputMessage}
+          handleSendMessage={handleSendMessage}
+          messagesEndRef={messagesEndRef}
+        />
       </div>
     </div>
   );

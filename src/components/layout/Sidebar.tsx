@@ -57,7 +57,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
                 <Icon 
                   name={item.iconName} 
                   filled={isActive} 
-                  className={cn("text-[40px] transition-transform duration-300 group-hover:scale-110 relative z-10", isActive ? "text-primary" : "text-subtle")} 
+                  className={cn("text-3xl transition-transform duration-300 group-hover:scale-110 relative z-10", isActive ? "text-primary" : "text-subtle")} 
                 />
                 {!isCollapsed && <span className="relative z-10">{item.label}</span>}
                 
@@ -70,7 +70,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
 
                 {isActive && (
                   <>
-                    <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_rgba(67,97,238,0.5)]"></div>
+                    <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_color-mix(in_srgb,var(--color-accent)_50%,transparent)]"></div>
                     <div className={cn(
                       "absolute top-0 bottom-0 z-0 pointer-events-none",
                       isCollapsed ? "right-0 w-1 blur-[6px] bg-accent/50" : "right-[-16px] w-20 bg-accent blur-[20px] opacity-50"
@@ -91,7 +91,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
           <div className="absolute -top-10 -right-10 w-24 h-24 bg-accent/10 rounded-full blur-2xl group-hover:bg-accent/20 transition-all duration-500"></div>
           
           <div className={cn("flex items-center gap-2 text-accent", isCollapsed ? "justify-center" : "")}>
-            <Icon name="bolt" filled className="text-[40px] animate-pulse" />
+            <Icon name="bolt" filled className="text-3xl animate-pulse" />
             {!isCollapsed && <span className="font-bold text-sm text-primary tracking-tight">Upgrade to Pro</span>}
           </div>
           {!isCollapsed && (
@@ -99,7 +99,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
               <p className="text-xs text-subtle leading-relaxed font-medium">
                 Unlock advanced AI insights and unlimited patient sessions.
               </p>
-              <button className="w-full py-2.5 mt-1 bg-premium-gradient text-background rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-accent/20 border-t border-border-glass">
+              <button className="w-full py-2.5 mt-1 bg-premium-gradient text-background rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-accent/20 border-t border-border-premium">
                 View Plans
               </button>
             </>
@@ -123,7 +123,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
               <Icon 
                 name="settings" 
                 filled={isActive} 
-                className={cn("text-[40px] transition-transform duration-300 group-hover:scale-110 relative z-10", isActive ? "text-primary" : "text-subtle")} 
+                className={cn("text-3xl transition-transform duration-300 group-hover:scale-110 relative z-10", isActive ? "text-primary" : "text-subtle")} 
               />
               {!isCollapsed && <span className="relative z-10">Settings</span>}
               
@@ -136,7 +136,7 @@ export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) 
 
               {isActive && (
                 <>
-                  <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_rgba(67,97,238,0.5)]"></div>
+                  <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-full blur-[1px] z-10 shadow-[0_0_8px_color-mix(in_srgb,var(--color-accent)_50%,transparent)]"></div>
                   <div className={cn(
                     "absolute top-0 bottom-0 z-0 pointer-events-none",
                     isCollapsed ? "right-0 w-1 blur-[6px] bg-accent/50" : "right-[-16px] w-20 bg-accent blur-[20px] opacity-50"

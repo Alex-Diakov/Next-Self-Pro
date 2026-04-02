@@ -24,7 +24,7 @@ export function AnalysisPanel({
 }: AnalysisPanelProps) {
   return (
     <div className="absolute inset-0 flex flex-col">
-      <div className="flex-1 overflow-auto p-8 space-y-8 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-5 lg:p-6 space-y-6 custom-scrollbar">
         {messages.map((msg) => (
           <motion.div 
             initial={{ opacity: 0, y: 10 }}

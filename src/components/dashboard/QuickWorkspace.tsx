@@ -1,9 +1,47 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'motion/react';
 import { Icon } from '../ui/Icon';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSessionStore } from '../../store/useSessionStore';
 
 export function QuickWorkspace() {
+  const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const setSessionFile = useSessionStore(state => state.setSessionFile);
+  const [isDragging, setIsDragging] = React.useState(false);
+
+  const handleFile = (file: File) => {
+    if (file) {
+      setSessionFile(file);
+      navigate('/sessions/upload');
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const triggerUpload = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -19,7 +57,24 @@ export function QuickWorkspace() {
           <h2 className="text-xl font-bold text-primary tracking-tight">Quick Workspace</h2>
         </div>
 
-        <div className="flex-1 border-2 border-dashed border-border-glass rounded-3xl bg-background/50 hover:bg-surface-glass hover:border-accent/40 transition-all duration-500 group cursor-pointer flex flex-col items-center justify-center p-10 text-center min-h-[350px] w-full">
+        <div 
+          onClick={triggerUpload}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          className={`flex-1 border-2 border-dashed rounded-3xl transition-all duration-500 group cursor-pointer flex flex-col items-center justify-center p-10 text-center min-h-[350px] w-full ${
+            isDragging 
+              ? "border-accent bg-accent/10 shadow-2xl shadow-accent/20" 
+              : "border-border-glass bg-background/50 hover:bg-surface-glass hover:border-accent/40"
+          }`}
+        >
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+            className="hidden" 
+            accept="video/*,audio/*"
+          />
           <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-accent/20 transition-all duration-500 shadow-inner">
             <Icon name="upload_file" filled className="text-4xl text-accent-hover" />
           </div>
@@ -30,7 +85,10 @@ export function QuickWorkspace() {
           </p>
 
           <div className="flex flex-col gap-3 w-full max-w-sm mx-auto">
-            <button className="w-full px-8 py-3.5 bg-premium-gradient text-background rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl shadow-accent/20 border-t border-border-premium flex items-center justify-center gap-2">
+            <button 
+              onClick={(e) => { e.stopPropagation(); triggerUpload(); }}
+              className="w-full px-8 py-3.5 bg-premium-gradient text-background rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl shadow-accent/20 border-t border-border-premium flex items-center justify-center gap-2"
+            >
               <Icon name="cloud_upload" className="text-xl" />
               Upload Media
             </button>
@@ -45,7 +103,11 @@ export function QuickWorkspace() {
           </div>
           
           <div className="mt-8">
-            <Link to="/patients" className="text-sm font-semibold text-accent-hover hover:text-accent transition-colors flex items-center gap-1.5">
+            <Link 
+              to="/patients" 
+              onClick={(e) => e.stopPropagation()}
+              className="text-sm font-semibold text-accent-hover hover:text-accent transition-colors flex items-center gap-1.5"
+            >
               or select an existing patient
               <Icon name="arrow_forward" className="text-sm" />
             </Link>

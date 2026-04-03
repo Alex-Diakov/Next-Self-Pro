@@ -5,7 +5,7 @@ import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { ChatMessage } from '../../../../types';
 
-interface AnalysisPanelProps {
+interface AIChatPanelProps {
   messages: ChatMessage[];
   isAnalyzing: boolean;
   inputMessage: string;
@@ -14,14 +14,14 @@ interface AnalysisPanelProps {
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const AnalysisPanel = React.memo(function AnalysisPanel({
+export const AIChatPanel = React.memo(function AIChatPanel({
   messages,
   isAnalyzing,
   inputMessage,
   setInputMessage,
   handleSendMessage,
   messagesEndRef
-}: AnalysisPanelProps) {
+}: AIChatPanelProps) {
   return (
     <div className="absolute inset-0 flex flex-col">
       <div className="flex-1 overflow-y-auto p-5 lg:p-6 space-y-6 custom-scrollbar">

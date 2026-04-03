@@ -12,8 +12,8 @@ export function UploadView({ onUpload }: UploadViewProps) {
   const [error, setError] = useState<string | null>(null);
 
   const validateAndUpload = useCallback((file: File) => {
-    if (file.size > 20 * 1024 * 1024) {
-      setError("For this prototype, please keep files under 20MB. Consider using a compressed audio file instead.");
+    if (file.size > 100 * 1024 * 1024) {
+      setError("For this prototype, please keep files under 100MB. Consider using a compressed audio file instead.");
       return;
     }
     if (!file.type.startsWith('video/') && !file.type.startsWith('audio/')) {
@@ -82,7 +82,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
               Drag & drop your session file here
             </p>
             <p className="text-sm text-subtle mb-8 font-medium">
-              Supports MP4, WebM, MP3, WAV (Max 20MB for prototype)
+              Supports MP4, WebM, MP3, WAV (Max 100MB for prototype)
             </p>
             <button className="px-10 py-3.5 bg-premium-gradient border-t border-border-premium rounded-xl text-sm font-bold text-background shadow-xl hover:scale-105 transition-all duration-300 pointer-events-none glow-accent">
               Browse Files

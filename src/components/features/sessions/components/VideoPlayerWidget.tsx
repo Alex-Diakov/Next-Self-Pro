@@ -4,6 +4,7 @@ import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { SessionRecord } from '../../../../services/db.service';
 import { TranscriptionState } from '../../../../types';
+import { useSessionStore } from '../../../../store/useSessionStore';
 
 interface VideoPlayerWidgetProps {
   onBack: () => void;
@@ -28,12 +29,29 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
   videoRef,
   audioRef
 }: VideoPlayerWidgetProps) {
+  const { currentTime, isPlaying, togglePlay } = useSessionStore();
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
 
   return (
     <div className="w-full flex flex-col shrink-0">
       <div className="bg-background rounded-[32px] overflow-hidden shadow-premium aspect-video relative flex items-center justify-center border border-border border-t-border-glass group">
         <div className="absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+        {/* Play/Pause Overlay on Hover */}
+        {videoUrl && !isProcessing && (
+          <div 
+            className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20 cursor-pointer"
+            onClick={togglePlay}
+          >
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-2xl"
+            >
+              <Icon name={isPlaying ? "pause" : "play_arrow"} className="text-4xl" />
+            </motion.div>
+          </div>
+        )}
 
         {isProcessing && (
           <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden rounded-[32px]">

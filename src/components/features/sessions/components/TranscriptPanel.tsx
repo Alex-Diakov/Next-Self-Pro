@@ -2,96 +2,53 @@ import React, { useDeferredValue, useMemo, useEffect, useRef } from 'react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { TranscriptionState } from '../../../../types';
+import { useSessionStore } from '../../../../store/useSessionStore';
 
 interface TranscriptPanelProps {
-  transcript: string;
   transcriptionState: TranscriptionState;
   isProcessing: boolean;
   isEditingTranscript: boolean;
   editedTranscript: string;
   setEditedTranscript: (text: string) => void;
-  handleSeek: (time: string) => void;
-  currentTime: number;
 }
 
-interface TranscriptLine {
-  timeString: string;
-  seconds: number;
-  speaker: string;
-  text: string;
-  originalLine: string;
-}
-
-const parseTime = (timeStr: string) => {
+const parseTimeToSeconds = (timeStr: string): number => {
   const parts = timeStr.split(':').map(Number);
   if (parts.length === 2) return parts[0] * 60 + parts[1];
   if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
   return 0;
 };
 
+const formatTime = (seconds: number) => {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+};
+
 export const TranscriptPanel = React.memo(function TranscriptPanel({
-  transcript,
   transcriptionState,
   isProcessing,
   isEditingTranscript,
   editedTranscript,
   setEditedTranscript,
-  handleSeek,
-  currentTime
 }: TranscriptPanelProps) {
   
-  const deferredTranscript = useDeferredValue(transcript);
+  const { transcriptLines, currentTime, seekTo, resetTranscription } = useSessionStore();
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const parsedTranscript = useMemo(() => {
-    if (!deferredTranscript) return [];
-    
-    const lines = deferredTranscript.split('\n');
-    const parsedLines: TranscriptLine[] = [];
-    
-    // Regex to match: [MM:SS] Speaker: Text
-    // Or sometimes just MM:SS Speaker: Text
-    const lineRegex = /^\[?(\d{1,2}:\d{2}(?::\d{2})?)\]?\s*(.*?):\s*(.*)$/;
-    
-    for (const line of lines) {
-      if (!line.trim()) continue;
-      
-      const match = line.match(lineRegex);
-      if (match) {
-        parsedLines.push({
-          timeString: match[1],
-          seconds: parseTime(match[1]),
-          speaker: match[2].trim(),
-          text: match[3].trim(),
-          originalLine: line
-        });
-      } else {
-        // If it doesn't match the format, just add it as a text line without speaker/time
-        parsedLines.push({
-          timeString: '',
-          seconds: 0,
-          speaker: '',
-          text: line,
-          originalLine: line
-        });
-      }
-    }
-    
-    return parsedLines;
-  }, [deferredTranscript]);
-
   const activeLineIndex = useMemo(() => {
-    if (!parsedTranscript.length) return -1;
+    if (!transcriptLines.length) return -1;
     let activeIdx = -1;
-    for (let i = 0; i < parsedTranscript.length; i++) {
-      if (parsedTranscript[i].seconds <= currentTime) {
+    for (let i = 0; i < transcriptLines.length; i++) {
+      const lineSeconds = parseTimeToSeconds(transcriptLines[i].timestamp);
+      if (lineSeconds <= currentTime) {
         activeIdx = i;
       } else {
         break;
       }
     }
     return activeIdx;
-  }, [parsedTranscript, currentTime]);
+  }, [transcriptLines, currentTime]);
 
   useEffect(() => {
     if (activeLineIndex >= 0 && lineRefs.current[activeLineIndex]) {
@@ -111,7 +68,13 @@ export const TranscriptPanel = React.memo(function TranscriptPanel({
         </div>
         <div>
           <h4 className="text-xl font-bold text-primary mb-2 tracking-tight">Processing Session</h4>
-          <p className="text-sm text-muted font-mono bg-background/50 px-4 py-2 rounded-lg border border-border/50">{transcriptionState.message}</p>
+          <p className="text-sm text-muted font-mono bg-background/50 px-4 py-2 rounded-lg border border-border/50 mb-4">{transcriptionState.message}</p>
+          <button 
+            onClick={() => resetTranscription()}
+            className="text-[10px] uppercase tracking-widest font-bold text-accent hover:text-accent-hover transition-colors"
+          >
+            Reset & Retry
+          </button>
         </div>
         
         <div className="w-full space-y-4 mt-6 text-left bg-background/30 p-6 rounded-3xl border border-border">
@@ -176,54 +139,42 @@ export const TranscriptPanel = React.memo(function TranscriptPanel({
 
   return (
     <div className="absolute inset-0 overflow-y-auto p-5 lg:p-6 custom-scrollbar">
-      <div className="flex flex-col gap-1 pb-10">
-        {parsedTranscript.map((line, index) => {
-          const isActive = index === activeLineIndex;
-
-          if (!line.speaker) {
-            return (
-              <div 
-                key={index} 
-                ref={(el) => { lineRefs.current[index] = el; }}
-                className={cn(
-                  "text-secondary mb-4 p-2 rounded-lg transition-colors",
-                  isActive && "bg-accent/10 border border-accent/20"
-                )}
-              >
-                {line.text}
-              </div>
-            );
-          }
+      <div className="flex flex-col gap-2 pb-10">
+        {transcriptLines.map((line, index) => {
+          const nextLine = transcriptLines[index + 1];
+          const lineSeconds = parseTimeToSeconds(line.timestamp);
+          const nextLineSeconds = nextLine ? parseTimeToSeconds(nextLine.timestamp) : Infinity;
           
-          const isTherapist = line.speaker.toLowerCase().includes('therapist') || line.speaker.toLowerCase().includes('doctor');
+          const isActive = currentTime >= lineSeconds && currentTime < nextLineSeconds;
+          const isTherapist = line.speaker.toLowerCase().includes('психолог') || line.speaker.toLowerCase().includes('терапевт');
           
           return (
             <div 
-              key={index} 
+              key={line.id} 
               ref={(el) => { lineRefs.current[index] = el; }}
-              onClick={() => {
-                if (line.timeString) handleSeek(line.timeString);
-              }}
+              onClick={() => seekTo(lineSeconds)}
               className={cn(
-                "group flex flex-col gap-1.5 p-3 -mx-3 rounded-xl hover:bg-white/[0.03] transition-colors cursor-pointer",
-                isActive && "bg-white/[0.05]"
+                "group flex flex-col gap-1 p-3 border-l-2 transition-colors duration-300 cursor-pointer",
+                isActive 
+                  ? "bg-white/5 border-accent text-white" 
+                  : "border-transparent text-secondary/70 hover:bg-white/[0.02]"
               )}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between">
                 <span className={cn(
-                  "text-sm font-semibold",
-                  isTherapist ? "text-accent" : "text-white"
+                  "text-xs font-bold tracking-wider uppercase",
+                  isTherapist ? "text-accent" : "text-subtle"
                 )}>
                   {line.speaker}
                 </span>
-                {line.timeString && (
-                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-white/5 text-[11px] text-muted-foreground group-hover:bg-accent group-hover:text-white transition-colors">
-                    <Icon name="play_circle" className="text-[12px]" />
-                    {line.timeString}
-                  </span>
-                )}
+                <span className="text-[10px] font-mono text-subtle opacity-50 group-hover:opacity-100 transition-opacity">
+                  {line.timestamp}
+                </span>
               </div>
-              <div className="text-sm text-secondary/90 leading-relaxed tracking-wide">
+              <div className={cn(
+                "text-sm leading-relaxed transition-colors",
+                isActive ? "text-white font-medium" : "text-secondary/80"
+              )}>
                 {line.text}
               </div>
             </div>

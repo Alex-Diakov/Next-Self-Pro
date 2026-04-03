@@ -55,6 +55,24 @@ export interface TranscriptionState {
   error?: string;
 }
 
+export interface AnalysisMarker {
+  id: string;
+  timestamp: number;
+  duration?: number;
+  type: 'emotion' | 'speech' | 'insight';
+  label: string;
+  intensity: number;
+  description: string;
+}
+
+export interface TranscriptLine {
+  id: string;
+  timestamp: string;
+  speaker: string;
+  text: string;
+  isEdited?: boolean;
+}
+
 export type MarkerLabel = 'Insight' | 'Emotion' | 'Resistance' | 'Breakthrough' | 'Other';
 
 export interface SessionMarker {

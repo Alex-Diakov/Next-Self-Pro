@@ -24,22 +24,34 @@ export function SessionsPage() {
   const location = useLocation();
   const { sessionId: urlSessionId } = useParams<{ sessionId?: string }>();
   
-  const [sessionFile, setSessionFile] = useState<File | null>(null);
+  const sessionFile = useSessionStore(state => state.sessionFile as File | null);
+  const setSessionFile = useSessionStore(state => state.setSessionFile);
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
 
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const clearSession = useSessionStore(state => state.clearSession);
 
   const loadSessions = async () => {
+    console.log('SessionsPage: Loading sessions from DB...');
     const loadedSessions = await dbService.getAllSessions();
+    console.log(`SessionsPage: Loaded ${loadedSessions.length} sessions`);
     setSessions(loadedSessions.sort((a, b) => b.date - a.date));
   };
 
   useEffect(() => {
-    if (!sessionFile && !urlSessionId) {
+    console.log('SessionsPage: useEffect triggered', { sessionFile: !!sessionFile, urlSessionId, pathname: location.pathname });
+    
+    // If we are on the main sessions list, always load sessions
+    if (location.pathname === '/sessions' || location.pathname === '/sessions/') {
       loadSessions();
+      
+      // If we have a stale sessionFile while on the list page, clear it
+      if (sessionFile) {
+        console.log('SessionsPage: Clearing stale sessionFile on list page');
+        setSessionFile(null);
+      }
     }
-  }, [sessionFile, urlSessionId]);
+  }, [sessionFile, urlSessionId, location.pathname]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -55,9 +67,14 @@ export function SessionsPage() {
   };
 
   const handleBack = () => {
+    console.log('SessionsPage: Handling back navigation');
     clearSession();
     setSessionFile(null);
     navigate('/sessions');
+    // Force reload sessions after a short delay to ensure DB writes are finished
+    setTimeout(() => {
+      loadSessions();
+    }, 100);
   };
 
   const handleSessionClick = (id: string) => {
@@ -187,16 +204,6 @@ export function SessionsPage() {
             </div>
           } />
 
-          <Route path=":sessionId" element={
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="h-full"
-            >
-              <SessionAnalysisWrapper onBack={handleBack} />
-            </motion.div>
-          } />
-
           <Route path="upload" element={
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
@@ -208,6 +215,16 @@ export function SessionsPage() {
                 sessionId={null}
                 onBack={handleBack} 
               />
+            </motion.div>
+          } />
+
+          <Route path=":sessionId" element={
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="h-full"
+            >
+              <SessionAnalysisWrapper onBack={handleBack} />
             </motion.div>
           } />
         </Routes>

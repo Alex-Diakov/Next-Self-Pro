@@ -2,7 +2,9 @@ import React from 'react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { TranscriptPanel } from './TranscriptPanel';
-import { AnalysisPanel } from './AnalysisPanel';
+import { AIChatPanel } from './AIChatPanel';
+import { EmotionsPanel } from './EmotionsPanel';
+import { SpeechPanel } from './SpeechPanel';
 import { TranscriptionState } from '../../../../types';
 
 interface TranscriptionWidgetProps {
@@ -25,7 +27,6 @@ interface TranscriptionWidgetProps {
   handleSendMessage: (e: React.FormEvent) => Promise<void>;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   currentTime: number;
-  updateTranscript: (text: string) => void;
 }
 
 export const TranscriptionWidget = React.memo(function TranscriptionWidget({
@@ -47,8 +48,7 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
   setInputMessage,
   handleSendMessage,
   messagesEndRef,
-  currentTime,
-  updateTranscript
+  currentTime
 }: TranscriptionWidgetProps) {
   return (
     <div className="w-full flex flex-col bg-surface rounded-[2rem] border border-border-glass shadow-premium overflow-hidden flex-1 min-h-[250px] relative">
@@ -106,24 +106,48 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
             Speech
           </button>
         </div>
+        
+        {activeTab === 'transcript' && transcriptionState.step === 'completed' && !isEditingTranscript && (
+          <button 
+            onClick={handleStartEdit}
+            className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-subtle hover:text-white hover:bg-white/5 rounded-md transition-colors focus-ring"
+          >
+            <Icon name="edit" className="text-[14px]" />
+            Edit
+          </button>
+        )}
+        {activeTab === 'transcript' && isEditingTranscript && (
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsEditingTranscript(false)}
+              className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-subtle hover:text-white hover:bg-white/5 rounded-md transition-colors focus-ring"
+            >
+              <Icon name="close" className="text-[14px]" />
+              Cancel
+            </button>
+            <button 
+              onClick={handleSaveTranscript}
+              className="flex items-center gap-1.5 text-xs font-bold text-background bg-premium-gradient hover:scale-105 transition-all px-3 py-1.5 rounded-md shadow-lg shadow-accent/20 border-t border-border-premium glow-accent"
+            >
+              <Icon name="save" className="text-[14px]" />
+              Save
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-hidden relative z-10">
         {activeTab === 'transcript' && (
           <TranscriptPanel 
-            transcript={transcript}
             transcriptionState={transcriptionState}
             isProcessing={isProcessing}
             isEditingTranscript={isEditingTranscript}
             editedTranscript={editedTranscript}
             setEditedTranscript={setEditedTranscript}
-            handleSeek={handleSeek}
-            currentTime={currentTime}
-            updateTranscript={updateTranscript}
           />
         )}
         {activeTab === 'analysis' && (
-          <AnalysisPanel 
+          <AIChatPanel 
             messages={messages}
             isAnalyzing={isAnalyzing}
             inputMessage={inputMessage}
@@ -133,14 +157,10 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
           />
         )}
         {activeTab === 'emotions' && (
-          <div className="absolute inset-0 flex items-center justify-center text-muted font-mono text-sm">
-            Emotions Analysis (Coming Soon)
-          </div>
+          <EmotionsPanel />
         )}
         {activeTab === 'speech' && (
-          <div className="absolute inset-0 flex items-center justify-center text-muted font-mono text-sm">
-            Speech Analysis (Coming Soon)
-          </div>
+          <SpeechPanel />
         )}
       </div>
     </div>

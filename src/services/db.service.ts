@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { ChatMessage, TranscriptionState, Project } from '../types';
+import { ChatMessage, TranscriptionState, Project, AnalysisMarker, TranscriptLine } from '../types';
 import { SessionRecordSchema, ProjectSchema } from '../schemas/session.schema';
 
 export interface SessionRecord {
@@ -12,9 +12,11 @@ export interface SessionRecord {
   fileType: string;
   fileSize: number;
   transcript: string;
+  transcriptLines?: TranscriptLine[];
   messages: ChatMessage[];
   status: 'processing' | 'completed' | 'error';
   transcriptionState?: TranscriptionState;
+  markers?: AnalysisMarker[];
 }
 
 interface NextSelfDB extends DBSchema {
@@ -85,7 +87,9 @@ class DBService {
 
   async getAllSessions(): Promise<SessionRecord[]> {
     const db = await this.dbPromise;
-    const records = await db.getAllFromIndex('sessions', 'by-date');
+    // Use getAll() instead of getAllFromIndex() to be robust against missing indexes
+    const records = await db.getAll('sessions');
+    console.log(`DBService: Loaded ${records.length} raw session records from IndexedDB`);
     
     // Validate and migrate records using Zod
     const validRecords: SessionRecord[] = [];
@@ -94,10 +98,14 @@ class DBService {
       if (parsed.success) {
         validRecords.push(parsed.data as SessionRecord);
       } else {
-        console.warn(`Skipping invalid session record ${record.id}:`, parsed.error);
+        console.warn(`DBService: Skipping invalid session record ${record.id}:`, parsed.error.format());
       }
     }
-    return validRecords;
+    
+    // Sort manually by date descending
+    const sorted = validRecords.sort((a, b) => b.date - a.date);
+    console.log(`DBService: Returning ${sorted.length} valid session records`);
+    return sorted;
   }
 
   async getSession(id: string): Promise<SessionRecord | undefined> {
@@ -124,23 +132,32 @@ class DBService {
 
   async saveSession(session: SessionRecord): Promise<void> {
     try {
+      console.log('DBService: Saving session:', session.id, session.title);
       const db = await this.dbPromise;
       
       // Extract the file before saving to the sessions store to avoid large blob serialization issues
       const { file, ...sessionWithoutFile } = session;
       
-      // Ensure the data conforms to the schema before saving
-      const parsed = SessionRecordSchema.parse(sessionWithoutFile);
+      // Use safeParse to avoid crashing if data is invalid
+      const parsedResult = SessionRecordSchema.safeParse(sessionWithoutFile);
       
-      const tx = db.transaction(['sessions', 'files'], 'readwrite');
-      await tx.objectStore('sessions').put(parsed as SessionRecord);
-      
-      if (file) {
-        await tx.objectStore('files').put(file, session.id);
+      if (parsedResult.success) {
+        const tx = db.transaction(['sessions', 'files'], 'readwrite');
+        await tx.objectStore('sessions').put(parsedResult.data as SessionRecord);
+        
+        if (file) {
+          await tx.objectStore('files').put(file, session.id);
+          console.log('DBService: File saved for session:', session.id);
+        }
+        
+        await tx.done;
+        console.log('DBService: Session saved successfully:', session.id);
+      } else {
+        console.error(`DBService: Failed to validate session data for ${session.id}:`, parsedResult.error.format());
+        throw new Error(`Invalid session data: ${session.id}`);
       }
-      
-      await tx.done;
     } catch (error) {
+      console.error('DBService: Failed to save session:', session.id, error);
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
         console.error('Storage quota exceeded. Please delete old sessions.');
         throw new Error('Storage quota exceeded. Please delete old sessions to free up space.', { cause: error });
@@ -151,6 +168,7 @@ class DBService {
 
   async updateSession(id: string, updates: Partial<SessionRecord>): Promise<void> {
     try {
+      console.log('DBService: Updating session:', id, Object.keys(updates));
       const db = await this.dbPromise;
       const tx = db.transaction(['sessions', 'files'], 'readwrite');
       const store = tx.objectStore('sessions');
@@ -160,17 +178,27 @@ class DBService {
         const updated = { ...existing, ...updates };
         // Remove file from updated object if it exists to avoid saving it in the sessions store
         const { file, ...sessionWithoutFile } = updated as any;
-        const parsed = SessionRecordSchema.parse(sessionWithoutFile);
-        await store.put(parsed as SessionRecord);
         
-        // Backward compatibility: if the file was in the sessions store, move it to the files store
-        if (file && !(await tx.objectStore('files').get(id))) {
-          await tx.objectStore('files').put(file, id);
+        // Use safeParse to avoid crashing if updates are invalid
+        const parsedResult = SessionRecordSchema.safeParse(sessionWithoutFile);
+        if (parsedResult.success) {
+          await store.put(parsedResult.data as SessionRecord);
+          
+          // Backward compatibility: if the file was in the sessions store, move it to the files store
+          if (file && !(await tx.objectStore('files').get(id))) {
+            await tx.objectStore('files').put(file, id);
+          }
+          console.log('DBService: Session updated successfully:', id);
+        } else {
+          console.error(`DBService: Failed to validate session updates for ${id}:`, parsedResult.error.format());
+          throw new Error(`Invalid session data for update: ${id}`);
         }
+      } else {
+        console.warn(`DBService: Cannot update session ${id} - not found`);
       }
       await tx.done;
     } catch (error) {
-      console.error(`Failed to update session ${id}:`, error);
+      console.error(`DBService: Failed to update session ${id}:`, error);
       throw error;
     }
   }

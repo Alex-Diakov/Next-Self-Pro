@@ -26,10 +26,6 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   const audioRef = useRef<HTMLAudioElement>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const processedFileRef = useRef<File | null>(null);
-  
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const { 
     transcript, 
@@ -41,17 +37,29 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
     sendMessage,
     updateTranscript,
     loadSession,
-    processFile
+    processFile,
+    currentTime,
+    duration,
+    isPlaying,
+    setCurrentTime,
+    setDuration,
+    setIsPlaying,
+    togglePlay
   } = useSessionStore();
 
   useEffect(() => {
+    console.log('SessionView: useEffect triggered', { sessionId, hasFile: !!file });
     if (sessionId) {
       loadSession(sessionId);
     } else if (file && processedFileRef.current !== file) {
+      console.log('SessionView: Starting file processing');
       processedFileRef.current = file;
       processFile(file, projectId);
+    } else if (!file && !sessionId) {
+      console.log('SessionView: No file and no sessionId, redirecting back');
+      onBack();
     }
-  }, [sessionId, file, loadSession, processFile, projectId]);
+  }, [sessionId, file, loadSession, processFile, projectId, onBack]);
 
   useEffect(() => {
     if (sessionFile) {
@@ -94,18 +102,30 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
       mediaEl.removeEventListener('play', handlePlay);
       mediaEl.removeEventListener('pause', handlePause);
     };
-  }, [videoUrl, isVideo]);
+  }, [videoUrl, isVideo, setCurrentTime, setDuration, setIsPlaying]);
 
-  const handleTogglePlay = useCallback(() => {
+  // Sync store's isPlaying state to media element
+  useEffect(() => {
     const mediaEl = videoRef.current || audioRef.current;
     if (!mediaEl) return;
-    
-    if (mediaEl.paused) {
+
+    if (isPlaying && mediaEl.paused) {
       mediaEl.play().catch(() => {});
-    } else {
+    } else if (!isPlaying && !mediaEl.paused) {
       mediaEl.pause();
     }
-  }, []);
+  }, [isPlaying]);
+
+  // Sync store's currentTime to media element when seeking
+  useEffect(() => {
+    const mediaEl = videoRef.current || audioRef.current;
+    if (!mediaEl) return;
+
+    // Only seek if the difference is significant (e.g., > 0.5s) to avoid stuttering during normal playback
+    if (Math.abs(mediaEl.currentTime - currentTime) > 0.5) {
+      mediaEl.currentTime = currentTime;
+    }
+  }, [currentTime]);
 
   const handleSendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,13 +182,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
           videoRef={videoRef}
           audioRef={audioRef}
         />
-        <SessionTimeline 
-          currentTime={currentTime}
-          duration={duration}
-          onSeek={handleSeekTo}
-          isPlaying={isPlaying}
-          onTogglePlay={handleTogglePlay}
-        />
+        <SessionTimeline />
       </div>
 
       {/* Right Column: Multifunctional Sidebar */}
@@ -193,7 +207,6 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
           handleSendMessage={handleSendMessage}
           messagesEndRef={messagesEndRef}
           currentTime={currentTime}
-          updateTranscript={updateTranscript}
         />
       </div>
     </div>

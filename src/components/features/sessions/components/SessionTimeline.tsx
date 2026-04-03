@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
+import { useSessionStore } from '../../../../store/useSessionStore';
+import { AnalysisMarker } from '../../../../types';
 
 export type MarkerLabel = 'Insight' | 'Emotion' | 'Resistance' | 'Breakthrough' | 'Other';
 
@@ -9,41 +11,37 @@ export interface SessionMarker {
   id: string;
   timestamp: number;
   endTime?: number;
-  label: MarkerLabel;
+  label: string;
   color: string;
   notes?: string;
+  type: 'emotion' | 'speech' | 'insight';
 }
-
-const MOCK_MARKERS: SessionMarker[] = [
-  { id: '1', timestamp: 45, label: 'Insight', color: 'bg-blue-500', notes: 'Patient realized the connection between past events and current anxiety.' },
-  { id: '2', timestamp: 120, endTime: 150, label: 'Emotion', color: 'bg-purple-500', notes: 'Strong emotional response when discussing family dynamics.' },
-  { id: '3', timestamp: 210, label: 'Resistance', color: 'bg-orange-500', notes: 'Avoided answering the direct question about recent conflicts.' }
-];
 
 interface SessionTimelineProps {
-  currentTime: number;
-  duration: number;
-  onSeek: (seconds: number) => void;
-  isPlaying: boolean;
-  onTogglePlay: () => void;
+  // Props removed as we use store now
 }
 
-export function SessionTimeline({ currentTime, duration, onSeek, isPlaying, onTogglePlay }: SessionTimelineProps) {
+export function SessionTimeline({}: SessionTimelineProps) {
+  const { currentTime, duration, isPlaying, seekTo, togglePlay, markers: storeMarkers } = useSessionStore();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [markers, setMarkers] = useState<SessionMarker[]>(MOCK_MARKERS);
   const [isDragging, setIsDragging] = useState(false);
+
+  const markers = useMemo(() => {
+    return storeMarkers.map(m => ({
+      id: m.id,
+      timestamp: m.timestamp,
+      endTime: m.duration ? m.timestamp + m.duration : undefined,
+      label: m.label,
+      color: m.type === 'emotion' ? 'bg-purple-500' : m.type === 'insight' ? 'bg-blue-500' : 'bg-orange-500',
+      notes: m.description,
+      type: m.type
+    }));
+  }, [storeMarkers]);
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   const handleAddMarker = () => {
-    const newMarker: SessionMarker = {
-      id: Date.now().toString(),
-      timestamp: currentTime,
-      label: 'Insight',
-      color: 'bg-blue-500',
-      notes: 'New instant marker added during playback.'
-    };
-    setMarkers([...markers, newMarker]);
+    // This will be implemented in the next phase
   };
 
   const formatTime = (seconds: number) => {
@@ -54,7 +52,7 @@ export function SessionTimeline({ currentTime, duration, onSeek, isPlaying, onTo
   };
 
   const handleSeekTo = (seconds: number) => {
-    onSeek(Math.max(0, Math.min(duration, seconds)));
+    seekTo(Math.max(0, Math.min(duration, seconds)));
   };
 
   const handleTrackInteraction = (e: React.MouseEvent | React.TouchEvent) => {
@@ -86,14 +84,14 @@ export function SessionTimeline({ currentTime, duration, onSeek, isPlaying, onTo
   };
 
   return (
-    <div className="w-full shrink-0 bg-surface rounded-[2rem] border border-border-glass overflow-hidden transition-all duration-300 shadow-premium">
+    <div className="w-full shrink-0 bg-surface rounded-[2rem] border border-border-glass transition-all duration-300 shadow-premium relative z-10">
       {/* Header / Collapsed View */}
       <div 
         className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-surface-hover/30 transition-colors"
       >
         <div className="flex items-center gap-3 w-full">
           <button 
-            onClick={(e) => { e.stopPropagation(); onTogglePlay(); }}
+            onClick={(e) => { e.stopPropagation(); togglePlay(); }}
             className="w-10 h-10 rounded-full bg-accent/10 hover:bg-accent/20 flex items-center justify-center text-accent transition-colors focus-ring"
           >
             <Icon name={isPlaying ? "pause" : "play_arrow"} className="text-2xl" />
@@ -142,7 +140,7 @@ export function SessionTimeline({ currentTime, duration, onSeek, isPlaying, onTo
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-border/30 select-none"
+            className="border-t border-border/30 select-none relative"
           >
             <div className="p-4 flex flex-col gap-6">
               {/* Controls */}
@@ -163,79 +161,181 @@ export function SessionTimeline({ currentTime, duration, onSeek, isPlaying, onTo
               </div>
 
               {/* Main Track */}
-              <div 
-                className="relative w-full h-12 bg-background/50 rounded-xl border border-border/50 flex items-center px-2 cursor-pointer group/track touch-none"
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerUp}
-              >
-                {/* Progress Fill */}
-                <div className="absolute left-0 top-0 h-full w-full px-2 pointer-events-none">
-                   <div className="relative w-full h-full flex items-center">
-                      <div className="w-full h-2 bg-surface-hover rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-accent/50 transition-all duration-100"
-                          style={{ width: `${progressPercent}%` }}
-                        />
-                      </div>
-                   </div>
-                </div>
-
-                {/* Markers */}
-                <div className="absolute left-0 top-0 w-full h-full px-2 pointer-events-none">
-                  <div className="relative w-full h-full">
-                    {markers.map(marker => {
-                      const leftPercent = (marker.timestamp / (duration || 1)) * 100;
-                      const widthPercent = marker.endTime ? ((marker.endTime - marker.timestamp) / (duration || 1)) * 100 : 0;
-                      
-                      return (
-                        <div 
-                          key={marker.id}
-                          className="absolute top-1/2 -translate-y-1/2 group cursor-pointer pointer-events-auto"
-                          style={{ left: `${leftPercent}%`, width: marker.endTime ? `${widthPercent}%` : 'auto' }}
-                          onClick={(e) => { e.stopPropagation(); onSeek(marker.timestamp); }}
-                        >
-                          {marker.endTime ? (
-                            // Range Marker
-                            <div className={cn("h-6 rounded-md opacity-40 hover:opacity-80 transition-opacity border border-white/20", marker.color)} />
-                          ) : (
-                            // Point Marker
-                            <div className={cn("w-3 h-8 rounded-full -ml-1.5 shadow-md border border-white/20 hover:scale-110 transition-transform", marker.color)} />
-                          )}
-                          
-                          {/* Premium Tooltip */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                            <div className="bg-surface-hover/95 backdrop-blur-xl border border-border-glass shadow-premium rounded-xl p-3 w-56 flex flex-col gap-1.5">
-                              <div className="flex items-center gap-2">
-                                <div className={cn("w-2.5 h-2.5 rounded-full shadow-sm", marker.color)} />
-                                <span className="text-xs font-bold text-secondary">{marker.label}</span>
-                                <span className="text-[10px] font-mono text-subtle ml-auto bg-background/50 px-1.5 py-0.5 rounded-md border border-border/50">
-                                  {formatTime(marker.timestamp)} {marker.endTime && `- ${formatTime(marker.endTime)}`}
-                                </span>
-                              </div>
-                              {marker.notes && (
-                                <p className="text-xs text-muted leading-relaxed mt-1">{marker.notes}</p>
-                              )}
-                            </div>
-                            {/* Tooltip Arrow */}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-surface-hover/95" />
-                          </div>
+              <div className="flex flex-col gap-4">
+                <div 
+                  className="relative w-full h-12 bg-background/50 rounded-xl border border-border/50 flex items-center px-2 cursor-pointer group/track touch-none"
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                >
+                  {/* Progress Fill */}
+                  <div className="absolute left-0 top-0 h-full w-full px-2 pointer-events-none">
+                    <div className="relative w-full h-full flex items-center">
+                        <div className="w-full h-2 bg-surface-hover rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-accent/50 transition-all duration-100"
+                            style={{ width: `${progressPercent}%` }}
+                          />
                         </div>
-                      );
-                    })}
+                    </div>
+                  </div>
+
+                  {/* Markers */}
+                  <div className="absolute left-0 top-0 w-full h-full px-2 pointer-events-none">
+                    <div className="relative w-full h-full">
+                      {markers.map(marker => {
+                        const leftPercent = (marker.timestamp / (duration || 1)) * 100;
+                        const widthPercent = marker.endTime ? ((marker.endTime - marker.timestamp) / (duration || 1)) * 100 : 0;
+                        
+                        // Smart tooltip alignment to prevent edge clipping
+                        const tooltipAlignClass = leftPercent < 20 ? 'left-0 translate-x-0' : leftPercent > 80 ? 'right-0 translate-x-0' : 'left-1/2 -translate-x-1/2';
+                        const arrowAlignClass = leftPercent < 20 ? 'left-4 translate-x-0' : leftPercent > 80 ? 'right-4 translate-x-0' : 'left-1/2 -translate-x-1/2';
+
+                        return (
+                          <div 
+                            key={marker.id}
+                            className="absolute top-1/2 -translate-y-1/2 group cursor-pointer pointer-events-auto z-20"
+                            style={{ left: `${leftPercent}%`, width: marker.endTime ? `${widthPercent}%` : 'auto' }}
+                            onClick={(e) => { e.stopPropagation(); seekTo(marker.timestamp); }}
+                          >
+                            {marker.endTime ? (
+                              // Range Marker
+                              <div className={cn("h-6 rounded-md opacity-40 hover:opacity-80 transition-opacity border border-white/20", marker.color)} />
+                            ) : (
+                              // Point Marker
+                              <div className={cn("w-3 h-8 rounded-full -ml-1.5 shadow-md border border-white/20 hover:scale-110 transition-transform", marker.color)} />
+                            )}
+                            
+                            {/* Premium Tooltip */}
+                            <div className={cn(
+                              "absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[100] translate-y-2 group-hover:translate-y-0",
+                              tooltipAlignClass
+                            )}>
+                              <div className="bg-surface-hover/95 backdrop-blur-xl border border-border-glass shadow-premium rounded-xl p-3 w-64 flex flex-col gap-1.5">
+                                <div className="flex items-center gap-2">
+                                  <div className={cn("w-2.5 h-2.5 rounded-full shadow-sm", marker.color)} />
+                                  <span className="text-xs font-bold text-secondary">{marker.label}</span>
+                                  <span className="text-[10px] font-mono text-subtle ml-auto bg-background/50 px-1.5 py-0.5 rounded-md border border-border/50">
+                                    {formatTime(marker.timestamp)} {marker.endTime && `- ${formatTime(marker.endTime)}`}
+                                  </span>
+                                </div>
+                                {marker.notes && (
+                                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-normal break-words">{marker.notes}</p>
+                                )}
+                              </div>
+                              {/* Tooltip Arrow */}
+                              <div className={cn("absolute top-full -mt-1 border-4 border-transparent border-t-surface-hover/95", arrowAlignClass)} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Playhead */}
+                  <div 
+                    className={cn(
+                      "absolute top-0 bottom-0 w-0.5 bg-accent shadow-[0_0_8px_rgba(var(--accent),0.8)] z-10 pointer-events-none transition-all",
+                      isDragging ? "duration-0" : "duration-100"
+                    )}
+                    style={{ left: `calc(0.5rem + ${progressPercent}% - 1px)` }}
+                  >
+                    <div className="absolute -top-1 -translate-x-1/2 w-3 h-3 bg-accent rounded-full shadow-sm shadow-accent/50" />
                   </div>
                 </div>
 
-                {/* Playhead */}
-                <div 
-                  className={cn(
-                    "absolute top-0 bottom-0 w-0.5 bg-accent shadow-[0_0_8px_rgba(var(--accent),0.8)] z-10 pointer-events-none transition-all",
-                    isDragging ? "duration-0" : "duration-100"
-                  )}
-                  style={{ left: `calc(0.5rem + ${progressPercent}% - 1px)` }}
-                >
-                  <div className="absolute -top-1 -translate-x-1/2 w-3 h-3 bg-accent rounded-full shadow-sm shadow-accent/50" />
+                {/* Analysis Tracks (Heatmaps) */}
+                <div className="space-y-2 px-2">
+                  {/* Emotions Track */}
+                  <div className="flex items-center gap-3">
+                    <span className="w-16 text-[10px] font-mono font-bold text-subtle uppercase tracking-widest">Emotions</span>
+                    <div className="flex-1 h-3 bg-background/30 rounded-full relative border border-border/20">
+                      {storeMarkers.filter(m => m.type === 'emotion').map(m => {
+                        const leftPercent = (m.timestamp / (duration || 1)) * 100;
+                        const tooltipAlignClass = leftPercent < 20 ? 'left-0 translate-x-0' : leftPercent > 80 ? 'right-0 translate-x-0' : 'left-1/2 -translate-x-1/2';
+                        const arrowAlignClass = leftPercent < 20 ? 'left-4 translate-x-0' : leftPercent > 80 ? 'right-4 translate-x-0' : 'left-1/2 -translate-x-1/2';
+
+                        return (
+                          <div 
+                            key={m.id}
+                            className="absolute top-0 h-full bg-purple-500 shadow-[0_0_4px_rgba(168,85,247,0.4)] group/marker cursor-help"
+                            style={{ 
+                              left: `${leftPercent}%`, 
+                              width: `${((m.duration || 1) / (duration || 1)) * 100}%`,
+                              opacity: 0.2 + (m.intensity * 0.8)
+                            }}
+                          >
+                            {/* Heatmap Tooltip */}
+                            <div className={cn(
+                              "absolute bottom-full mb-2 opacity-0 group-hover/marker:opacity-100 transition-all duration-200 pointer-events-none z-[110] translate-y-2 group-hover/marker:translate-y-0",
+                              tooltipAlignClass
+                            )}>
+                              <div className="bg-surface-hover/95 backdrop-blur-xl border border-border-glass shadow-premium rounded-xl p-2 w-48 flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-purple-500" />
+                                  <span className="text-[10px] font-bold text-secondary">{m.label}</span>
+                                  <span className="text-[9px] font-mono text-subtle ml-auto">{Math.round(m.intensity * 100)}%</span>
+                                </div>
+                                {m.description && <p className="text-[9px] text-muted leading-tight line-clamp-2">{m.description}</p>}
+                              </div>
+                              <div className={cn("absolute top-full -mt-1 border-4 border-transparent border-t-surface-hover/95", arrowAlignClass)} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {/* Playhead indicator on track */}
+                      <div 
+                        className="absolute top-0 bottom-0 w-px bg-white/40 z-10 pointer-events-none"
+                        style={{ left: `${progressPercent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Speech Track */}
+                  <div className="flex items-center gap-3">
+                    <span className="w-16 text-[10px] font-mono font-bold text-subtle uppercase tracking-widest">Speech</span>
+                    <div className="flex-1 h-3 bg-background/30 rounded-full relative border border-border/20">
+                      {storeMarkers.filter(m => m.type === 'speech').map(m => {
+                        const leftPercent = (m.timestamp / (duration || 1)) * 100;
+                        const tooltipAlignClass = leftPercent < 20 ? 'left-0 translate-x-0' : leftPercent > 80 ? 'right-0 translate-x-0' : 'left-1/2 -translate-x-1/2';
+                        const arrowAlignClass = leftPercent < 20 ? 'left-4 translate-x-0' : leftPercent > 80 ? 'right-4 translate-x-0' : 'left-1/2 -translate-x-1/2';
+
+                        return (
+                          <div 
+                            key={m.id}
+                            className="absolute top-0 h-full bg-orange-500 shadow-[0_0_4px_rgba(249,115,22,0.4)] group/marker cursor-help"
+                            style={{ 
+                              left: `${leftPercent}%`, 
+                              width: `${((m.duration || 1) / (duration || 1)) * 100}%`,
+                              opacity: 0.2 + (m.intensity * 0.8)
+                            }}
+                          >
+                            {/* Heatmap Tooltip */}
+                            <div className={cn(
+                              "absolute bottom-full mb-2 opacity-0 group-hover/marker:opacity-100 transition-all duration-200 pointer-events-none z-[110] translate-y-2 group-hover/marker:translate-y-0",
+                              tooltipAlignClass
+                            )}>
+                              <div className="bg-surface-hover/95 backdrop-blur-xl border border-border-glass shadow-premium rounded-xl p-2 w-48 flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-orange-500" />
+                                  <span className="text-[10px] font-bold text-secondary">{m.label}</span>
+                                  <span className="text-[9px] font-mono text-subtle ml-auto">{Math.round(m.intensity * 100)}%</span>
+                                </div>
+                                {m.description && <p className="text-[9px] text-muted leading-tight line-clamp-2">{m.description}</p>}
+                              </div>
+                              <div className={cn("absolute top-full -mt-1 border-4 border-transparent border-t-surface-hover/95", arrowAlignClass)} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {/* Playhead indicator on track */}
+                      <div 
+                        className="absolute top-0 bottom-0 w-px bg-white/40 z-10 pointer-events-none"
+                        style={{ left: `${progressPercent}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

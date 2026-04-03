@@ -193,6 +193,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
           handleSendMessage={handleSendMessage}
           messagesEndRef={messagesEndRef}
           currentTime={currentTime}
+          updateTranscript={updateTranscript}
         />
       </div>
     </div>

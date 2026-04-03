@@ -184,7 +184,7 @@ export const TranscriptPanel = React.memo(function TranscriptPanel({
             return (
               <div 
                 key={index} 
-                ref={(el) => (lineRefs.current[index] = el)}
+                ref={(el) => { lineRefs.current[index] = el; }}
                 className={cn(
                   "text-secondary mb-4 p-2 rounded-lg transition-colors",
                   isActive && "bg-accent/10 border border-accent/20"
@@ -200,7 +200,7 @@ export const TranscriptPanel = React.memo(function TranscriptPanel({
           return (
             <div 
               key={index} 
-              ref={(el) => (lineRefs.current[index] = el)}
+              ref={(el) => { lineRefs.current[index] = el; }}
               onClick={() => {
                 if (line.timeString) handleSeek(line.timeString);
               }}

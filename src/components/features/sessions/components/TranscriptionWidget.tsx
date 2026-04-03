@@ -25,6 +25,7 @@ interface TranscriptionWidgetProps {
   handleSendMessage: (e: React.FormEvent) => Promise<void>;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   currentTime: number;
+  updateTranscript: (text: string) => void;
 }
 
 export const TranscriptionWidget = React.memo(function TranscriptionWidget({
@@ -46,7 +47,8 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
   setInputMessage,
   handleSendMessage,
   messagesEndRef,
-  currentTime
+  currentTime,
+  updateTranscript
 }: TranscriptionWidgetProps) {
   return (
     <div className="w-full flex flex-col bg-surface rounded-[2rem] border border-border-glass shadow-premium overflow-hidden flex-1 min-h-[250px] relative">
@@ -104,34 +106,6 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
             Speech
           </button>
         </div>
-        
-        {activeTab === 'transcript' && transcriptionState.step === 'completed' && !isEditingTranscript && (
-          <button 
-            onClick={handleStartEdit}
-            className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-subtle hover:text-white hover:bg-white/5 rounded-md transition-colors focus-ring"
-          >
-            <Icon name="edit" className="text-[14px]" />
-            Edit
-          </button>
-        )}
-        {activeTab === 'transcript' && isEditingTranscript && (
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setIsEditingTranscript(false)}
-              className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-subtle hover:text-white hover:bg-white/5 rounded-md transition-colors focus-ring"
-            >
-              <Icon name="close" className="text-[14px]" />
-              Cancel
-            </button>
-            <button 
-              onClick={handleSaveTranscript}
-              className="flex items-center gap-1.5 text-xs font-bold text-background bg-premium-gradient hover:scale-105 transition-all px-3 py-1.5 rounded-md shadow-lg shadow-accent/20 border-t border-border-premium glow-accent"
-            >
-              <Icon name="save" className="text-[14px]" />
-              Save
-            </button>
-          </div>
-        )}
       </div>
 
       <div className="flex-1 overflow-hidden relative z-10">
@@ -145,6 +119,7 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
             setEditedTranscript={setEditedTranscript}
             handleSeek={handleSeek}
             currentTime={currentTime}
+            updateTranscript={updateTranscript}
           />
         )}
         {activeTab === 'analysis' && (

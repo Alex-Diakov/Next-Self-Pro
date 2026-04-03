@@ -24,9 +24,10 @@ interface TranscriptionWidgetProps {
   setInputMessage: (msg: string) => void;
   handleSendMessage: (e: React.FormEvent) => Promise<void>;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  currentTime: number;
 }
 
-export function TranscriptionWidget({
+export const TranscriptionWidget = React.memo(function TranscriptionWidget({
   activeTab,
   setActiveTab,
   isProcessing,
@@ -44,7 +45,8 @@ export function TranscriptionWidget({
   inputMessage,
   setInputMessage,
   handleSendMessage,
-  messagesEndRef
+  messagesEndRef,
+  currentTime
 }: TranscriptionWidgetProps) {
   return (
     <div className="w-full flex flex-col bg-surface rounded-[2rem] border border-border-glass shadow-premium overflow-hidden flex-1 min-h-[250px] relative">
@@ -142,6 +144,7 @@ export function TranscriptionWidget({
             editedTranscript={editedTranscript}
             setEditedTranscript={setEditedTranscript}
             handleSeek={handleSeek}
+            currentTime={currentTime}
           />
         )}
         {activeTab === 'analysis' && (
@@ -167,4 +170,4 @@ export function TranscriptionWidget({
       </div>
     </div>
   );
-}
+});

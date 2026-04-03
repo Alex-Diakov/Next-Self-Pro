@@ -28,13 +28,17 @@ interface NextSelfDB extends DBSchema {
     value: SessionRecord;
     indexes: { 'by-date': number; 'by-status': string; 'by-project': string };
   };
+  files: {
+    key: string;
+    value: Blob;
+  };
 }
 
 class DBService {
   private dbPromise: Promise<IDBPDatabase<NextSelfDB>>;
 
   constructor() {
-    this.dbPromise = openDB<NextSelfDB>('nextself-db', 3, {
+    this.dbPromise = openDB<NextSelfDB>('nextself-db', 4, {
       upgrade(db, oldVersion, newVersion, transaction) {
         if (oldVersion < 1) {
           // Version 1: Initial schema
@@ -55,6 +59,25 @@ class DBService {
           const sessionStore = transaction.objectStore('sessions');
           sessionStore.createIndex('by-project', 'projectId');
           console.log('Upgraded database to version 3');
+        }
+        if (oldVersion < 4) {
+          // Version 4: Added files store for large blobs
+          const filesStore = db.createObjectStore('files');
+          const sessionStore = transaction.objectStore('sessions');
+          
+          // Migrate existing files to the new store to improve performance
+          sessionStore.openCursor().then(async function migrate(cursor) {
+            if (!cursor) return;
+            const session = cursor.value;
+            if (session.file) {
+              await filesStore.put(session.file, session.id);
+              delete session.file;
+              await cursor.update(session);
+            }
+            return cursor.continue().then(migrate);
+          });
+          
+          console.log('Upgraded database to version 4 and started file migration');
         }
       },
     });
@@ -84,7 +107,15 @@ class DBService {
 
     const parsed = SessionRecordSchema.safeParse(record);
     if (parsed.success) {
-      return parsed.data as SessionRecord;
+      const session = parsed.data as SessionRecord;
+      // If the file is not in the session record, try to load it from the files store
+      if (!session.file) {
+        const file = await db.get('files', id);
+        if (file) {
+          session.file = file;
+        }
+      }
+      return session;
     } else {
       console.error(`Invalid session record ${id}:`, parsed.error);
       return undefined;
@@ -94,9 +125,21 @@ class DBService {
   async saveSession(session: SessionRecord): Promise<void> {
     try {
       const db = await this.dbPromise;
+      
+      // Extract the file before saving to the sessions store to avoid large blob serialization issues
+      const { file, ...sessionWithoutFile } = session;
+      
       // Ensure the data conforms to the schema before saving
-      const parsed = SessionRecordSchema.parse(session);
-      await db.put('sessions', parsed as SessionRecord);
+      const parsed = SessionRecordSchema.parse(sessionWithoutFile);
+      
+      const tx = db.transaction(['sessions', 'files'], 'readwrite');
+      await tx.objectStore('sessions').put(parsed as SessionRecord);
+      
+      if (file) {
+        await tx.objectStore('files').put(file, session.id);
+      }
+      
+      await tx.done;
     } catch (error) {
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
         console.error('Storage quota exceeded. Please delete old sessions.');
@@ -106,9 +149,38 @@ class DBService {
     }
   }
 
+  async updateSession(id: string, updates: Partial<SessionRecord>): Promise<void> {
+    try {
+      const db = await this.dbPromise;
+      const tx = db.transaction(['sessions', 'files'], 'readwrite');
+      const store = tx.objectStore('sessions');
+      const existing = await store.get(id);
+      
+      if (existing) {
+        const updated = { ...existing, ...updates };
+        // Remove file from updated object if it exists to avoid saving it in the sessions store
+        const { file, ...sessionWithoutFile } = updated as any;
+        const parsed = SessionRecordSchema.parse(sessionWithoutFile);
+        await store.put(parsed as SessionRecord);
+        
+        // Backward compatibility: if the file was in the sessions store, move it to the files store
+        if (file && !(await tx.objectStore('files').get(id))) {
+          await tx.objectStore('files').put(file, id);
+        }
+      }
+      await tx.done;
+    } catch (error) {
+      console.error(`Failed to update session ${id}:`, error);
+      throw error;
+    }
+  }
+
   async deleteSession(id: string): Promise<void> {
     const db = await this.dbPromise;
-    await db.delete('sessions', id);
+    const tx = db.transaction(['sessions', 'files'], 'readwrite');
+    await tx.objectStore('sessions').delete(id);
+    await tx.objectStore('files').delete(id);
+    await tx.done;
   }
 
   // Project Methods

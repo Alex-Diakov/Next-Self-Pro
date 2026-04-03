@@ -24,11 +24,14 @@ interface SessionTimelineProps {
   currentTime: number;
   duration: number;
   onSeek: (seconds: number) => void;
+  isPlaying: boolean;
+  onTogglePlay: () => void;
 }
 
-export function SessionTimeline({ currentTime, duration, onSeek }: SessionTimelineProps) {
+export function SessionTimeline({ currentTime, duration, onSeek, isPlaying, onTogglePlay }: SessionTimelineProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [markers, setMarkers] = useState<SessionMarker[]>(MOCK_MARKERS);
+  const [isDragging, setIsDragging] = useState(false);
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
@@ -50,40 +53,85 @@ export function SessionTimeline({ currentTime, duration, onSeek }: SessionTimeli
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
+  const handleSeekTo = (seconds: number) => {
+    onSeek(Math.max(0, Math.min(duration, seconds)));
+  };
+
+  const handleTrackInteraction = (e: React.MouseEvent | React.TouchEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const x = clientX - rect.left - 8; // 8px padding
+    const width = rect.width - 16; // 16px total padding
+    const percent = Math.max(0, Math.min(1, x / width));
+    handleSeekTo(percent * duration);
+  };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    setIsDragging(true);
+    handleTrackInteraction(e as any);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (isDragging) {
+      handleTrackInteraction(e as any);
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (isDragging) {
+      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+      setIsDragging(false);
+    }
+  };
+
   return (
     <div className="w-full shrink-0 bg-surface rounded-[2rem] border border-border-glass overflow-hidden transition-all duration-300 shadow-premium">
       {/* Header / Collapsed View */}
       <div 
         className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-surface-hover/30 transition-colors"
-        onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-3 w-full">
-          <Icon name="timeline" className="text-accent text-xl" />
-          <span className="font-bold text-sm text-secondary whitespace-nowrap">Session Timeline</span>
+          <button 
+            onClick={(e) => { e.stopPropagation(); onTogglePlay(); }}
+            className="w-10 h-10 rounded-full bg-accent/10 hover:bg-accent/20 flex items-center justify-center text-accent transition-colors focus-ring"
+          >
+            <Icon name={isPlaying ? "pause" : "play_arrow"} className="text-2xl" />
+          </button>
           
-          {/* Mini Progress Bar (visible when collapsed) */}
-          {!isExpanded && (
-            <div className="flex-1 mx-4 h-1.5 bg-background rounded-full relative overflow-hidden">
-              <div 
-                className="absolute top-0 left-0 h-full bg-accent transition-all duration-100"
-                style={{ width: `${progressPercent}%` }}
-              />
-              {markers.map(marker => (
-                <div 
-                  key={marker.id}
-                  className={cn("absolute top-0 h-full w-1 rounded-full", marker.color)}
-                  style={{ left: `${(marker.timestamp / (duration || 1)) * 100}%` }}
-                />
-              ))}
-            </div>
-          )}
-          
-          <div className="flex items-center gap-2 text-xs font-mono text-subtle whitespace-nowrap ml-auto">
+          <div className="flex items-center gap-2 text-xs font-mono text-subtle whitespace-nowrap">
             <span>{formatTime(currentTime)}</span>
             <span>/</span>
             <span>{formatTime(duration)}</span>
           </div>
-          <Icon name={isExpanded ? "expand_less" : "expand_more"} className="text-subtle ml-2" />
+          
+          {/* Progress Bar */}
+          <div 
+            className="flex-1 mx-2 h-2 bg-background rounded-full relative overflow-hidden cursor-pointer"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+          >
+            <div 
+              className="absolute top-0 left-0 h-full bg-accent transition-all duration-100"
+              style={{ width: `${progressPercent}%` }}
+            />
+            {markers.map(marker => (
+              <div 
+                key={marker.id}
+                className={cn("absolute top-0 h-full w-1 rounded-full", marker.color)}
+                style={{ left: `${(marker.timestamp / (duration || 1)) * 100}%` }}
+              />
+            ))}
+          </div>
+
+          <button 
+            onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
+            className="p-2 hover:bg-surface-hover rounded-full transition-colors text-subtle"
+          >
+            <Icon name={isExpanded ? "expand_less" : "expand_more"} />
+          </button>
         </div>
       </div>
 
@@ -94,7 +142,7 @@ export function SessionTimeline({ currentTime, duration, onSeek }: SessionTimeli
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-border/30"
+            className="overflow-hidden border-t border-border/30 select-none"
           >
             <div className="p-4 flex flex-col gap-6">
               {/* Controls */}
@@ -115,7 +163,13 @@ export function SessionTimeline({ currentTime, duration, onSeek }: SessionTimeli
               </div>
 
               {/* Main Track */}
-              <div className="relative w-full h-12 bg-background/50 rounded-xl border border-border/50 flex items-center px-2">
+              <div 
+                className="relative w-full h-12 bg-background/50 rounded-xl border border-border/50 flex items-center px-2 cursor-pointer group/track touch-none"
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+              >
                 {/* Progress Fill */}
                 <div className="absolute left-0 top-0 h-full w-full px-2 pointer-events-none">
                    <div className="relative w-full h-full flex items-center">
@@ -129,7 +183,7 @@ export function SessionTimeline({ currentTime, duration, onSeek }: SessionTimeli
                 </div>
 
                 {/* Markers */}
-                <div className="absolute left-0 top-0 w-full h-full px-2">
+                <div className="absolute left-0 top-0 w-full h-full px-2 pointer-events-none">
                   <div className="relative w-full h-full">
                     {markers.map(marker => {
                       const leftPercent = (marker.timestamp / (duration || 1)) * 100;
@@ -138,7 +192,7 @@ export function SessionTimeline({ currentTime, duration, onSeek }: SessionTimeli
                       return (
                         <div 
                           key={marker.id}
-                          className="absolute top-1/2 -translate-y-1/2 group cursor-pointer"
+                          className="absolute top-1/2 -translate-y-1/2 group cursor-pointer pointer-events-auto"
                           style={{ left: `${leftPercent}%`, width: marker.endTime ? `${widthPercent}%` : 'auto' }}
                           onClick={(e) => { e.stopPropagation(); onSeek(marker.timestamp); }}
                         >
@@ -175,7 +229,10 @@ export function SessionTimeline({ currentTime, duration, onSeek }: SessionTimeli
 
                 {/* Playhead */}
                 <div 
-                  className="absolute top-0 bottom-0 w-0.5 bg-accent shadow-[0_0_8px_rgba(var(--accent),0.8)] z-10 pointer-events-none transition-all duration-100"
+                  className={cn(
+                    "absolute top-0 bottom-0 w-0.5 bg-accent shadow-[0_0_8px_rgba(var(--accent),0.8)] z-10 pointer-events-none transition-all",
+                    isDragging ? "duration-0" : "duration-100"
+                  )}
                   style={{ left: `calc(0.5rem + ${progressPercent}% - 1px)` }}
                 >
                   <div className="absolute -top-1 -translate-x-1/2 w-3 h-3 bg-accent rounded-full shadow-sm shadow-accent/50" />

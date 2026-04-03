@@ -39,11 +39,15 @@ class AIService {
       if (onProgress) onProgress('processing_ai', 10);
 
       const prompt = `
-        You are an expert clinical supervisor and transcriptionist.
-        Please provide a highly accurate, verbatim transcript of this therapy session.
-        Identify the speakers as 'Therapist' and 'Client' (or similar based on context).
-        Include timestamps if possible.
-        Format the output clearly using Markdown.
+        You are a professional transcriptionist. Your ONLY task is to transcribe the provided audio/video.
+        
+        STRICT RULES:
+        1. ONLY output the transcription. Do NOT include any metadata, summaries, introductions, or analysis.
+        2. Do NOT translate the text. Transcribe EXACTLY in the original language spoken in the media.
+        3. Format each line strictly as: [MM:SS] Speaker Name: Text
+        4. Identify speakers as 'Therapist' and 'Client' (or similar based on context), or 'Speaker 1', 'Speaker 2'.
+        5. Do NOT add any clinical analysis, cognitive distortion identification, or therapeutic suggestions.
+        6. The output must be pure text following the format above.
       `;
 
       if (onProgress) onProgress('processing_ai', 30);
@@ -62,7 +66,8 @@ class AIService {
           ]
         },
         config: {
-          systemInstruction: "You are an expert clinical psychologist and psychotherapist supervisor. Your goal is to help therapists analyze their sessions, identify cognitive distortions, suggest therapeutic interventions (CBT, ACT, DBT, etc.), and provide professional, empathetic, and scientifically-backed insights. Always maintain a professional, clinical, yet supportive tone."
+          maxOutputTokens: 8192,
+          systemInstruction: "You are a professional, highly accurate transcriptionist. Your sole purpose is to transcribe audio/video exactly as spoken, in the original language, with timestamps. You do not analyze, translate, or summarize."
         }
       }));
 

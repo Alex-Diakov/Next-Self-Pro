@@ -54,3 +54,14 @@ export interface TranscriptionState {
   message: string;
   error?: string;
 }
+
+export type MarkerLabel = 'Insight' | 'Emotion' | 'Resistance' | 'Breakthrough' | 'Other';
+
+export interface SessionMarker {
+  id: string;
+  timestamp: number;
+  endTime?: number;
+  label: MarkerLabel;
+  color: string;
+  notes?: string;
+}

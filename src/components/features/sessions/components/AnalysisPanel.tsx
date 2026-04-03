@@ -14,7 +14,7 @@ interface AnalysisPanelProps {
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export function AnalysisPanel({
+export const AnalysisPanel = React.memo(function AnalysisPanel({
   messages,
   isAnalyzing,
   inputMessage,
@@ -88,4 +88,4 @@ export function AnalysisPanel({
       </div>
     </div>
   );
-}
+});

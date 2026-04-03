@@ -17,7 +17,7 @@ interface VideoPlayerWidgetProps {
   audioRef: React.RefObject<HTMLAudioElement | null>;
 }
 
-export function VideoPlayerWidget({
+export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
   onBack,
   videoUrl,
   isVideo,
@@ -46,13 +46,12 @@ export function VideoPlayerWidget({
             <video 
               ref={videoRef}
               src={videoUrl} 
-              controls 
               className="w-full h-full object-contain bg-black/50 rounded-xl"
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle">
               <Icon name="play_circle" className="text-6xl mb-4 opacity-30" />
-              <audio ref={audioRef} src={videoUrl} controls className="w-3/4" />
+              <audio ref={audioRef} src={videoUrl} className="w-3/4" />
             </div>
           )
         ) : transcriptionState.step === 'completed' && !file ? (
@@ -69,4 +68,4 @@ export function VideoPlayerWidget({
       </div>
     </div>
   );
-}
+});

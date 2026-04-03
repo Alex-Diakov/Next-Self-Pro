@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Icon } from '../../../components/ui/Icon';
 import { cn } from '../../../lib/utils';
 import { useSessionStore } from '../../../store/useSessionStore';
@@ -29,6 +29,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const { 
     transcript, 
@@ -75,9 +76,13 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
 
     const updateTime = () => setCurrentTime(mediaEl.currentTime);
     const updateDuration = () => setDuration(mediaEl.duration);
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
 
     mediaEl.addEventListener('timeupdate', updateTime);
     mediaEl.addEventListener('loadedmetadata', updateDuration);
+    mediaEl.addEventListener('play', handlePlay);
+    mediaEl.addEventListener('pause', handlePause);
     
     if (mediaEl.readyState >= 1) {
       setDuration(mediaEl.duration);
@@ -86,29 +91,52 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
     return () => {
       mediaEl.removeEventListener('timeupdate', updateTime);
       mediaEl.removeEventListener('loadedmetadata', updateDuration);
+      mediaEl.removeEventListener('play', handlePlay);
+      mediaEl.removeEventListener('pause', handlePause);
     };
   }, [videoUrl, isVideo]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleTogglePlay = useCallback(() => {
+    const mediaEl = videoRef.current || audioRef.current;
+    if (!mediaEl) return;
+    
+    if (mediaEl.paused) {
+      mediaEl.play().catch(() => {});
+    } else {
+      mediaEl.pause();
+    }
+  }, []);
+
+  const handleSendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isAnalyzing || !transcript) return;
     
     const msg = inputMessage;
     setInputMessage('');
     await sendMessage(msg);
-  };
+  }, [inputMessage, isAnalyzing, transcript, sendMessage]);
 
-  const handleSaveTranscript = () => {
+  const handleSaveTranscript = useCallback(() => {
     updateTranscript(editedTranscript);
     setIsEditingTranscript(false);
-  };
+  }, [editedTranscript, updateTranscript]);
 
-  const handleStartEdit = () => {
+  const handleStartEdit = useCallback(() => {
     setEditedTranscript(transcript);
     setIsEditingTranscript(true);
-  };
+  }, [transcript]);
 
-  const handleSeek = (timeString: string) => {
+  const handleSeekTo = useCallback((seconds: number, play: boolean = false) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = seconds;
+      if (play) videoRef.current.play().catch(() => {});
+    } else if (audioRef.current) {
+      audioRef.current.currentTime = seconds;
+      if (play) audioRef.current.play().catch(() => {});
+    }
+  }, []);
+
+  const handleSeek = useCallback((timeString: string) => {
     const parts = timeString.split(':').map(Number);
     let seconds = 0;
     if (parts.length === 2) {
@@ -116,23 +144,13 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
     } else if (parts.length === 3) {
       seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
     }
-    handleSeekTo(seconds);
-  };
-
-  const handleSeekTo = (seconds: number) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = seconds;
-      videoRef.current.play().catch(() => {});
-    } else if (audioRef.current) {
-      audioRef.current.currentTime = seconds;
-      audioRef.current.play().catch(() => {});
-    }
-  };
+    handleSeekTo(seconds, true);
+  }, [handleSeekTo]);
 
   return (
     <div className="h-full grid grid-cols-1 xl:grid-cols-12 gap-6">
       {/* Left Column: Media Core */}
-      <div className="xl:col-span-8 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar pr-2 pb-4">
+      <div className="xl:col-span-8 flex flex-col gap-2 h-full overflow-y-auto custom-scrollbar pr-2 pb-4">
         <VideoPlayerWidget 
           onBack={onBack}
           videoUrl={videoUrl}
@@ -148,6 +166,8 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
           currentTime={currentTime}
           duration={duration}
           onSeek={handleSeekTo}
+          isPlaying={isPlaying}
+          onTogglePlay={handleTogglePlay}
         />
       </div>
 
@@ -172,6 +192,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
           setInputMessage={setInputMessage}
           handleSendMessage={handleSendMessage}
           messagesEndRef={messagesEndRef}
+          currentTime={currentTime}
         />
       </div>
     </div>

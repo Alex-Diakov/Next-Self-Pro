@@ -1,5 +1,4 @@
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
+import React, { useDeferredValue, useMemo, useEffect, useRef } from 'react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { TranscriptionState } from '../../../../types';
@@ -12,25 +11,96 @@ interface TranscriptPanelProps {
   editedTranscript: string;
   setEditedTranscript: (text: string) => void;
   handleSeek: (time: string) => void;
+  currentTime: number;
 }
 
-export function TranscriptPanel({
+interface TranscriptLine {
+  timeString: string;
+  seconds: number;
+  speaker: string;
+  text: string;
+  originalLine: string;
+}
+
+const parseTime = (timeStr: string) => {
+  const parts = timeStr.split(':').map(Number);
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return 0;
+};
+
+export const TranscriptPanel = React.memo(function TranscriptPanel({
   transcript,
   transcriptionState,
   isProcessing,
   isEditingTranscript,
   editedTranscript,
   setEditedTranscript,
-  handleSeek
+  handleSeek,
+  currentTime
 }: TranscriptPanelProps) {
   
-  const processTranscript = (text: string) => {
-    if (!text) return '';
-    let processed = text.replace(/\[?(\d{1,2}:\d{2}(?::\d{2})?)\]?/g, '[$1](#seek-$1)');
-    processed = processed.replace(/^(Therapist|Doctor|Interviewer|Speaker 1):\s*/gm, '> **Therapist:** ');
-    processed = processed.replace(/^(Client|Patient|Interviewee|Speaker 2):\s*/gm, '> **Client:** ');
-    return processed;
-  };
+  const deferredTranscript = useDeferredValue(transcript);
+  const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const parsedTranscript = useMemo(() => {
+    if (!deferredTranscript) return [];
+    
+    const lines = deferredTranscript.split('\n');
+    const parsedLines: TranscriptLine[] = [];
+    
+    // Regex to match: [MM:SS] Speaker: Text
+    // Or sometimes just MM:SS Speaker: Text
+    const lineRegex = /^\[?(\d{1,2}:\d{2}(?::\d{2})?)\]?\s*(.*?):\s*(.*)$/;
+    
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      
+      const match = line.match(lineRegex);
+      if (match) {
+        parsedLines.push({
+          timeString: match[1],
+          seconds: parseTime(match[1]),
+          speaker: match[2].trim(),
+          text: match[3].trim(),
+          originalLine: line
+        });
+      } else {
+        // If it doesn't match the format, just add it as a text line without speaker/time
+        parsedLines.push({
+          timeString: '',
+          seconds: 0,
+          speaker: '',
+          text: line,
+          originalLine: line
+        });
+      }
+    }
+    
+    return parsedLines;
+  }, [deferredTranscript]);
+
+  const activeLineIndex = useMemo(() => {
+    if (!parsedTranscript.length) return -1;
+    let activeIdx = -1;
+    for (let i = 0; i < parsedTranscript.length; i++) {
+      if (parsedTranscript[i].seconds <= currentTime) {
+        activeIdx = i;
+      } else {
+        break;
+      }
+    }
+    return activeIdx;
+  }, [parsedTranscript, currentTime]);
+
+  useEffect(() => {
+    if (activeLineIndex >= 0 && lineRefs.current[activeLineIndex]) {
+      lineRefs.current[activeLineIndex]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [activeLineIndex]);
 
   if (isProcessing) {
     return (
@@ -106,55 +176,60 @@ export function TranscriptPanel({
 
   return (
     <div className="absolute inset-0 overflow-y-auto p-5 lg:p-6 custom-scrollbar">
-      <div className="transcript-chat-container space-y-6 pb-10">
-        <ReactMarkdown 
-          components={{
-            a: ({ href, children }) => {
-              if (href?.startsWith('#seek-')) {
-                const time = href.replace('#seek-', '');
-                return (
-                  <button 
-                    onClick={() => handleSeek(time)}
-                    className="inline-flex items-center justify-center px-2 py-0.5 mx-1 bg-accent/20 text-accent-hover hover:bg-accent/30 hover:text-accent-muted rounded text-xs font-mono border border-accent/30 transition-colors focus-ring"
-                    title={`Jump to ${time}`}
-                  >
-                    <Icon name="play_circle" className="text-xs mr-1" />
-                    {children}
-                  </button>
-                );
-              }
-              return <a href={href}>{children}</a>;
-            },
-            blockquote: ({ children }) => {
-              const text = React.Children.toArray(children).join('');
-              const isTherapist = text.includes('Therapist:');
-              const isClient = text.includes('Client:');
-              
-              if (isTherapist || isClient) {
-                return (
-                  <div className={cn(
-                    "flex w-full mb-4",
-                    isTherapist ? "justify-end" : "justify-start"
-                  )}>
-                    <div className={cn(
-                      "max-w-[85%] p-5 rounded-3xl text-sm leading-relaxed shadow-xl border-t border-border-glass",
-                      isTherapist 
-                        ? "bg-accent/10 border border-accent/20 text-secondary rounded-tr-sm glow-accent" 
-                        : "bg-surface-highlight border border-border text-secondary rounded-tl-sm"
-                    )}>
-                      {children}
-                    </div>
-                  </div>
-                );
-              }
-              return <blockquote className="border-l-4 border-accent/50 bg-accent/5 py-2 px-6 rounded-r-2xl my-4 text-secondary">{children}</blockquote>;
-            },
-            p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>
-          }}
-        >
-          {processTranscript(transcript)}
-        </ReactMarkdown>
+      <div className="flex flex-col gap-1 pb-10">
+        {parsedTranscript.map((line, index) => {
+          const isActive = index === activeLineIndex;
+
+          if (!line.speaker) {
+            return (
+              <div 
+                key={index} 
+                ref={(el) => (lineRefs.current[index] = el)}
+                className={cn(
+                  "text-secondary mb-4 p-2 rounded-lg transition-colors",
+                  isActive && "bg-accent/10 border border-accent/20"
+                )}
+              >
+                {line.text}
+              </div>
+            );
+          }
+          
+          const isTherapist = line.speaker.toLowerCase().includes('therapist') || line.speaker.toLowerCase().includes('doctor');
+          
+          return (
+            <div 
+              key={index} 
+              ref={(el) => (lineRefs.current[index] = el)}
+              onClick={() => {
+                if (line.timeString) handleSeek(line.timeString);
+              }}
+              className={cn(
+                "group flex flex-col gap-1.5 p-3 -mx-3 rounded-xl hover:bg-white/[0.03] transition-colors cursor-pointer",
+                isActive && "bg-white/[0.05]"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "text-sm font-semibold",
+                  isTherapist ? "text-accent" : "text-white"
+                )}>
+                  {line.speaker}
+                </span>
+                {line.timeString && (
+                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-white/5 text-[11px] text-muted-foreground group-hover:bg-accent group-hover:text-white transition-colors">
+                    <Icon name="play_circle" className="text-[12px]" />
+                    {line.timeString}
+                  </span>
+                )}
+              </div>
+              <div className="text-sm text-secondary/90 leading-relaxed tracking-wide">
+                {line.text}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-}
+});

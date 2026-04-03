@@ -51,10 +51,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
 
     // Always save to DB, even if the user navigated away
     saveQueue = saveQueue.then(async () => {
-      const existing = await dbService.getSession(sessionId);
-      if (existing) {
-        await dbService.saveSession({ ...existing, ...updates });
-      }
+      await dbService.updateSession(sessionId, updates);
     }).catch(console.error);
   };
 

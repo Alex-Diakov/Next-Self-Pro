@@ -1,8 +1,8 @@
-import React, { useDeferredValue, useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { TranscriptionState } from '../../../../types';
-import { useSessionStore } from '../../../../store/useSessionStore';
+import { useSessionStore } from '../../../../store/session';
 
 interface TranscriptPanelProps {
   transcriptionState: TranscriptionState;
@@ -19,12 +19,6 @@ const parseTimeToSeconds = (timeStr: string): number => {
   return 0;
 };
 
-const formatTime = (seconds: number) => {
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
-};
-
 export const TranscriptPanel = React.memo(function TranscriptPanel({
   transcriptionState,
   isProcessing,
@@ -33,7 +27,10 @@ export const TranscriptPanel = React.memo(function TranscriptPanel({
   setEditedTranscript,
 }: TranscriptPanelProps) {
   
-  const { transcriptLines, currentTime, seekTo, resetTranscription } = useSessionStore();
+  const transcriptLines = useSessionStore(state => state.transcriptLines);
+  const currentTime = useSessionStore(state => state.currentTime);
+  const seekTo = useSessionStore(state => state.seekTo);
+  const resetTranscription = useSessionStore(state => state.resetTranscription);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const activeLineIndex = useMemo(() => {
@@ -50,8 +47,11 @@ export const TranscriptPanel = React.memo(function TranscriptPanel({
     return activeIdx;
   }, [transcriptLines, currentTime]);
 
+  const lastScrolledIndexRef = useRef<number>(-1);
+
   useEffect(() => {
-    if (activeLineIndex >= 0 && lineRefs.current[activeLineIndex]) {
+    if (activeLineIndex >= 0 && activeLineIndex !== lastScrolledIndexRef.current && lineRefs.current[activeLineIndex]) {
+      lastScrolledIndexRef.current = activeLineIndex;
       lineRefs.current[activeLineIndex]?.scrollIntoView({
         behavior: 'smooth',
         block: 'center',

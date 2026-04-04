@@ -2,10 +2,14 @@ import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
-import { useSessionStore } from '../../../../store/useSessionStore';
+import { useSessionStore } from '../../../../store/session';
 
 export const EmotionsPanel = React.memo(function EmotionsPanel() {
-  const { markers, currentTime, isAnalyzing, runDeepAnalysis, resetTranscription } = useSessionStore();
+  const markers = useSessionStore(state => state.markers);
+  const currentTime = useSessionStore(state => state.currentTime);
+  const isAnalyzing = useSessionStore(state => state.isAnalyzing);
+  const runDeepAnalysis = useSessionStore(state => state.runDeepAnalysis);
+  const resetTranscription = useSessionStore(state => state.resetTranscription);
 
   const currentEmotions = useMemo(() => {
     return markers.filter(m => 
@@ -37,36 +41,39 @@ export const EmotionsPanel = React.memo(function EmotionsPanel() {
           </h3>
           <p className="text-xs text-subtle font-mono uppercase tracking-widest opacity-60">Real-time affective analysis</p>
         </div>
-        <button
-          onClick={() => runDeepAnalysis()}
-          disabled={isAnalyzing}
-          className={cn(
-            "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-            isAnalyzing 
-              ? "bg-surface text-subtle cursor-not-allowed" 
-              : "bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20"
-          )}
-        >
-          {isAnalyzing ? (
-            <div className="flex flex-col items-end gap-1">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-surface text-subtle cursor-not-allowed">
-                <Icon name="sync" className="animate-spin text-sm" />
-                Analyzing...
-              </div>
-              <button 
-                onClick={() => resetTranscription()}
-                className="text-[9px] uppercase tracking-widest font-bold text-accent/60 hover:text-accent transition-colors pr-1"
-              >
-                Reset
-              </button>
+        {isAnalyzing ? (
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-surface text-subtle cursor-not-allowed">
+              <Icon name="sync" className="animate-spin text-sm" />
+              Analyzing...
             </div>
-          ) : (
-            <>
+            <button 
+              onClick={() => resetTranscription()}
+              className="text-[9px] uppercase tracking-widest font-bold text-accent/60 hover:text-accent transition-colors pr-1"
+            >
+              Reset
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={() => runDeepAnalysis('emotion')}
+              disabled={isAnalyzing}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                "bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20"
+              )}
+            >
               <Icon name="psychology" className="text-sm" />
               Run Deep Analysis
-            </>
-          )}
-        </button>
+            </button>
+            {useSessionStore(state => state.analysisError) && (
+              <span className="text-[9px] text-error-muted font-medium max-w-[120px] text-right truncate" title={useSessionStore(state => state.analysisError) || ''}>
+                Error: {useSessionStore(state => state.analysisError)}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-6">

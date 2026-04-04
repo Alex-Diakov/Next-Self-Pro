@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Icon } from '../../../components/ui/Icon';
 import { cn } from '../../../lib/utils';
-import { useSessionStore } from '../../../store/useSessionStore';
+import { useSessionStore } from '../../../store/session';
 import { VideoPlayerWidget } from './components/VideoPlayerWidget';
 import { TranscriptionWidget } from './components/TranscriptionWidget';
 import { SessionTimeline } from './components/SessionTimeline';
+import { ErrorBoundary } from '../../../components/ui/ErrorBoundary';
 
 interface SessionViewProps {
   file: File | null;
@@ -27,37 +28,51 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const processedFileRef = useRef<File | null>(null);
 
-  const { 
-    transcript, 
-    transcriptionState, 
-    messages, 
-    isAnalyzing, 
-    session,
-    sessionFile,
-    sendMessage,
-    updateTranscript,
-    loadSession,
-    processFile,
-    currentTime,
-    duration,
-    isPlaying,
-    setCurrentTime,
-    setDuration,
-    setIsPlaying,
-    togglePlay
-  } = useSessionStore();
+  const transcript = useSessionStore(state => state.transcript);
+  const transcriptionState = useSessionStore(state => state.transcriptionState);
+  const messages = useSessionStore(state => state.messages);
+  const isAnalyzing = useSessionStore(state => state.isAnalyzing);
+  const session = useSessionStore(state => state.session);
+  const sessionFile = useSessionStore(state => state.sessionFile);
+  const sendMessage = useSessionStore(state => state.sendMessage);
+  const updateTranscript = useSessionStore(state => state.updateTranscript);
+  const loadSession = useSessionStore(state => state.loadSession);
+  const processFile = useSessionStore(state => state.processFile);
+  const currentTime = useSessionStore(state => state.currentTime);
+  const isPlaying = useSessionStore(state => state.isPlaying);
+
+  const isInitializedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    console.log('SessionView: useEffect triggered', { sessionId, hasFile: !!file });
+    // If we have a sessionId, load it if not already loaded
     if (sessionId) {
-      loadSession(sessionId);
-    } else if (file && processedFileRef.current !== file) {
-      console.log('SessionView: Starting file processing');
-      processedFileRef.current = file;
-      processFile(file, projectId);
-    } else if (!file && !sessionId) {
-      console.log('SessionView: No file and no sessionId, redirecting back');
-      onBack();
+      if (isInitializedRef.current !== `session-${sessionId}`) {
+        console.log('SessionView: Initializing session:', sessionId);
+        isInitializedRef.current = `session-${sessionId}`;
+        loadSession(sessionId);
+      }
+      return;
+    } 
+    
+    // If we have a file, process it if not already processed
+    if (file) {
+      if (processedFileRef.current !== file) {
+        console.log('SessionView: Processing new file:', file.name);
+        processedFileRef.current = file;
+        isInitializedRef.current = `file-${file.name}-${file.size}`;
+        processFile(file, projectId);
+      }
+      return;
+    }
+
+    // If we have neither, and we've already tried to initialize or it's a fresh mount
+    // we should go back, but only if we're sure there's nothing coming
+    if (!sessionId && !file) {
+      console.log('SessionView: No session or file, triggering onBack');
+      const timer = setTimeout(() => {
+        onBack();
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [sessionId, file, loadSession, processFile, projectId, onBack]);
 
@@ -66,6 +81,8 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
       const url = URL.createObjectURL(sessionFile);
       setVideoUrl(url);
       return () => URL.revokeObjectURL(url);
+    } else {
+      setVideoUrl(null);
     }
   }, [sessionFile]);
 
@@ -78,31 +95,7 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   const isProcessing = transcriptionState.step !== 'completed' && transcriptionState.step !== 'error' && transcriptionState.step !== 'idle';
   const isVideo = sessionFile?.type?.startsWith('video/') || session?.fileType?.startsWith('video/');
 
-  useEffect(() => {
-    const mediaEl = videoRef.current || audioRef.current;
-    if (!mediaEl) return;
-
-    const updateTime = () => setCurrentTime(mediaEl.currentTime);
-    const updateDuration = () => setDuration(mediaEl.duration);
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-
-    mediaEl.addEventListener('timeupdate', updateTime);
-    mediaEl.addEventListener('loadedmetadata', updateDuration);
-    mediaEl.addEventListener('play', handlePlay);
-    mediaEl.addEventListener('pause', handlePause);
-    
-    if (mediaEl.readyState >= 1) {
-      setDuration(mediaEl.duration);
-    }
-
-    return () => {
-      mediaEl.removeEventListener('timeupdate', updateTime);
-      mediaEl.removeEventListener('loadedmetadata', updateDuration);
-      mediaEl.removeEventListener('play', handlePlay);
-      mediaEl.removeEventListener('pause', handlePause);
-    };
-  }, [videoUrl, isVideo, setCurrentTime, setDuration, setIsPlaying]);
+  const lastSeekTimeRef = useRef<number>(-1);
 
   // Sync store's isPlaying state to media element
   useEffect(() => {
@@ -121,8 +114,10 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
     const mediaEl = videoRef.current || audioRef.current;
     if (!mediaEl) return;
 
-    // Only seek if the difference is significant (e.g., > 0.5s) to avoid stuttering during normal playback
-    if (Math.abs(mediaEl.currentTime - currentTime) > 0.5) {
+    // Only seek if the difference is significant and it's not the time we just sought to
+    const diff = Math.abs(mediaEl.currentTime - currentTime);
+    if (diff > 0.5 && Math.abs(lastSeekTimeRef.current - currentTime) > 0.1) {
+      lastSeekTimeRef.current = currentTime;
       mediaEl.currentTime = currentTime;
     }
   }, [currentTime]);
@@ -146,43 +141,24 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
     setIsEditingTranscript(true);
   }, [transcript]);
 
-  const handleSeekTo = useCallback((seconds: number, play: boolean = false) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = seconds;
-      if (play) videoRef.current.play().catch(() => {});
-    } else if (audioRef.current) {
-      audioRef.current.currentTime = seconds;
-      if (play) audioRef.current.play().catch(() => {});
-    }
-  }, []);
-
-  const handleSeek = useCallback((timeString: string) => {
-    const parts = timeString.split(':').map(Number);
-    let seconds = 0;
-    if (parts.length === 2) {
-      seconds = parts[0] * 60 + parts[1];
-    } else if (parts.length === 3) {
-      seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
-    }
-    handleSeekTo(seconds, true);
-  }, [handleSeekTo]);
-
   return (
     <div className="h-full grid grid-cols-1 xl:grid-cols-12 gap-6">
       {/* Left Column: Media Core */}
       <div className="xl:col-span-8 flex flex-col gap-2 h-full overflow-y-auto custom-scrollbar pr-2 pb-4">
-        <VideoPlayerWidget 
-          onBack={onBack}
-          videoUrl={videoUrl}
-          isVideo={isVideo}
-          isProcessing={isProcessing}
-          transcriptionState={transcriptionState}
-          session={session}
-          file={file}
-          videoRef={videoRef}
-          audioRef={audioRef}
-        />
-        <SessionTimeline />
+        <ErrorBoundary fallbackMessage="Failed to load Video Player">
+          <VideoPlayerWidget 
+            videoUrl={videoUrl}
+            isVideo={isVideo}
+            isProcessing={isProcessing}
+            transcriptionState={transcriptionState}
+            file={file}
+            videoRef={videoRef}
+            audioRef={audioRef}
+          />
+        </ErrorBoundary>
+        <ErrorBoundary fallbackMessage="Failed to load Timeline">
+          <SessionTimeline />
+        </ErrorBoundary>
       </div>
 
       {/* Right Column: Multifunctional Sidebar */}
@@ -199,7 +175,6 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
           transcript={transcript}
           editedTranscript={editedTranscript}
           setEditedTranscript={setEditedTranscript}
-          handleSeek={handleSeek}
           messages={messages}
           isAnalyzing={isAnalyzing}
           inputMessage={inputMessage}

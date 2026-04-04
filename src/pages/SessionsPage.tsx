@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, Routes, Route, useLocation } from 'react-router-dom';
 import { UploadView } from '../components/features/sessions/UploadView';
 import { SessionView } from '../components/features/sessions/SessionView';
 import { dbService, SessionRecord } from '../services/db.service';
 import { Icon } from '../components/ui/Icon';
-import { useSessionStore } from '../store/useSessionStore';
+import { useSessionStore } from '../store/session';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, safeFormatDate } from '../lib/utils';
 
@@ -31,27 +31,27 @@ export function SessionsPage() {
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const clearSession = useSessionStore(state => state.clearSession);
 
-  const loadSessions = async () => {
+  const loadSessions = useCallback(async () => {
     console.log('SessionsPage: Loading sessions from DB...');
     const loadedSessions = await dbService.getAllSessions();
     console.log(`SessionsPage: Loaded ${loadedSessions.length} sessions`);
     setSessions(loadedSessions.sort((a, b) => b.date - a.date));
-  };
+  }, []);
 
+  // Load sessions when on the main list
   useEffect(() => {
-    console.log('SessionsPage: useEffect triggered', { sessionFile: !!sessionFile, urlSessionId, pathname: location.pathname });
-    
-    // If we are on the main sessions list, always load sessions
     if (location.pathname === '/sessions' || location.pathname === '/sessions/') {
       loadSessions();
-      
-      // If we have a stale sessionFile while on the list page, clear it
-      if (sessionFile) {
-        console.log('SessionsPage: Clearing stale sessionFile on list page');
-        setSessionFile(null);
-      }
     }
-  }, [sessionFile, urlSessionId, location.pathname]);
+  }, [location.pathname, loadSessions]);
+
+  // Clear stale sessionFile when on the list page
+  useEffect(() => {
+    if ((location.pathname === '/sessions' || location.pathname === '/sessions/') && sessionFile) {
+      console.log('SessionsPage: Clearing stale sessionFile on list page');
+      setSessionFile(null);
+    }
+  }, [location.pathname, sessionFile, setSessionFile]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -66,7 +66,7 @@ export function SessionsPage() {
     }
   };
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     console.log('SessionsPage: Handling back navigation');
     clearSession();
     setSessionFile(null);
@@ -75,7 +75,7 @@ export function SessionsPage() {
     setTimeout(() => {
       loadSessions();
     }, 100);
-  };
+  }, [clearSession, setSessionFile, navigate, loadSessions]);
 
   const handleSessionClick = (id: string) => {
     navigate(`/sessions/${id}`);

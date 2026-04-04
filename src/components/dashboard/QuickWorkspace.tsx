@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { motion } from 'motion/react';
 import { Icon } from '../ui/Icon';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSessionStore } from '../../store/useSessionStore';
+import { useSessionStore } from '../../store/session';
 
 export function QuickWorkspace() {
   const navigate = useNavigate();

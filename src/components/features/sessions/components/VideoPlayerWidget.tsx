@@ -1,36 +1,67 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useEffect, useCallback } from 'react';
+import { motion } from 'motion/react';
 import { Icon } from '../../../../components/ui/Icon';
-import { cn } from '../../../../lib/utils';
-import { SessionRecord } from '../../../../services/db.service';
 import { TranscriptionState } from '../../../../types';
-import { useSessionStore } from '../../../../store/useSessionStore';
+import { useSessionStore } from '../../../../store/session';
 
 interface VideoPlayerWidgetProps {
-  onBack: () => void;
   videoUrl: string | null;
   isVideo: boolean;
   isProcessing: boolean;
   transcriptionState: TranscriptionState;
-  session: SessionRecord | null;
   file: File | null;
   videoRef: React.RefObject<HTMLVideoElement | null>;
   audioRef: React.RefObject<HTMLAudioElement | null>;
 }
 
 export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
-  onBack,
   videoUrl,
   isVideo,
   isProcessing,
   transcriptionState,
-  session,
   file,
   videoRef,
   audioRef
 }: VideoPlayerWidgetProps) {
-  const { currentTime, isPlaying, togglePlay } = useSessionStore();
-  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+  const isPlaying = useSessionStore(state => state.isPlaying);
+  const togglePlay = useSessionStore(state => state.togglePlay);
+  const setCurrentTime = useSessionStore(state => state.setCurrentTime);
+  const setDuration = useSessionStore(state => state.setDuration);
+  const setIsPlaying = useSessionStore(state => state.setIsPlaying);
+
+  const updateTime = useCallback(() => {
+    const mediaEl = videoRef.current || audioRef.current;
+    if (mediaEl) setCurrentTime(mediaEl.currentTime);
+  }, [setCurrentTime, videoRef, audioRef]);
+
+  const updateDuration = useCallback(() => {
+    const mediaEl = videoRef.current || audioRef.current;
+    if (mediaEl) setDuration(mediaEl.duration);
+  }, [setDuration, videoRef, audioRef]);
+
+  const handlePlay = useCallback(() => setIsPlaying(true), [setIsPlaying]);
+  const handlePause = useCallback(() => setIsPlaying(false), [setIsPlaying]);
+
+  useEffect(() => {
+    const mediaEl = videoRef.current || audioRef.current;
+    if (!mediaEl) return;
+
+    mediaEl.addEventListener('timeupdate', updateTime);
+    mediaEl.addEventListener('loadedmetadata', updateDuration);
+    mediaEl.addEventListener('play', handlePlay);
+    mediaEl.addEventListener('pause', handlePause);
+    
+    if (mediaEl.readyState >= 1) {
+      setDuration(mediaEl.duration);
+    }
+
+    return () => {
+      mediaEl.removeEventListener('timeupdate', updateTime);
+      mediaEl.removeEventListener('loadedmetadata', updateDuration);
+      mediaEl.removeEventListener('play', handlePlay);
+      mediaEl.removeEventListener('pause', handlePause);
+    };
+  }, [videoUrl, isVideo, updateTime, updateDuration, handlePlay, handlePause, setDuration, videoRef, audioRef]);
 
   return (
     <div className="w-full flex flex-col shrink-0">

@@ -28,6 +28,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   error: null,
 
   loadProjects: async () => {
+    const { isLoading } = get();
+    if (isLoading) return;
+
     set({ isLoading: true, error: null });
     try {
       const projects = await dbService.getAllProjects();
@@ -39,6 +42,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   loadProject: async (id: string) => {
+    const { activeProject } = get();
+    if (activeProject?.id === id) return;
+
     set({ isLoading: true, error: null });
     try {
       const project = await dbService.getProject(id);
@@ -54,10 +60,16 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   loadProjectSessions: async (id: string) => {
+    const { projectSessions, activeProject } = get();
+    // If we're already loading or have sessions for this project, skip if it's the same project
+    if (activeProject?.id === id && projectSessions.length > 0) return;
+
+    set({ isLoading: true });
     try {
       const sessions = await dbService.getSessionsByProject(id);
-      set({ projectSessions: sessions });
+      set({ projectSessions: sessions, isLoading: false });
     } catch (error) {
+      set({ isLoading: false });
       console.error('Failed to load project sessions', error);
     }
   },

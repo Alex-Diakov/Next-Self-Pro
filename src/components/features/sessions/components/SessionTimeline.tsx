@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
-import { useSessionStore } from '../../../../store/useSessionStore';
+import { useSessionStore } from '../../../../store/session';
 import { AnalysisMarker } from '../../../../types';
 
 export type MarkerLabel = 'Insight' | 'Emotion' | 'Resistance' | 'Breakthrough' | 'Other';
@@ -17,12 +17,14 @@ export interface SessionMarker {
   type: 'emotion' | 'speech' | 'insight';
 }
 
-interface SessionTimelineProps {
-  // Props removed as we use store now
-}
-
-export function SessionTimeline({}: SessionTimelineProps) {
-  const { currentTime, duration, isPlaying, seekTo, togglePlay, markers: storeMarkers } = useSessionStore();
+export function SessionTimeline() {
+  const currentTime = useSessionStore(state => state.currentTime);
+  const duration = useSessionStore(state => state.duration);
+  const isPlaying = useSessionStore(state => state.isPlaying);
+  const seekTo = useSessionStore(state => state.seekTo);
+  const togglePlay = useSessionStore(state => state.togglePlay);
+  const storeMarkers = useSessionStore(state => state.markers);
+  
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 

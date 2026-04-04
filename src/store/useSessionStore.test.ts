@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useSessionStore } from './useSessionStore';
+import { useSessionStore } from './session';
 import { dbService, SessionRecord } from '../services/db.service';
 
 // Mock the services

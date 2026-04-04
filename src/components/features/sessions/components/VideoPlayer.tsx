@@ -68,8 +68,6 @@ export const VideoPlayer = (props: VideoPlayerProps) => {
       videoRef.current?.appendChild(videoElement);
 
       const player = playerRef.current = videojs(videoElement, options, () => {
-        console.log('Video.js player is ready');
-        
         // Initialize markers if we have them or just to prepare the API
         if (!markersInitializedRef.current) {
           initMarkers(player, markers || []);

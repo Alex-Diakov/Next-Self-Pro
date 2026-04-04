@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Routes, Route, useLocation } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
-import { useSessionStore } from '../store/useSessionStore';
+import { useSessionStore } from '../store/session';
 import { dbService } from '../services/db.service';
 import { UploadView } from '../components/features/sessions/UploadView';
 import { SessionView } from '../components/features/sessions/SessionView';
@@ -26,8 +26,13 @@ export function PatientProfilePage() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const { activeProject, projectSessions, loadProject, loadProjectSessions, isLoading } = useProjectStore();
-  const { clearSession } = useSessionStore();
+  const activeProject = useProjectStore(state => state.activeProject);
+  const projectSessions = useProjectStore(state => state.projectSessions);
+  const loadProject = useProjectStore(state => state.loadProject);
+  const loadProjectSessions = useProjectStore(state => state.loadProjectSessions);
+  const isLoading = useProjectStore(state => state.isLoading);
+  
+  const clearSession = useSessionStore(state => state.clearSession);
 
   const [sessionFile, setSessionFile] = useState<File | null>(null);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
@@ -42,10 +47,12 @@ export function PatientProfilePage() {
 
   // If a session is completed/deleted, reload sessions
   useEffect(() => {
-    if (!sessionFile && !urlSessionId && projectId) {
+    // Only reload if we are on the main project page (no active session view)
+    const isMainPage = location.pathname === `/patients/${projectId}` || location.pathname === `/patients/${projectId}/`;
+    if (isMainPage && !sessionFile && !urlSessionId && projectId) {
       loadProjectSessions(projectId);
     }
-  }, [sessionFile, urlSessionId, projectId, loadProjectSessions]);
+  }, [sessionFile, urlSessionId, projectId, loadProjectSessions, location.pathname]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -60,11 +67,11 @@ export function PatientProfilePage() {
     }
   };
 
-  const handleBackToWorkspace = () => {
+  const handleBackToWorkspace = useCallback(() => {
     clearSession();
     setSessionFile(null);
     navigate(`/patients/${projectId}`);
-  };
+  }, [clearSession, navigate, projectId]);
 
   const handleSessionClick = (id: string) => {
     navigate(`/patients/${projectId}/sessions/${id}`);

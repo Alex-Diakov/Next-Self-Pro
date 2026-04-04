@@ -6,6 +6,7 @@ import { AIChatPanel } from './AIChatPanel';
 import { EmotionsPanel } from './EmotionsPanel';
 import { SpeechPanel } from './SpeechPanel';
 import { TranscriptionState } from '../../../../types';
+import { ErrorBoundary } from '../../../../components/ui/ErrorBoundary';
 
 interface TranscriptionWidgetProps {
   activeTab: 'transcript' | 'analysis' | 'emotions' | 'speech';
@@ -19,7 +20,6 @@ interface TranscriptionWidgetProps {
   transcript: string;
   editedTranscript: string;
   setEditedTranscript: (text: string) => void;
-  handleSeek: (timeString: string) => void;
   messages: any[];
   isAnalyzing: boolean;
   inputMessage: string;
@@ -41,7 +41,6 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
   transcript,
   editedTranscript,
   setEditedTranscript,
-  handleSeek,
   messages,
   isAnalyzing,
   inputMessage,
@@ -138,29 +137,37 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
 
       <div className="flex-1 overflow-hidden relative z-10">
         {activeTab === 'transcript' && (
-          <TranscriptPanel 
-            transcriptionState={transcriptionState}
-            isProcessing={isProcessing}
-            isEditingTranscript={isEditingTranscript}
-            editedTranscript={editedTranscript}
-            setEditedTranscript={setEditedTranscript}
-          />
+          <ErrorBoundary fallbackMessage="Failed to load Transcript">
+            <TranscriptPanel 
+              transcriptionState={transcriptionState}
+              isProcessing={isProcessing}
+              isEditingTranscript={isEditingTranscript}
+              editedTranscript={editedTranscript}
+              setEditedTranscript={setEditedTranscript}
+            />
+          </ErrorBoundary>
         )}
         {activeTab === 'analysis' && (
-          <AIChatPanel 
-            messages={messages}
-            isAnalyzing={isAnalyzing}
-            inputMessage={inputMessage}
-            setInputMessage={setInputMessage}
-            handleSendMessage={handleSendMessage}
-            messagesEndRef={messagesEndRef}
-          />
+          <ErrorBoundary fallbackMessage="Failed to load AI Chat">
+            <AIChatPanel 
+              messages={messages}
+              isAnalyzing={isAnalyzing}
+              inputMessage={inputMessage}
+              setInputMessage={setInputMessage}
+              handleSendMessage={handleSendMessage}
+              messagesEndRef={messagesEndRef}
+            />
+          </ErrorBoundary>
         )}
         {activeTab === 'emotions' && (
-          <EmotionsPanel />
+          <ErrorBoundary fallbackMessage="Failed to load Emotions">
+            <EmotionsPanel />
+          </ErrorBoundary>
         )}
         {activeTab === 'speech' && (
-          <SpeechPanel />
+          <ErrorBoundary fallbackMessage="Failed to load Speech">
+            <SpeechPanel />
+          </ErrorBoundary>
         )}
       </div>
     </div>

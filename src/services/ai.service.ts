@@ -140,9 +140,9 @@ class AIService {
     }
   }
 
-  async analyzeMultimodal(base64Data: string, mimeType: string): Promise<any[]> {
+  async analyzeMultimodal(base64Data: string, mimeType: string, analysisType?: 'emotion' | 'speech'): Promise<any[]> {
     try {
-      const prompt = `Analyze the provided video/audio session. Focus on:
+      let prompt = `Analyze the provided video/audio session. Focus on:
 1. Emotional shifts (micro-expressions, tone changes).
 2. Speech patterns (hesitations, speed, volume).
 3. Psychological insights (resistance, breakthroughs, defense mechanisms).
@@ -152,6 +152,22 @@ For 'speech' type, use these labels ONLY: 'Stuttering', 'Rapid Speech', 'Long Pa
 For 'insight' type, use descriptive clinical labels.
 
 Output ONLY a JSON array of markers.`;
+
+      if (analysisType === 'emotion') {
+        prompt = `Analyze the provided video/audio session. Focus EXCLUSIVELY on Emotional shifts (micro-expressions, tone changes).
+
+CRITICAL: For 'emotion' type, use these labels ONLY: 'Anxiety', 'Sadness', 'Anger', 'Relief', 'Fear', 'Joy', 'Confusion'.
+Do NOT output any 'speech' or 'insight' markers.
+
+Output ONLY a JSON array of markers.`;
+      } else if (analysisType === 'speech') {
+        prompt = `Analyze the provided video/audio session. Focus EXCLUSIVELY on Speech patterns (hesitations, speed, volume).
+
+CRITICAL: For 'speech' type, use these labels ONLY: 'Stuttering', 'Rapid Speech', 'Long Pause', 'Whispering'.
+Do NOT output any 'emotion' or 'insight' markers.
+
+Output ONLY a JSON array of markers.`;
+      }
 
       const response = await this.withRetry(() => this.ai.models.generateContent({
         model: 'gemini-3-flash-preview',

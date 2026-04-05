@@ -38,10 +38,14 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   const updateTranscript = useSessionStore(state => state.updateTranscript);
   const loadSession = useSessionStore(state => state.loadSession);
   const processFile = useSessionStore(state => state.processFile);
-  const currentTime = useSessionStore(state => state.currentTime);
+  const duration = useSessionStore(state => state.duration);
   const isPlaying = useSessionStore(state => state.isPlaying);
 
   const isInitializedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    // console.log('SessionView: Render tick, isPlaying:', isPlaying);
+  }, [isPlaying]);
 
   useEffect(() => {
     // If we have a sessionId, load it if not already loaded
@@ -95,32 +99,8 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
   const isProcessing = transcriptionState.step !== 'completed' && transcriptionState.step !== 'error' && transcriptionState.step !== 'idle';
   const isVideo = sessionFile?.type?.startsWith('video/') || session?.fileType?.startsWith('video/');
 
+  // The seeking is now handled by VideoPlayerWidget using seekRequest
   const lastSeekTimeRef = useRef<number>(-1);
-
-  // Sync store's isPlaying state to media element
-  useEffect(() => {
-    const mediaEl = videoRef.current || audioRef.current;
-    if (!mediaEl) return;
-
-    if (isPlaying && mediaEl.paused) {
-      mediaEl.play().catch(() => {});
-    } else if (!isPlaying && !mediaEl.paused) {
-      mediaEl.pause();
-    }
-  }, [isPlaying]);
-
-  // Sync store's currentTime to media element when seeking
-  useEffect(() => {
-    const mediaEl = videoRef.current || audioRef.current;
-    if (!mediaEl) return;
-
-    // Only seek if the difference is significant and it's not the time we just sought to
-    const diff = Math.abs(mediaEl.currentTime - currentTime);
-    if (diff > 0.5 && Math.abs(lastSeekTimeRef.current - currentTime) > 0.1) {
-      lastSeekTimeRef.current = currentTime;
-      mediaEl.currentTime = currentTime;
-    }
-  }, [currentTime]);
 
   const handleSendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,7 +161,6 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
           setInputMessage={setInputMessage}
           handleSendMessage={handleSendMessage}
           messagesEndRef={messagesEndRef}
-          currentTime={currentTime}
         />
       </div>
     </div>

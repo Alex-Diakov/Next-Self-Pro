@@ -10,8 +10,10 @@ export const SpeechPanel = React.memo(function SpeechPanel() {
   const isAnalyzing = useSessionStore(state => state.isAnalyzing);
   const runDeepAnalysis = useSessionStore(state => state.runDeepAnalysis);
   const resetTranscription = useSessionStore(state => state.resetTranscription);
+  const analysisError = useSessionStore(state => state.analysisError);
 
   const currentSpeech = useMemo(() => {
+    if (!markers.length) return [];
     return markers.filter(m => 
       m.type === 'speech' && 
       currentTime >= m.timestamp && 
@@ -67,9 +69,9 @@ export const SpeechPanel = React.memo(function SpeechPanel() {
               <Icon name="psychology" className="text-sm" />
               Run Deep Analysis
             </button>
-            {useSessionStore(state => state.analysisError) && (
-              <span className="text-[9px] text-error-muted font-medium max-w-[120px] text-right truncate" title={useSessionStore(state => state.analysisError) || ''}>
-                Error: {useSessionStore(state => state.analysisError)}
+            {analysisError && (
+              <span className="text-[9px] text-error-muted font-medium max-w-[120px] text-right truncate" title={analysisError}>
+                Error: {analysisError}
               </span>
             )}
           </div>

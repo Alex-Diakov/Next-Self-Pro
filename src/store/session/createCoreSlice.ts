@@ -24,6 +24,7 @@ export const createCoreSlice: SessionStateCreator<CoreSlice> = (set, get) => ({
     currentTime: 0,
     isPlaying: false,
     duration: 0,
+    seekRequest: null,
     markers: [],
     transcriptLines: [],
   }),
@@ -45,6 +46,10 @@ export const createCoreSlice: SessionStateCreator<CoreSlice> = (set, get) => ({
         transcriptLines: loadedSession.transcriptLines || [],
         transcriptionState: loadedSession.transcriptionState || { step: 'completed', progress: 100, message: 'Loaded' },
         sessionFile: loadedSession.file || null,
+        currentTime: 0,
+        duration: 0,
+        isPlaying: false,
+        seekRequest: null,
       });
     }
   },
@@ -75,6 +80,10 @@ export const createCoreSlice: SessionStateCreator<CoreSlice> = (set, get) => ({
       markers: [],
       transcriptLines: [],
       transcriptionState: newSession.transcriptionState,
+      currentTime: 0,
+      duration: 0,
+      isPlaying: false,
+      seekRequest: null,
     });
 
     // Initial save

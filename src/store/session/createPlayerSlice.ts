@@ -4,6 +4,7 @@ export const createPlayerSlice: SessionStateCreator<PlayerSlice> = (set, get) =>
   currentTime: 0,
   isPlaying: false,
   duration: 0,
+  seekRequest: null,
   setCurrentTime: (time) => {
     if (get().currentTime === time) return;
     set({ currentTime: time });
@@ -18,7 +19,7 @@ export const createPlayerSlice: SessionStateCreator<PlayerSlice> = (set, get) =>
   },
   togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
   seekTo: (time) => {
-    if (get().currentTime === time) return;
-    set({ currentTime: time });
+    set({ seekRequest: time, currentTime: time });
   },
+  clearSeekRequest: () => set({ seekRequest: null }),
 });

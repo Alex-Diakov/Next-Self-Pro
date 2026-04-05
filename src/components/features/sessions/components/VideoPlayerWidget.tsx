@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Icon } from '../../../../components/ui/Icon';
 import { TranscriptionState } from '../../../../types';
@@ -28,19 +28,118 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
   const setCurrentTime = useSessionStore(state => state.setCurrentTime);
   const setDuration = useSessionStore(state => state.setDuration);
   const setIsPlaying = useSessionStore(state => state.setIsPlaying);
+  const seekRequest = useSessionStore(state => state.seekRequest);
+  const clearSeekRequest = useSessionStore(state => state.clearSeekRequest);
+
+  const lastUpdateTimeRef = useRef<number>(0);
+  const rvfcIdRef = useRef<number>(0);
 
   const updateTime = useCallback(() => {
     const mediaEl = videoRef.current || audioRef.current;
-    if (mediaEl) setCurrentTime(mediaEl.currentTime);
-  }, [setCurrentTime, videoRef, audioRef]);
+    if (!mediaEl) return;
+    
+    // Throttle updates to ~10fps to balance smooth UI and performance
+    if (Math.abs(mediaEl.currentTime - lastUpdateTimeRef.current) > 0.1 || mediaEl.ended) {
+      lastUpdateTimeRef.current = mediaEl.currentTime;
+      React.startTransition(() => {
+        setCurrentTime(mediaEl.currentTime);
+      });
+    }
+
+    // Schedule next frame if it's a video and playing
+    if (isVideo && videoRef.current && !videoRef.current.paused && 'requestVideoFrameCallback' in videoRef.current) {
+      rvfcIdRef.current = (videoRef.current as any).requestVideoFrameCallback(updateTime);
+    }
+  }, [setCurrentTime, videoRef, audioRef, isVideo]);
+
+  // Sync isPlaying state to media element
+  useEffect(() => {
+    const mediaEl = videoRef.current || audioRef.current;
+    if (!mediaEl) return;
+
+    if (isPlaying && mediaEl.paused) {
+      mediaEl.play().catch(() => {});
+    } else if (!isPlaying && !mediaEl.paused) {
+      mediaEl.pause();
+    }
+  }, [isPlaying, videoRef, audioRef]);
+
+  // Handle seek requests
+  useEffect(() => {
+    if (seekRequest !== null) {
+      const mediaEl = videoRef.current || audioRef.current;
+      if (mediaEl) {
+        mediaEl.currentTime = seekRequest;
+        // Force an immediate time update to keep UI in sync, especially when paused
+        updateTime();
+      }
+      clearSeekRequest();
+    }
+  }, [seekRequest, clearSeekRequest, videoRef, audioRef, updateTime]);
 
   const updateDuration = useCallback(() => {
     const mediaEl = videoRef.current || audioRef.current;
     if (mediaEl) setDuration(mediaEl.duration);
   }, [setDuration, videoRef, audioRef]);
 
-  const handlePlay = useCallback(() => setIsPlaying(true), [setIsPlaying]);
-  const handlePause = useCallback(() => setIsPlaying(false), [setIsPlaying]);
+  const handlePlay = useCallback(() => {
+    setIsPlaying(true);
+    if (isVideo && videoRef.current && 'requestVideoFrameCallback' in videoRef.current) {
+      rvfcIdRef.current = (videoRef.current as any).requestVideoFrameCallback(updateTime);
+    }
+  }, [setIsPlaying, isVideo, videoRef, updateTime]);
+
+  const handlePause = useCallback((e: Event) => {
+    setIsPlaying(false);
+    if (isVideo && videoRef.current && 'cancelVideoFrameCallback' in videoRef.current) {
+      (videoRef.current as any).cancelVideoFrameCallback(rvfcIdRef.current);
+    }
+    if (e.type === 'ended') {
+      const mediaEl = e.target as HTMLMediaElement;
+      if (mediaEl.duration && Math.abs(mediaEl.currentTime - mediaEl.duration) > 0.5) {
+        setDuration(mediaEl.currentTime);
+      }
+    }
+  }, [setIsPlaying, setDuration, isVideo, videoRef]);
+  const handleError = useCallback((e: Event) => {
+    const mediaEl = e.target as HTMLMediaElement;
+    console.error('Media element error:', mediaEl.error);
+  }, []);
+  const lastMicroSeekRef = useRef<number>(0);
+
+  const handleWaiting = useCallback((e: Event) => {
+    console.log('Video is buffering/waiting for data...');
+    const mediaEl = e.target as HTMLMediaElement;
+    
+    // Workaround for Chromium/WebKit "duration minus five" bug
+    const now = Date.now();
+    if (mediaEl.duration && mediaEl.duration - mediaEl.currentTime < 6) {
+      // Only apply micro-seek once every 2 seconds to prevent infinite loops
+      if (now - lastMicroSeekRef.current > 2000) {
+        console.log('Applying micro-seek workaround for end-of-video freeze');
+        lastMicroSeekRef.current = now;
+        mediaEl.currentTime += 0.1;
+      }
+    }
+  }, []);
+
+  const handleStalled = useCallback((e: Event) => {
+    console.log('Video playback stalled');
+    const mediaEl = e.target as HTMLMediaElement;
+    
+    const now = Date.now();
+    if (mediaEl.duration && mediaEl.duration - mediaEl.currentTime < 6) {
+      if (now - lastMicroSeekRef.current > 2000) {
+        console.log('Applying micro-seek workaround for stalled playback near end');
+        lastMicroSeekRef.current = now;
+        mediaEl.currentTime += 0.1;
+      }
+    }
+  }, []);
+
+  const handlePlaying = useCallback(() => {
+    console.log('Video resumed playing');
+  }, []);
 
   useEffect(() => {
     const mediaEl = videoRef.current || audioRef.current;
@@ -48,8 +147,14 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
 
     mediaEl.addEventListener('timeupdate', updateTime);
     mediaEl.addEventListener('loadedmetadata', updateDuration);
+    mediaEl.addEventListener('durationchange', updateDuration);
     mediaEl.addEventListener('play', handlePlay);
     mediaEl.addEventListener('pause', handlePause);
+    mediaEl.addEventListener('ended', handlePause);
+    mediaEl.addEventListener('error', handleError);
+    mediaEl.addEventListener('waiting', handleWaiting);
+    mediaEl.addEventListener('stalled', handleStalled);
+    mediaEl.addEventListener('playing', handlePlaying);
     
     if (mediaEl.readyState >= 1) {
       setDuration(mediaEl.duration);
@@ -58,10 +163,16 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
     return () => {
       mediaEl.removeEventListener('timeupdate', updateTime);
       mediaEl.removeEventListener('loadedmetadata', updateDuration);
+      mediaEl.removeEventListener('durationchange', updateDuration);
       mediaEl.removeEventListener('play', handlePlay);
       mediaEl.removeEventListener('pause', handlePause);
+      mediaEl.removeEventListener('ended', handlePause);
+      mediaEl.removeEventListener('error', handleError);
+      mediaEl.removeEventListener('waiting', handleWaiting);
+      mediaEl.removeEventListener('stalled', handleStalled);
+      mediaEl.removeEventListener('playing', handlePlaying);
     };
-  }, [videoUrl, isVideo, updateTime, updateDuration, handlePlay, handlePause, setDuration, videoRef, audioRef]);
+  }, [videoUrl, isVideo, updateTime, updateDuration, handlePlay, handlePause, handleError, handleWaiting, handleStalled, handlePlaying, setDuration, videoRef, audioRef]);
 
   return (
     <div className="w-full flex flex-col shrink-0">
@@ -77,7 +188,7 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
             <motion.div
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-2xl"
+              className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white shadow-2xl"
             >
               <Icon name={isPlaying ? "pause" : "play_arrow"} className="text-4xl" />
             </motion.div>
@@ -93,14 +204,18 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
         {videoUrl ? (
           isVideo ? (
             <video 
+              key={videoUrl}
               ref={videoRef}
               src={videoUrl} 
               className="w-full h-full object-contain bg-black/50 rounded-xl"
+              preload="auto"
+              playsInline
+              controls
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle">
               <Icon name="play_circle" className="text-6xl mb-4 opacity-30" />
-              <audio ref={audioRef} src={videoUrl} className="w-3/4" />
+              <audio key={videoUrl} ref={audioRef} src={videoUrl} className="w-3/4" controls preload="auto" />
             </div>
           )
         ) : transcriptionState.step === 'completed' && !file ? (

@@ -19,6 +19,44 @@ const parseTimeToSeconds = (timeStr: string): number => {
   return 0;
 };
 
+const TranscriptLineItem = React.memo(({ 
+  line, 
+  index,
+  isTherapist, 
+  onClick 
+}: { 
+  line: any, 
+  index: number,
+  isTherapist: boolean, 
+  onClick: () => void 
+}) => {
+  return (
+    <div 
+      id={`transcript-line-${index}`}
+      onClick={onClick}
+      className={cn(
+        "transcript-line group flex flex-col gap-1 p-3 border-l-2 transition-colors duration-300 cursor-pointer",
+        "border-transparent text-secondary/70 hover:bg-white/[0.02]"
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <span className={cn(
+          "text-xs font-bold tracking-wider uppercase",
+          isTherapist ? "text-accent" : "text-subtle"
+        )}>
+          {line.speaker}
+        </span>
+        <span className="text-[10px] font-mono text-subtle opacity-50 group-hover:opacity-100 transition-opacity">
+          {line.timestamp}
+        </span>
+      </div>
+      <div className="transcript-text text-sm leading-relaxed transition-colors text-secondary/80">
+        {line.text}
+      </div>
+    </div>
+  );
+});
+
 export const TranscriptPanel = React.memo(function TranscriptPanel({
   transcriptionState,
   isProcessing,
@@ -28,36 +66,89 @@ export const TranscriptPanel = React.memo(function TranscriptPanel({
 }: TranscriptPanelProps) {
   
   const transcriptLines = useSessionStore(state => state.transcriptLines);
-  const currentTime = useSessionStore(state => state.currentTime);
+  const transcriptLinesWithSeconds = useMemo(() => {
+    return transcriptLines.map(line => ({
+      ...line,
+      seconds: parseTimeToSeconds(line.timestamp)
+    }));
+  }, [transcriptLines]);
+
   const seekTo = useSessionStore(state => state.seekTo);
   const resetTranscription = useSessionStore(state => state.resetTranscription);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const lastActiveIndexRef = useRef<number>(-1);
 
-  const activeLineIndex = useMemo(() => {
-    if (!transcriptLines.length) return -1;
-    let activeIdx = -1;
-    for (let i = 0; i < transcriptLines.length; i++) {
-      const lineSeconds = parseTimeToSeconds(transcriptLines[i].timestamp);
-      if (lineSeconds <= currentTime) {
-        activeIdx = i;
-      } else {
-        break;
-      }
-    }
-    return activeIdx;
-  }, [transcriptLines, currentTime]);
-
-  const lastScrolledIndexRef = useRef<number>(-1);
-
+  // Use DOM manipulation for highlighting to completely bypass React rendering cycle
   useEffect(() => {
-    if (activeLineIndex >= 0 && activeLineIndex !== lastScrolledIndexRef.current && lineRefs.current[activeLineIndex]) {
-      lastScrolledIndexRef.current = activeLineIndex;
-      lineRefs.current[activeLineIndex]?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-    }
-  }, [activeLineIndex]);
+    const updateTranscriptHighlight = (currentTime: number) => {
+      if (!transcriptLinesWithSeconds.length) return;
+      
+      let low = 0;
+      let high = transcriptLinesWithSeconds.length - 1;
+      let activeIdx = -1;
+
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        if (transcriptLinesWithSeconds[mid].seconds <= currentTime + 0.1) {
+          activeIdx = mid;
+          low = mid + 1;
+        } else {
+          high = mid - 1;
+        }
+      }
+
+      if (activeIdx >= 0 && activeIdx !== lastActiveIndexRef.current) {
+        // Remove active classes from previous
+        if (lastActiveIndexRef.current >= 0) {
+          const prevEl = document.getElementById(`transcript-line-${lastActiveIndexRef.current}`);
+          if (prevEl) {
+            prevEl.classList.remove('bg-white/5', 'border-accent', 'text-white');
+            prevEl.classList.add('border-transparent', 'text-secondary/70');
+            const textEl = prevEl.querySelector('.transcript-text');
+            if (textEl) {
+              textEl.classList.remove('text-white', 'font-medium');
+              textEl.classList.add('text-secondary/80');
+            }
+          }
+        }
+
+        // Add active classes to current
+        const currentEl = document.getElementById(`transcript-line-${activeIdx}`);
+        if (currentEl) {
+          currentEl.classList.remove('border-transparent', 'text-secondary/70');
+          currentEl.classList.add('bg-white/5', 'border-accent', 'text-white');
+          const textEl = currentEl.querySelector('.transcript-text');
+          if (textEl) {
+            textEl.classList.remove('text-secondary/80');
+            textEl.classList.add('text-white', 'font-medium');
+          }
+        }
+
+        lastActiveIndexRef.current = activeIdx;
+
+        // Scroll into view
+        if (lineRefs.current[activeIdx]) {
+          requestAnimationFrame(() => {
+            lineRefs.current[activeIdx]?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+          });
+        }
+      }
+    };
+
+    // Initial update
+    updateTranscriptHighlight(useSessionStore.getState().currentTime);
+
+    const unsubscribe = useSessionStore.subscribe(
+      (state, prevState) => {
+        if (state.currentTime === prevState.currentTime) return;
+        updateTranscriptHighlight(state.currentTime);
+      }
+    );
+    return unsubscribe;
+  }, [transcriptLinesWithSeconds]);
 
   if (isProcessing) {
     return (
@@ -140,43 +231,18 @@ export const TranscriptPanel = React.memo(function TranscriptPanel({
   return (
     <div className="absolute inset-0 overflow-y-auto p-5 lg:p-6 custom-scrollbar">
       <div className="flex flex-col gap-2 pb-10">
-        {transcriptLines.map((line, index) => {
-          const nextLine = transcriptLines[index + 1];
-          const lineSeconds = parseTimeToSeconds(line.timestamp);
-          const nextLineSeconds = nextLine ? parseTimeToSeconds(nextLine.timestamp) : Infinity;
-          
-          const isActive = currentTime >= lineSeconds && currentTime < nextLineSeconds;
+        {transcriptLinesWithSeconds.map((line, index) => {
+          const lineSeconds = line.seconds;
           const isTherapist = line.speaker.toLowerCase().includes('психолог') || line.speaker.toLowerCase().includes('терапевт');
           
           return (
-            <div 
-              key={line.id} 
-              ref={(el) => { lineRefs.current[index] = el; }}
-              onClick={() => seekTo(lineSeconds)}
-              className={cn(
-                "group flex flex-col gap-1 p-3 border-l-2 transition-colors duration-300 cursor-pointer",
-                isActive 
-                  ? "bg-white/5 border-accent text-white" 
-                  : "border-transparent text-secondary/70 hover:bg-white/[0.02]"
-              )}
-            >
-              <div className="flex items-center justify-between">
-                <span className={cn(
-                  "text-xs font-bold tracking-wider uppercase",
-                  isTherapist ? "text-accent" : "text-subtle"
-                )}>
-                  {line.speaker}
-                </span>
-                <span className="text-[10px] font-mono text-subtle opacity-50 group-hover:opacity-100 transition-opacity">
-                  {line.timestamp}
-                </span>
-              </div>
-              <div className={cn(
-                "text-sm leading-relaxed transition-colors",
-                isActive ? "text-white font-medium" : "text-secondary/80"
-              )}>
-                {line.text}
-              </div>
+            <div key={line.id} ref={(el) => { lineRefs.current[index] = el; }}>
+              <TranscriptLineItem
+                line={line}
+                index={index}
+                isTherapist={isTherapist}
+                onClick={() => seekTo(lineSeconds)}
+              />
             </div>
           );
         })}

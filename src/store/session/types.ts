@@ -6,11 +6,13 @@ export interface PlayerSlice {
   currentTime: number;
   isPlaying: boolean;
   duration: number;
+  seekRequest: number | null;
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   togglePlay: () => void;
   seekTo: (time: number) => void;
+  clearSeekRequest: () => void;
 }
 
 export interface TranscriptSlice {

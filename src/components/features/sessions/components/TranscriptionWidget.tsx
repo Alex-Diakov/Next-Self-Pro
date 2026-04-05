@@ -5,7 +5,7 @@ import { TranscriptPanel } from './TranscriptPanel';
 import { AIChatPanel } from './AIChatPanel';
 import { EmotionsPanel } from './EmotionsPanel';
 import { SpeechPanel } from './SpeechPanel';
-import { TranscriptionState } from '../../../../types';
+import { TranscriptionState, ChatMessage } from '../../../../types';
 import { ErrorBoundary } from '../../../../components/ui/ErrorBoundary';
 
 interface TranscriptionWidgetProps {
@@ -20,13 +20,12 @@ interface TranscriptionWidgetProps {
   transcript: string;
   editedTranscript: string;
   setEditedTranscript: (text: string) => void;
-  messages: any[];
+  messages: ChatMessage[];
   isAnalyzing: boolean;
   inputMessage: string;
   setInputMessage: (msg: string) => void;
   handleSendMessage: (e: React.FormEvent) => Promise<void>;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
-  currentTime: number;
 }
 
 export const TranscriptionWidget = React.memo(function TranscriptionWidget({
@@ -46,8 +45,7 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
   inputMessage,
   setInputMessage,
   handleSendMessage,
-  messagesEndRef,
-  currentTime
+  messagesEndRef
 }: TranscriptionWidgetProps) {
   return (
     <div className="w-full flex flex-col bg-surface rounded-[2rem] border border-border-glass shadow-premium overflow-hidden flex-1 min-h-[250px] relative">

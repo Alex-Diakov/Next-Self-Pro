@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
@@ -17,8 +17,134 @@ export interface SessionMarker {
   type: 'emotion' | 'speech' | 'insight';
 }
 
-export function SessionTimeline() {
-  const currentTime = useSessionStore(state => state.currentTime);
+const formatTime = (seconds: number) => {
+  if (!seconds || isNaN(seconds)) return '0:00';
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+};
+
+const TimeDisplay = React.memo(({ duration }: { duration: number }) => {
+  const timeRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (timeRef.current) {
+      timeRef.current.textContent = formatTime(useSessionStore.getState().currentTime);
+    }
+    return useSessionStore.subscribe(
+      (state, prevState) => {
+        if (state.currentTime !== prevState.currentTime && timeRef.current) {
+          timeRef.current.textContent = formatTime(state.currentTime);
+        }
+      }
+    );
+  }, []);
+
+  return (
+    <div className="flex items-center gap-2 text-xs font-mono text-subtle whitespace-nowrap">
+      <span ref={timeRef}>0:00</span>
+      <span>/</span>
+      <span>{formatTime(duration)}</span>
+    </div>
+  );
+});
+
+const PlayheadIndicator = React.memo(({ duration, type, id }: { duration: number, type: 'main' | 'track' | 'bar', id: string }) => {
+  const indicatorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateIndicator = (currentTime: number) => {
+      if (indicatorRef.current && duration > 0) {
+        const progressPercent = (currentTime / duration) * 100;
+        if (type === 'bar') {
+          indicatorRef.current.style.width = `${progressPercent}%`;
+        } else if (type === 'track') {
+          indicatorRef.current.style.left = `${progressPercent}%`;
+        } else {
+          indicatorRef.current.style.left = `calc(0.5rem + ${progressPercent}% - 1px)`;
+        }
+      }
+    };
+
+    updateIndicator(useSessionStore.getState().currentTime);
+
+    return useSessionStore.subscribe(
+      (state, prevState) => {
+        if (state.currentTime !== prevState.currentTime) {
+          updateIndicator(state.currentTime);
+        }
+      }
+    );
+  }, [duration, type]);
+
+  if (type === 'bar') {
+    return (
+      <div 
+        ref={indicatorRef}
+        id={`playhead-bar-${id}`}
+        className="absolute top-0 left-0 h-full bg-accent"
+        style={{ width: '0%' }}
+      />
+    );
+  }
+
+  if (type === 'track') {
+    return (
+      <div 
+        ref={indicatorRef}
+        id={`playhead-track-${id}`}
+        className="absolute top-0 bottom-0 w-px bg-white/40 z-10 pointer-events-none"
+        style={{ left: '0%' }}
+      />
+    );
+  }
+
+  return (
+    <div 
+      ref={indicatorRef}
+      id={`playhead-main-${id}`}
+      className={cn(
+        "absolute top-0 bottom-0 w-0.5 bg-accent shadow-[0_0_8px_rgba(var(--accent),0.8)] z-10 pointer-events-none"
+      )}
+      style={{ left: `calc(0.5rem - 1px)` }}
+    >
+      <div className="absolute -top-1 -translate-x-1/2 w-3 h-3 bg-accent rounded-full shadow-sm shadow-accent/50" />
+    </div>
+  );
+});
+
+const ProgressFill = React.memo(({ duration }: { duration: number }) => {
+  const fillRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateFill = (currentTime: number) => {
+      if (fillRef.current && duration > 0) {
+        const progressPercent = (currentTime / duration) * 100;
+        fillRef.current.style.width = `${progressPercent}%`;
+      }
+    };
+
+    updateFill(useSessionStore.getState().currentTime);
+
+    return useSessionStore.subscribe(
+      (state, prevState) => {
+        if (state.currentTime !== prevState.currentTime) {
+          updateFill(state.currentTime);
+        }
+      }
+    );
+  }, [duration]);
+
+  return (
+    <div 
+      ref={fillRef}
+      className="h-full bg-accent/50"
+      style={{ width: '0%' }}
+    />
+  );
+});
+
+export const SessionTimeline = React.memo(function SessionTimeline() {
   const duration = useSessionStore(state => state.duration);
   const isPlaying = useSessionStore(state => state.isPlaying);
   const seekTo = useSessionStore(state => state.seekTo);
@@ -40,17 +166,8 @@ export function SessionTimeline() {
     }));
   }, [storeMarkers]);
 
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-
   const handleAddMarker = () => {
     // This will be implemented in the next phase
-  };
-
-  const formatTime = (seconds: number) => {
-    if (!seconds || isNaN(seconds)) return '0:00';
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   const handleSeekTo = (seconds: number) => {
@@ -99,11 +216,7 @@ export function SessionTimeline() {
             <Icon name={isPlaying ? "pause" : "play_arrow"} className="text-2xl" />
           </button>
           
-          <div className="flex items-center gap-2 text-xs font-mono text-subtle whitespace-nowrap">
-            <span>{formatTime(currentTime)}</span>
-            <span>/</span>
-            <span>{formatTime(duration)}</span>
-          </div>
+          <TimeDisplay duration={duration} />
           
           {/* Progress Bar */}
           <div 
@@ -113,10 +226,7 @@ export function SessionTimeline() {
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
           >
-            <div 
-              className="absolute top-0 left-0 h-full bg-accent transition-all duration-100"
-              style={{ width: `${progressPercent}%` }}
-            />
+            <PlayheadIndicator duration={duration} type="bar" id="header" />
             {markers.map(marker => (
               <div 
                 key={marker.id}
@@ -175,10 +285,7 @@ export function SessionTimeline() {
                   <div className="absolute left-0 top-0 h-full w-full px-2 pointer-events-none">
                     <div className="relative w-full h-full flex items-center">
                         <div className="w-full h-2 bg-surface-hover rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-accent/50 transition-all duration-100"
-                            style={{ width: `${progressPercent}%` }}
-                          />
+                          <ProgressFill duration={duration} />
                         </div>
                     </div>
                   </div>
@@ -236,15 +343,7 @@ export function SessionTimeline() {
                   </div>
 
                   {/* Playhead */}
-                  <div 
-                    className={cn(
-                      "absolute top-0 bottom-0 w-0.5 bg-accent shadow-[0_0_8px_rgba(var(--accent),0.8)] z-10 pointer-events-none transition-all",
-                      isDragging ? "duration-0" : "duration-100"
-                    )}
-                    style={{ left: `calc(0.5rem + ${progressPercent}% - 1px)` }}
-                  >
-                    <div className="absolute -top-1 -translate-x-1/2 w-3 h-3 bg-accent rounded-full shadow-sm shadow-accent/50" />
-                  </div>
+                  <PlayheadIndicator duration={duration} type="main" id="main" />
                 </div>
 
                 {/* Analysis Tracks (Heatmaps) */}
@@ -287,10 +386,7 @@ export function SessionTimeline() {
                         );
                       })}
                       {/* Playhead indicator on track */}
-                      <div 
-                        className="absolute top-0 bottom-0 w-px bg-white/40 z-10 pointer-events-none"
-                        style={{ left: `${progressPercent}%` }}
-                      />
+                      <PlayheadIndicator duration={duration} type="track" id="emotions" />
                     </div>
                   </div>
 
@@ -332,10 +428,7 @@ export function SessionTimeline() {
                         );
                       })}
                       {/* Playhead indicator on track */}
-                      <div 
-                        className="absolute top-0 bottom-0 w-px bg-white/40 z-10 pointer-events-none"
-                        style={{ left: `${progressPercent}%` }}
-                      />
+                      <PlayheadIndicator duration={duration} type="track" id="speech" />
                     </div>
                   </div>
                 </div>
@@ -346,4 +439,4 @@ export function SessionTimeline() {
       </AnimatePresence>
     </div>
   );
-}
+});

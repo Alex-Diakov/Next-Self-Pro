@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useTransition } from 'react';
 import { motion } from 'motion/react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
@@ -10,8 +10,10 @@ export const EmotionsPanel = React.memo(function EmotionsPanel() {
   const isAnalyzing = useSessionStore(state => state.isAnalyzing);
   const runDeepAnalysis = useSessionStore(state => state.runDeepAnalysis);
   const resetTranscription = useSessionStore(state => state.resetTranscription);
+  const analysisError = useSessionStore(state => state.analysisError);
 
   const currentEmotions = useMemo(() => {
+    if (!markers.length) return [];
     return markers.filter(m => 
       m.type === 'emotion' && 
       currentTime >= m.timestamp && 
@@ -67,9 +69,9 @@ export const EmotionsPanel = React.memo(function EmotionsPanel() {
               <Icon name="psychology" className="text-sm" />
               Run Deep Analysis
             </button>
-            {useSessionStore(state => state.analysisError) && (
-              <span className="text-[9px] text-error-muted font-medium max-w-[120px] text-right truncate" title={useSessionStore(state => state.analysisError) || ''}>
-                Error: {useSessionStore(state => state.analysisError)}
+            {analysisError && (
+              <span className="text-[9px] text-error-muted font-medium max-w-[120px] text-right truncate" title={analysisError}>
+                Error: {analysisError}
               </span>
             )}
           </div>

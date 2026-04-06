@@ -3,19 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '../../../../components/ui/Icon';
 import { cn } from '../../../../lib/utils';
 import { useSessionStore } from '../../../../store/session';
-import { AnalysisMarker } from '../../../../types';
-
-export type MarkerLabel = 'Insight' | 'Emotion' | 'Resistance' | 'Breakthrough' | 'Other';
-
-export interface SessionMarker {
-  id: string;
-  timestamp: number;
-  endTime?: number;
-  label: string;
-  color: string;
-  notes?: string;
-  type: 'emotion' | 'speech' | 'insight';
-}
 
 const formatTime = (seconds: number) => {
   if (!seconds || isNaN(seconds)) return '0:00';
@@ -41,10 +28,10 @@ const TimeDisplay = React.memo(({ duration }: { duration: number }) => {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 text-xs font-mono text-subtle whitespace-nowrap">
-      <span ref={timeRef}>0:00</span>
-      <span>/</span>
-      <span>{formatTime(duration)}</span>
+    <div className="flex items-center gap-2 text-xs font-mono text-subtle whitespace-nowrap bg-background/50 px-3 py-1.5 rounded-xl border border-border/40">
+      <span ref={timeRef} className="text-primary font-bold">0:00</span>
+      <span className="opacity-30">/</span>
+      <span className="font-bold">{formatTime(duration)}</span>
     </div>
   );
 });
@@ -82,7 +69,7 @@ const PlayheadIndicator = React.memo(({ duration, type, id }: { duration: number
       <div 
         ref={indicatorRef}
         id={`playhead-bar-${id}`}
-        className="absolute top-0 left-0 h-full bg-accent"
+        className="absolute top-0 left-0 h-full bg-accent shadow-[0_0_12px_rgba(var(--accent),0.4)]"
         style={{ width: '0%' }}
       />
     );
@@ -93,7 +80,7 @@ const PlayheadIndicator = React.memo(({ duration, type, id }: { duration: number
       <div 
         ref={indicatorRef}
         id={`playhead-track-${id}`}
-        className="absolute top-0 bottom-0 w-px bg-white/40 z-10 pointer-events-none"
+        className="absolute top-0 bottom-0 w-px bg-accent/40 z-10 pointer-events-none"
         style={{ left: '0%' }}
       />
     );
@@ -104,11 +91,12 @@ const PlayheadIndicator = React.memo(({ duration, type, id }: { duration: number
       ref={indicatorRef}
       id={`playhead-main-${id}`}
       className={cn(
-        "absolute top-0 bottom-0 w-0.5 bg-accent shadow-[0_0_8px_rgba(var(--accent),0.8)] z-10 pointer-events-none"
+        "absolute top-0 bottom-0 w-0.5 bg-accent shadow-[0_0_12px_rgba(var(--accent),0.6)] z-10 pointer-events-none"
       )}
       style={{ left: `calc(0.5rem - 1px)` }}
     >
-      <div className="absolute -top-1 -translate-x-1/2 w-3 h-3 bg-accent rounded-full shadow-sm shadow-accent/50" />
+      <div className="absolute -top-1.5 -translate-x-1/2 w-4 h-4 bg-accent rounded-full shadow-lg shadow-accent/40 border-2 border-background" />
+      <div className="absolute -bottom-1.5 -translate-x-1/2 w-4 h-4 bg-accent rounded-full shadow-lg shadow-accent/40 border-2 border-background" />
     </div>
   );
 });
@@ -138,9 +126,11 @@ const ProgressFill = React.memo(({ duration }: { duration: number }) => {
   return (
     <div 
       ref={fillRef}
-      className="h-full bg-accent/50"
+      className="h-full bg-gradient-to-r from-accent/40 via-accent to-accent/40 shadow-[0_0_20px_rgba(var(--accent),0.3)] relative overflow-hidden"
       style={{ width: '0%' }}
-    />
+    >
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none"></div>
+    </div>
   );
 });
 
@@ -165,10 +155,6 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
       type: m.type
     }));
   }, [storeMarkers]);
-
-  const handleAddMarker = () => {
-    // This will be implemented in the next phase
-  };
 
   const handleSeekTo = (seconds: number) => {
     seekTo(Math.max(0, Math.min(duration, seconds)));
@@ -203,24 +189,25 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
   };
 
   return (
-    <div className="w-full shrink-0 bg-surface rounded-[2rem] border border-border-glass transition-all duration-300 shadow-premium relative z-10">
+    <div className="w-full shrink-0 relative z-10 overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute top-0 left-0 w-full h-full bg-accent/5 blur-[100px] pointer-events-none z-0"></div>
+
       {/* Header / Collapsed View */}
-      <div 
-        className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-surface-hover/30 transition-colors"
-      >
-        <div className="flex items-center gap-3 w-full">
+      <div className="px-6 py-4 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-4 w-full">
           <button 
             onClick={(e) => { e.stopPropagation(); togglePlay(); }}
-            className="w-10 h-10 rounded-full bg-accent/10 hover:bg-accent/20 flex items-center justify-center text-accent transition-colors focus-ring"
+            className="w-12 h-12 rounded-2xl bg-accent/10 hover:bg-accent/20 flex items-center justify-center text-accent transition-all duration-300 border border-accent/20 shadow-lg shadow-accent/10 group"
           >
-            <Icon name={isPlaying ? "pause" : "play_arrow"} className="text-2xl" />
+            <Icon name={isPlaying ? "pause" : "play_arrow"} filled className="text-3xl group-hover:scale-110 transition-transform" />
           </button>
           
           <TimeDisplay duration={duration} />
           
           {/* Progress Bar */}
           <div 
-            className="flex-1 mx-2 h-2 bg-background rounded-full relative overflow-hidden cursor-pointer"
+            className="flex-1 mx-4 h-3 bg-background/50 rounded-full relative overflow-hidden cursor-pointer border border-border/40 shadow-inner group/progress"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -230,17 +217,18 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
             {markers.map(marker => (
               <div 
                 key={marker.id}
-                className={cn("absolute top-0 h-full w-1 rounded-full", marker.color)}
+                className={cn("absolute top-0 h-full w-1 rounded-full shadow-[0_0_8px_rgba(var(--accent),0.3)]", marker.color)}
                 style={{ left: `${(marker.timestamp / (duration || 1)) * 100}%` }}
               />
             ))}
+            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/progress:opacity-100 transition-opacity pointer-events-none"></div>
           </div>
 
           <button 
             onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
-            className="p-2 hover:bg-surface-hover rounded-full transition-colors text-subtle"
+            className="w-10 h-10 flex items-center justify-center hover:bg-surface-highlight/50 rounded-xl transition-all text-subtle border border-transparent hover:border-border/40"
           >
-            <Icon name={isExpanded ? "expand_less" : "expand_more"} />
+            <Icon name={isExpanded ? "keyboard_arrow_up" : "keyboard_arrow_down"} className="text-2xl" />
           </button>
         </div>
       </div>
@@ -252,30 +240,29 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="border-t border-border/30 select-none relative"
+            className="border-t border-border/30 select-none relative z-10"
           >
-            <div className="p-4 flex flex-col gap-6">
+            <div className="p-6 flex flex-col gap-8">
               {/* Controls */}
               <div className="flex items-center gap-3">
                 <button 
-                  onClick={(e) => { e.stopPropagation(); handleAddMarker(); }}
-                  className="flex items-center gap-2 bg-accent/10 hover:bg-accent/20 text-accent-hover px-4 py-2 rounded-xl text-sm font-bold transition-colors border border-accent/20 focus-ring"
+                  className="flex items-center gap-2 bg-surface-highlight/50 hover:bg-surface-highlight text-primary px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-border/60 shadow-sm"
                 >
-                  <Icon name="add_location_alt" className="text-lg" />
-                  Add Instant Marker
+                  <Icon name="add_location_alt" className="text-lg text-accent" />
+                  Add Clinical Marker
                 </button>
                 <button 
-                  className="flex items-center gap-2 bg-surface hover:bg-surface-hover text-secondary px-4 py-2 rounded-xl text-sm font-bold transition-colors border border-border focus-ring"
+                  className="flex items-center gap-2 bg-surface-highlight/50 hover:bg-surface-highlight text-primary px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-border/60 shadow-sm"
                 >
-                  <Icon name="data_array" className="text-lg" />
-                  Add Range
+                  <Icon name="data_array" className="text-lg text-info-muted" />
+                  Mark Range
                 </button>
               </div>
 
               {/* Main Track */}
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-6">
                 <div 
-                  className="relative w-full h-12 bg-background/50 rounded-xl border border-border/50 flex items-center px-2 cursor-pointer group/track touch-none"
+                  className="relative w-full h-16 bg-background/40 rounded-2xl border border-border/40 flex items-center px-2 cursor-pointer group/track touch-none shadow-inner"
                   onPointerDown={handlePointerDown}
                   onPointerMove={handlePointerMove}
                   onPointerUp={handlePointerUp}
@@ -284,7 +271,7 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
                   {/* Progress Fill */}
                   <div className="absolute left-0 top-0 h-full w-full px-2 pointer-events-none">
                     <div className="relative w-full h-full flex items-center">
-                        <div className="w-full h-2 bg-surface-hover rounded-full overflow-hidden">
+                        <div className="w-full h-3 bg-surface-highlight/50 rounded-full overflow-hidden border border-border/20">
                           <ProgressFill duration={duration} />
                         </div>
                     </div>
@@ -297,7 +284,6 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
                         const leftPercent = (marker.timestamp / (duration || 1)) * 100;
                         const widthPercent = marker.endTime ? ((marker.endTime - marker.timestamp) / (duration || 1)) * 100 : 0;
                         
-                        // Smart tooltip alignment to prevent edge clipping
                         const tooltipAlignClass = leftPercent < 20 ? 'left-0 translate-x-0' : leftPercent > 80 ? 'right-0 translate-x-0' : 'left-1/2 -translate-x-1/2';
                         const arrowAlignClass = leftPercent < 20 ? 'left-4 translate-x-0' : leftPercent > 80 ? 'right-4 translate-x-0' : 'left-1/2 -translate-x-1/2';
 
@@ -309,32 +295,33 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
                             onClick={(e) => { e.stopPropagation(); seekTo(marker.timestamp); }}
                           >
                             {marker.endTime ? (
-                              // Range Marker
-                              <div className={cn("h-6 rounded-md opacity-40 hover:opacity-80 transition-opacity border border-white/20", marker.color)} />
+                              <div className={cn("h-8 rounded-lg opacity-40 hover:opacity-80 transition-all border border-white/20 shadow-lg", marker.color)} />
                             ) : (
-                              // Point Marker
-                              <div className={cn("w-3 h-8 rounded-full -ml-1.5 shadow-md border border-white/20 hover:scale-110 transition-transform", marker.color)} />
+                              <div className={cn("w-4 h-10 rounded-full -ml-2 shadow-xl border-2 border-background hover:scale-110 transition-transform", marker.color)} />
                             )}
                             
                             {/* Premium Tooltip */}
                             <div className={cn(
-                              "absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[100] translate-y-2 group-hover:translate-y-0",
+                              "absolute bottom-full mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-[100] translate-y-2 group-hover:translate-y-0",
                               tooltipAlignClass
                             )}>
-                              <div className="bg-surface-hover/95 backdrop-blur-xl border border-border-glass shadow-premium rounded-xl p-3 w-64 flex flex-col gap-1.5">
+                              <div className="bg-surface/95 backdrop-blur-2xl border border-border/40 shadow-premium rounded-2xl p-4 w-72 flex flex-col gap-2">
                                 <div className="flex items-center gap-2">
-                                  <div className={cn("w-2.5 h-2.5 rounded-full shadow-sm", marker.color)} />
-                                  <span className="text-xs font-bold text-secondary">{marker.label}</span>
-                                  <span className="text-[10px] font-mono text-subtle ml-auto bg-background/50 px-1.5 py-0.5 rounded-md border border-border/50">
+                                  <div className={cn("w-3 h-3 rounded-full shadow-lg", marker.color)} />
+                                  <span className="text-sm font-bold text-primary tracking-tight">{marker.label}</span>
+                                  <span className="text-[10px] font-mono font-bold text-subtle ml-auto bg-background/50 px-2 py-1 rounded-lg border border-border/40">
                                     {formatTime(marker.timestamp)} {marker.endTime && `- ${formatTime(marker.endTime)}`}
                                   </span>
                                 </div>
                                 {marker.notes && (
-                                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-normal break-words">{marker.notes}</p>
+                                  <p className="text-xs text-muted leading-relaxed mt-1 font-medium">{marker.notes}</p>
                                 )}
+                                <div className="mt-2 pt-2 border-t border-border/40 flex items-center justify-between">
+                                  <span className="text-[10px] font-bold text-subtle uppercase tracking-widest">{marker.type}</span>
+                                  <span className="text-[10px] font-bold text-accent">Click to seek</span>
+                                </div>
                               </div>
-                              {/* Tooltip Arrow */}
-                              <div className={cn("absolute top-full -mt-1 border-4 border-transparent border-t-surface-hover/95", arrowAlignClass)} />
+                              <div className={cn("absolute top-full -mt-1.5 border-[6px] border-transparent border-t-surface/95", arrowAlignClass)} />
                             </div>
                           </div>
                         );
@@ -347,87 +334,53 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
                 </div>
 
                 {/* Analysis Tracks (Heatmaps) */}
-                <div className="space-y-2 px-2">
+                <div className="space-y-4 px-2">
                   {/* Emotions Track */}
-                  <div className="flex items-center gap-3">
-                    <span className="w-16 text-[10px] font-mono font-bold text-subtle uppercase tracking-widest">Emotions</span>
-                    <div className="flex-1 h-3 bg-background/30 rounded-full relative border border-border/20">
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 shrink-0 flex flex-col">
+                      <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Emotions</span>
+                      <span className="text-[9px] text-subtle font-medium">Intensity</span>
+                    </div>
+                    <div className="flex-1 h-4 bg-background/30 rounded-xl relative border border-border/20 overflow-hidden shadow-inner">
                       {storeMarkers.filter(m => m.type === 'emotion').map(m => {
                         const leftPercent = (m.timestamp / (duration || 1)) * 100;
-                        const tooltipAlignClass = leftPercent < 20 ? 'left-0 translate-x-0' : leftPercent > 80 ? 'right-0 translate-x-0' : 'left-1/2 -translate-x-1/2';
-                        const arrowAlignClass = leftPercent < 20 ? 'left-4 translate-x-0' : leftPercent > 80 ? 'right-4 translate-x-0' : 'left-1/2 -translate-x-1/2';
-
                         return (
                           <div 
                             key={m.id}
-                            className="absolute top-0 h-full bg-purple-500 shadow-[0_0_4px_rgba(168,85,247,0.4)] group/marker cursor-help"
+                            className="absolute top-0 h-full bg-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.3)] group/marker cursor-help"
                             style={{ 
                               left: `${leftPercent}%`, 
                               width: `${((m.duration || 1) / (duration || 1)) * 100}%`,
-                              opacity: 0.2 + (m.intensity * 0.8)
+                              opacity: 0.15 + (m.intensity * 0.85)
                             }}
-                          >
-                            {/* Heatmap Tooltip */}
-                            <div className={cn(
-                              "absolute bottom-full mb-2 opacity-0 group-hover/marker:opacity-100 transition-all duration-200 pointer-events-none z-[110] translate-y-2 group-hover/marker:translate-y-0",
-                              tooltipAlignClass
-                            )}>
-                              <div className="bg-surface-hover/95 backdrop-blur-xl border border-border-glass shadow-premium rounded-xl p-2 w-48 flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 rounded-full bg-purple-500" />
-                                  <span className="text-[10px] font-bold text-secondary">{m.label}</span>
-                                  <span className="text-[9px] font-mono text-subtle ml-auto">{Math.round(m.intensity * 100)}%</span>
-                                </div>
-                                {m.description && <p className="text-[9px] text-muted leading-tight line-clamp-2">{m.description}</p>}
-                              </div>
-                              <div className={cn("absolute top-full -mt-1 border-4 border-transparent border-t-surface-hover/95", arrowAlignClass)} />
-                            </div>
-                          </div>
+                          />
                         );
                       })}
-                      {/* Playhead indicator on track */}
                       <PlayheadIndicator duration={duration} type="track" id="emotions" />
                     </div>
                   </div>
 
                   {/* Speech Track */}
-                  <div className="flex items-center gap-3">
-                    <span className="w-16 text-[10px] font-mono font-bold text-subtle uppercase tracking-widest">Speech</span>
-                    <div className="flex-1 h-3 bg-background/30 rounded-full relative border border-border/20">
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 shrink-0 flex flex-col">
+                      <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Speech</span>
+                      <span className="text-[9px] text-subtle font-medium">Activity</span>
+                    </div>
+                    <div className="flex-1 h-4 bg-background/30 rounded-xl relative border border-border/20 overflow-hidden shadow-inner">
                       {storeMarkers.filter(m => m.type === 'speech').map(m => {
                         const leftPercent = (m.timestamp / (duration || 1)) * 100;
-                        const tooltipAlignClass = leftPercent < 20 ? 'left-0 translate-x-0' : leftPercent > 80 ? 'right-0 translate-x-0' : 'left-1/2 -translate-x-1/2';
-                        const arrowAlignClass = leftPercent < 20 ? 'left-4 translate-x-0' : leftPercent > 80 ? 'right-4 translate-x-0' : 'left-1/2 -translate-x-1/2';
-
                         return (
                           <div 
                             key={m.id}
-                            className="absolute top-0 h-full bg-orange-500 shadow-[0_0_4px_rgba(249,115,22,0.4)] group/marker cursor-help"
+                            className="absolute top-0 h-full bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.3)] group/marker cursor-help"
                             style={{ 
                               left: `${leftPercent}%`, 
                               width: `${((m.duration || 1) / (duration || 1)) * 100}%`,
-                              opacity: 0.2 + (m.intensity * 0.8)
+                              opacity: 0.15 + (m.intensity * 0.85)
                             }}
-                          >
-                            {/* Heatmap Tooltip */}
-                            <div className={cn(
-                              "absolute bottom-full mb-2 opacity-0 group-hover/marker:opacity-100 transition-all duration-200 pointer-events-none z-[110] translate-y-2 group-hover/marker:translate-y-0",
-                              tooltipAlignClass
-                            )}>
-                              <div className="bg-surface-hover/95 backdrop-blur-xl border border-border-glass shadow-premium rounded-xl p-2 w-48 flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 rounded-full bg-orange-500" />
-                                  <span className="text-[10px] font-bold text-secondary">{m.label}</span>
-                                  <span className="text-[9px] font-mono text-subtle ml-auto">{Math.round(m.intensity * 100)}%</span>
-                                </div>
-                                {m.description && <p className="text-[9px] text-muted leading-tight line-clamp-2">{m.description}</p>}
-                              </div>
-                              <div className={cn("absolute top-full -mt-1 border-4 border-transparent border-t-surface-hover/95", arrowAlignClass)} />
-                            </div>
-                          </div>
+                          />
                         );
                       })}
-                      {/* Playhead indicator on track */}
                       <PlayheadIndicator duration={duration} type="track" id="speech" />
                     </div>
                   </div>
@@ -440,3 +393,4 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
     </div>
   );
 });
+

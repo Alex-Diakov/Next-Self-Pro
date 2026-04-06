@@ -38,8 +38,8 @@ export const AIChatPanel = React.memo(function AIChatPanel({
             <div className={cn(
               "p-5 rounded-3xl text-sm leading-relaxed shadow-xl border-t border-border-glass",
               msg.role === 'user' 
-                ? "bg-accent/20 border border-accent/30 text-primary rounded-tr-sm backdrop-blur-md glow-accent" 
-                : "bg-surface-highlight border border-border text-secondary rounded-tl-sm backdrop-blur-md prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-headings:text-primary prose-headings:font-bold prose-strong:text-primary"
+                ? "bg-accent/20 border border-accent/30 text-primary backdrop-blur-md glow-accent" 
+                : "bg-surface-highlight border border-border text-secondary backdrop-blur-md prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-headings:text-primary prose-headings:font-bold prose-strong:text-primary"
             )}>
               {msg.role === 'user' ? (
                 msg.content
@@ -55,7 +55,7 @@ export const AIChatPanel = React.memo(function AIChatPanel({
             animate={{ opacity: 1 }}
             className="flex max-w-[85%] mr-auto"
           >
-            <div className="p-5 rounded-3xl bg-surface-highlight border border-border rounded-tl-sm flex items-center gap-3 text-muted backdrop-blur-md shadow-lg">
+            <div className="p-5 rounded-3xl bg-surface-highlight border border-border flex items-center gap-3 text-muted backdrop-blur-md shadow-lg">
               <Icon name="sync" className="text-xl animate-spin text-accent" />
               <span className="text-sm font-mono font-medium">Analyzing...</span>
             </div>

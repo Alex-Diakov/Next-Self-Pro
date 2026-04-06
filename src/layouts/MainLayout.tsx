@@ -10,6 +10,13 @@ import { DashboardPage } from '../pages/DashboardPage';
 import { SessionsPage } from '../pages/SessionsPage';
 import { PatientsPage } from '../pages/PatientsPage';
 import { PatientProfilePage } from '../pages/PatientProfilePage';
+import { SettingsPage } from '../pages/SettingsPage';
+
+// Import Settings Tabs
+import { ProfileTab } from '../features/settings/tabs/ProfileTab';
+import { AIPreferencesTab } from '../features/settings/tabs/AIPreferencesTab';
+import { BillingTab } from '../features/settings/tabs/BillingTab';
+import { DesignSystemTab } from '../features/settings/tabs/DesignSystemTab';
 
 export function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -115,30 +122,40 @@ export function MainLayout() {
         </aside>
 
         {/* Main Content Island */}
-        <main className="flex-1 h-full overflow-y-auto custom-scrollbar p-5 lg:p-6 bg-surface rounded-[32px] border border-border border-t-border-glass shadow-premium relative transition-all duration-300">
+        <main className="flex-1 h-full bg-white/[0.03] backdrop-blur-[24px] rounded-[32px] border border-white/5 shadow-2xl shadow-blue-950/20 relative transition-all duration-300 overflow-hidden">
           {/* Subtle background glow */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[100px] pointer-events-none"></div>
           
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname.split('/')[1] || 'dashboard'}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="h-full"
-            >
-              <Routes location={location}>
-                <Route index element={<DashboardPage />} />
-                <Route path="sessions/*" element={<SessionsPage />} />
-                <Route path="patients" element={<PatientsPage />} />
-                <Route path="patients/:projectId/*" element={<PatientProfilePage />} />
-                <Route path="insights" element={<div className="p-8 text-muted font-mono">AI Insights Page (Coming Soon)</div>} />
-                <Route path="settings" element={<div className="p-8 text-muted font-mono">Settings Page (Coming Soon)</div>} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </motion.div>
-          </AnimatePresence>
+          <div className="h-full overflow-y-auto custom-scrollbar p-5 lg:p-6 relative z-10">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname.split('/')[1] || 'dashboard'}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="h-full"
+              >
+                <Routes location={location}>
+                  <Route index element={<DashboardPage />} />
+                  <Route path="sessions/*" element={<SessionsPage />} />
+                  <Route path="patients" element={<PatientsPage />} />
+                  <Route path="patients/:projectId/*" element={<PatientProfilePage />} />
+                  <Route path="insights" element={<div className="p-8 text-muted font-mono">AI Insights Page (Coming Soon)</div>} />
+                  
+                  <Route path="settings" element={<SettingsPage />}>
+                    <Route index element={<Navigate to="profile" replace />} />
+                    <Route path="profile" element={<ProfileTab />} />
+                    <Route path="ai-preferences" element={<AIPreferencesTab />} />
+                    <Route path="billing" element={<BillingTab />} />
+                    <Route path="design-system" element={<DesignSystemTab />} />
+                  </Route>
+                  
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </main>
       </div>
     </div>

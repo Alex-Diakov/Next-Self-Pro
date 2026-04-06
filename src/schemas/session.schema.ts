@@ -50,11 +50,12 @@ export const SessionRecordSchema = z.object({
   date: z.union([z.number(), z.string()]).transform(val => 
     typeof val === 'string' ? new Date(val).getTime() : val
   ).catch(() => Date.now()),
-  file: z.instanceof(Blob).optional().catch(undefined),
+  file: z.any().optional().catch(undefined),
   fileName: z.string().catch('unknown_file'),
   fileType: z.string().catch('audio/mpeg'),
   fileSize: z.number().catch(0),
   transcript: z.string().catch(''),
+  summary: z.string().optional().catch(undefined),
   transcriptLines: z.array(TranscriptLineSchema).optional().catch([]),
   messages: z.array(ChatMessageSchema).catch([]),
   status: z.enum(['processing', 'completed', 'error']).catch('completed'),

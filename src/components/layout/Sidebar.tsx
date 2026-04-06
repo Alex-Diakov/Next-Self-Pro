@@ -19,7 +19,7 @@ interface SidebarProps {
 export function Sidebar({ onClose, isCollapsed, setIsCollapsed }: SidebarProps) {
   return (
     <aside className={cn(
-      "h-full bg-surface flex flex-col shrink-0 rounded-premium border border-border border-t-border-glass shadow-premium relative transition-[width] duration-300 ease-in-out overflow-visible",
+      "h-full bg-white/[0.02] backdrop-blur-[16px] flex flex-col shrink-0 rounded-premium border border-white/5 shadow-2xl relative transition-[width] duration-300 ease-in-out overflow-visible",
       isCollapsed ? "w-24" : "w-72"
     )}>
       {/* Subtle background glow */}

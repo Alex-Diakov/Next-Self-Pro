@@ -12,6 +12,7 @@ export interface SessionRecord {
   fileType: string;
   fileSize: number;
   transcript: string;
+  summary?: string;
   transcriptLines?: TranscriptLine[];
   messages: ChatMessage[];
   status: 'processing' | 'completed' | 'error';
@@ -118,15 +119,20 @@ class DBService {
       const session = parsed.data as SessionRecord;
       // If the file is not in the session record, try to load it from the files store
       if (!session.file) {
-        const file = await db.get('files', id);
-        if (file) {
-          session.file = file;
+        try {
+          const file = await db.get('files', id);
+          if (file) {
+            session.file = file;
+          }
+        } catch (e) {
+          console.error('Error loading file from files store:', e);
         }
       }
       return session;
     } else {
       console.error(`Invalid session record ${id}:`, parsed.error);
-      return undefined;
+      // Fallback: return the raw record if parsing fails, to avoid losing data
+      return record as SessionRecord;
     }
   }
 

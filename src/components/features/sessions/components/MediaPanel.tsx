@@ -55,21 +55,22 @@ export function MediaPanel({
               ref={videoRef}
               src={videoUrl} 
               controls 
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain bg-black/50 rounded-[inherit]"
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle">
+            <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle rounded-[inherit]">
               <Icon name="play_circle" className="text-6xl mb-4 opacity-30" />
               <audio ref={audioRef} src={videoUrl} controls className="w-3/4" />
             </div>
           )
-        ) : transcriptionState.step === 'completed' && !file ? (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle">
-            <Icon name="error" filled className="text-5xl mb-4 opacity-30 text-error" />
-            <span className="text-sm font-mono">No media file found for this session</span>
+        ) : (transcriptionState.step === 'completed' || transcriptionState.step === 'idle') && !file ? (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle rounded-[inherit] p-8 text-center border border-dashed border-border/50">
+            <Icon name="video_file" className="text-5xl mb-4 opacity-30" />
+            <span className="text-sm font-medium">No media file found for this session</span>
+            <p className="text-xs opacity-60 mt-2">The original file may have been moved or deleted from your local storage.</p>
           </div>
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-surface text-subtle rounded-[inherit]">
             <Icon name="sync" className="text-4xl animate-spin mb-4 text-accent" />
             <span className="text-sm font-mono">Loading media...</span>
           </div>

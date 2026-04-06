@@ -145,11 +145,11 @@ export function PatientProfilePage() {
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                className="bg-surface border border-border rounded-premium p-6 sm:p-8 max-w-3xl w-full shadow-premium relative max-h-[90vh] overflow-y-auto custom-scrollbar"
+                className="bg-surface-highlight border border-border rounded-premium p-6 sm:p-8 max-w-3xl w-full shadow-premium relative max-h-[90vh] overflow-y-auto custom-scrollbar"
               >
                 <button 
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-muted hover:text-secondary bg-surface-hover/50 hover:bg-surface-hover rounded-full transition-colors z-10 flex items-center justify-center"
+                  className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-muted hover:text-secondary bg-surface-hover hover:bg-surface-highlight rounded-full transition-colors z-10 flex items-center justify-center"
                 >
                   <Icon name="close" className="text-xl" />
                 </button>
@@ -174,7 +174,7 @@ export function PatientProfilePage() {
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="bg-surface border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl relative"
+                className="bg-surface-highlight border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl relative"
               >
                 <h3 className="text-lg font-medium text-primary mb-2">Delete Session?</h3>
                 <p className="text-muted mb-6 text-sm">Are you sure you want to delete this session? This action cannot be undone.</p>
@@ -206,7 +206,7 @@ export function PatientProfilePage() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-[80px] pointer-events-none"></div>
 
                 <div className="flex items-center gap-6 relative z-10">
-                  <div className="w-20 h-20 bg-surface-hover rounded-full flex items-center justify-center text-accent shadow-inner border border-border-subtle">
+                  <div className="w-20 h-20 bg-surface-hover rounded-full flex items-center justify-center text-accent shadow-inner border border-border">
                     <Icon name="person" filled className="text-4xl" />
                   </div>
                   <div>
@@ -228,9 +228,9 @@ export function PatientProfilePage() {
                   <div className="text-sm text-subtle font-semibold uppercase tracking-wider">Status</div>
                   <div className={cn(
                     "px-4 py-2 rounded-full text-sm font-bold tracking-wide border text-center",
-                    activeProject.status === 'active' ? "bg-success/10 text-success-muted border-success/20" :
-                    activeProject.status === 'completed' ? "bg-info/10 text-info-muted border-info/20" :
-                    "bg-surface-hover text-muted border-border-hover"
+                    activeProject.status === 'active' ? "bg-surface-hover text-success-muted border-success/20" :
+                    activeProject.status === 'completed' ? "bg-surface-hover text-info-muted border-info/20" :
+                    "bg-surface-highlight text-muted border-border-hover"
                   )}>
                     {activeProject.status ? activeProject.status.toUpperCase() : 'UNKNOWN'}
                   </div>
@@ -247,12 +247,12 @@ export function PatientProfilePage() {
                       <Icon name="trending_up" className="text-xl text-success-muted" />
                       Therapy Progress
                     </h3>
-                    <span className="text-sm font-medium text-subtle bg-background/50 px-3 py-1 rounded-full border border-border/50">Last 6 Months</span>
+                    <span className="text-sm font-medium text-subtle bg-surface-hover px-3 py-1 rounded-full border border-border/50">Last 6 Months</span>
                   </div>
                   <div className="h-48 flex items-end justify-between gap-2 relative z-10">
                     {/* Mock Chart Bars */}
                     {[40, 55, 45, 60, 75, 85].map((height, i) => (
-                      <div key={i} className="w-full bg-surface-hover/50 rounded-t-xl relative group-hover:bg-surface-hover transition-colors duration-300">
+                      <div key={i} className="w-full bg-surface-hover rounded-t-xl relative group-hover:bg-surface-highlight transition-colors duration-300">
                         <motion.div 
                           initial={{ height: 0 }}
                           animate={{ height: `${height}%` }}
@@ -273,7 +273,7 @@ export function PatientProfilePage() {
                   </h3>
                   <div className="flex flex-wrap gap-2 relative z-10">
                     {['Anxiety', 'Work Stress', 'Family Dynamics', 'Self-Esteem', 'Sleep Issues'].map((tag, i) => (
-                      <span key={i} className="px-4 py-2 bg-background/50 border border-border/80 rounded-full text-sm font-medium text-secondary hover:border-accent/30 hover:text-accent-muted transition-colors cursor-default">
+                      <span key={i} className="px-4 py-2 bg-surface-hover border border-border/80 rounded-full text-sm font-medium text-secondary hover:bg-surface-highlight hover:border-accent/30 hover:text-accent-muted transition-colors cursor-default">
                         {tag}
                       </span>
                     ))}
@@ -315,9 +315,9 @@ export function PatientProfilePage() {
 
                         <div className="flex justify-between items-start mb-5 relative z-10">
                           <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide border ${
-                            session.status === 'completed' ? 'bg-success/10 text-success-muted border-success/20' : 
-                            session.status === 'processing' ? 'bg-accent/10 text-accent-hover border-accent/20' : 
-                            'bg-error/10 text-error-muted border-error/20'
+                            session.status === 'completed' ? 'bg-surface-hover text-success-muted border-success/20' : 
+                            session.status === 'processing' ? 'bg-surface-hover text-accent-hover border-accent/20' : 
+                            'bg-surface-hover text-error-muted border-error/20'
                           }`}>
                             <Icon name="video_file" className="text-sm" />
                             {session.status === 'completed' ? 'Completed' : session.status === 'processing' ? 'Processing' : 'Error'}

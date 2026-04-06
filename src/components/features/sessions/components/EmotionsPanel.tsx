@@ -45,7 +45,7 @@ export const EmotionsPanel = React.memo(function EmotionsPanel() {
         </div>
         {isAnalyzing ? (
           <div className="flex flex-col items-end gap-1">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-surface text-subtle cursor-not-allowed">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-surface-hover text-subtle cursor-not-allowed border border-border/40">
               <Icon name="sync" className="animate-spin text-sm" />
               Analyzing...
             </div>
@@ -95,7 +95,7 @@ export const EmotionsPanel = React.memo(function EmotionsPanel() {
                 {Math.round(emotion.intensity * 100)}%
               </span>
             </div>
-            <div className="h-2 bg-background/50 rounded-full overflow-hidden border border-border/30">
+            <div className="h-2 bg-surface-hover rounded-full overflow-hidden border border-border/30">
               <motion.div 
                 initial={false}
                 animate={{ 

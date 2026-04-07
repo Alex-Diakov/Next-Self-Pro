@@ -1,0 +1,182 @@
+/* ==========================================
+   1. Base Primitives (Static Colors & Values)
+   ========================================== */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Fixed Slate Scale (Neutral) - Fixed duplicates */
+  --color-slate-950: #141416;
+  --color-slate-900: #1F2128;
+  --color-slate-800: #23262F;
+  --color-slate-700: #353945;
+  --color-slate-600: #474D5C;
+  --color-slate-500: #5E6578;
+  --color-slate-400: #777E90;
+  --color-slate-300: #B1B5C3;
+  --color-slate-200: #E6E8EC;
+  --color-slate-100: #F4F5F6;
+  --color-slate-50: #FCFCFD;
+
+  /* Fixed Primary Scale (Sapphire) */
+  --color-primary-950: #11184b;
+  --color-primary-900: #1a2570;
+  --color-primary-800: #2536a0;
+  --color-primary-700: #2f45c5;
+  --color-primary-600: #3a56e4;
+  --color-primary-500: #4361EE;
+  --color-primary-400: #5c85ff;
+  --color-primary-300: #94b2ff;
+  --color-primary-200: #c2d3ff;
+  --color-primary-100: #e1e9ff;
+  --color-primary-50: #f0f4ff;
+
+  /* Status Base Colors */
+  --color-green-500: #10b981;
+  --color-green-400: #34d399;
+  --color-green-900: #064e3b;
+  
+  --color-red-500: #ef4444;
+  --color-red-400: #f87171;
+  --color-red-900: #7f1d1d;
+  
+  --color-yellow-500: #eab308;
+  --color-yellow-400: #facc15;
+  --color-yellow-900: #713f12;
+  
+  --color-blue-500: #3b82f6;
+  --color-blue-400: #60a5fa;
+  --color-blue-900: #1e3a8a;
+
+  /* Map Semantic Tokens to CSS Variables (for theming) */
+  --color-background: var(--bg-default);
+  --color-surface: var(--bg-surface);
+  --color-surface-hover: var(--bg-surface-hover);
+  --color-surface-highlight: var(--bg-surface-highlight);
+  --color-surface-active: var(--bg-surface-active);
+  --color-surface-tab: var(--bg-surface-tab);
+  --color-surface-glass: var(--bg-glass);
+  
+  --color-border: var(--border-default);
+  --color-border-hover: var(--border-hover);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-glass: var(--border-glass);
+  --color-border-highlight: var(--border-highlight);
+  --color-border-premium: var(--border-premium);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-text-inverse: var(--text-inverse);
+  
+  --color-accent: var(--accent-default);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-active: var(--accent-active);
+
+  --color-success: var(--status-success);
+  --color-success-muted: var(--status-success-muted);
+  --color-success-bg: var(--status-success-bg);
+  
+  --color-error: var(--status-error);
+  --color-error-muted: var(--status-error-muted);
+  --color-error-bg: var(--status-error-bg);
+  
+  --color-warning: var(--status-warning);
+  --color-warning-muted: var(--status-warning-muted);
+  --color-warning-bg: var(--status-warning-bg);
+  
+  --color-info: var(--status-info);
+  --color-info-muted: var(--status-info-muted);
+  --color-info-bg: var(--status-info-bg);
+
+  /* Design Tokens for Radius, Shadow, Blur */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+  --radius-premium: 2rem;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 20px 0 color-mix(in srgb, var(--color-accent) 40%, transparent);
+  --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-premium-hover: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+
+  --blur-glass: 20px;
+  --blur-premium: 24px;
+
+  /* Z-Index Scale */
+  --z-base: 0;
+  --z-elevated: 10;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+}
+
+/* ==========================================
+   2. Semantic Variables (Theming Layer)
+   ========================================== */
+:root {
+  /* Layer Design System (0-5)
+     Layer 0: Background (Deepest)
+     Layer 1: Surface (Cards, Panels)
+     Layer 2: Surface Hover (Elements inside cards)
+     Layer 3: Surface Highlight (Selected/Highlighted elements)
+     Layer 4: Surface Active (Active states, Focus)
+     Layer 5: Surface Tab (Recessed containers)
+  */
+  
+  /* Dark Theme Defaults */
+  --bg-default: var(--color-slate-950);
+  --bg-surface: var(--color-slate-900);
+  --bg-surface-hover: var(--color-slate-800);
+  --bg-surface-highlight: var(--color-slate-700);
+  --bg-surface-active: var(--color-slate-600);
+  --bg-surface-tab: color-mix(in srgb, var(--bg-default) 50%, transparent);
+
+  --border-default: var(--color-slate-800);
+  --border-hover: var(--color-slate-700);
+  --border-subtle: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --border-highlight: rgba(255, 255, 255, 0.05);
+  --border-premium: rgba(255, 255, 255, 0.2);
+
+  --bg-glass: rgba(255, 255, 255, 0.03);
+  --bg-highlight: rgba(255, 255, 255, 0.05);
+
+  --text-primary: var(--color-slate-50);
+  --text-secondary: var(--color-slate-200);
+  --text-muted: var(--color-slate-400);
+  --text-subtle: var(--color-slate-500);
+  --text-inverse: #000000;
+
+  --accent-default: var(--color-primary-500);
+  --accent-hover: var(--color-primary-400);
+  --accent-active: var(--color-primary-600);
+
+  --status-success: var(--color-green-500);
+  --status-success-muted: var(--color-green-400);
+  --status-success-bg: var(--color-green-900);
+  
+  --status-error: var(--color-red-500);
+  --status-error-muted: var(--color-red-400);
+  --status-error-bg: var(--color-red-900);
+  
+  --status-warning: var(--color-yellow-500);
+  --status-warning-muted: var(--color-yellow-400);
+  --status-warning-bg: var(--color-yellow-900);
+  
+  --status-info: var(--color-blue-500);
+  --status-info-muted: var(--color-blue-400);
+  --status-info-bg: var(--color-blue-900);
+}

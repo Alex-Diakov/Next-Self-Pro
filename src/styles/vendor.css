@@ -1,0 +1,51 @@
+/* Scanning animation for video player */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+.animate-scanline {
+  animation: scanline 3s linear infinite;
+}
+
+/* Video.js Custom Styling */
+.video-js {
+  @apply rounded-[32px] overflow-hidden bg-background border border-border border-t-border-glass shadow-premium;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.vjs-big-play-button {
+  @apply !hidden; /* Hide the default big play button */
+}
+
+.vjs-control-bar {
+  @apply !bg-background/40 !backdrop-blur-xl !border-t !border-border/10 !h-12 !px-2 !transition-all !duration-500 !opacity-0 group-hover:!opacity-100;
+}
+
+.vjs-play-progress {
+  @apply !bg-accent;
+}
+
+.vjs-slider {
+  @apply !bg-surface-hover/30;
+}
+
+.vjs-load-progress {
+  @apply !bg-surface-highlight/20;
+}
+
+.vjs-volume-level {
+  @apply !bg-accent;
+}
+
+.vjs-button > .vjs-icon-placeholder:before {
+  color: var(--text-secondary) !important;
+}
+
+.vjs-play-control.vjs-playing .vjs-icon-placeholder:before {
+  color: var(--accent-default) !important;
+}
+
+.vjs-progress-control:hover .vjs-play-progress:after {
+  @apply !bg-accent !shadow-glow;
+}

@@ -3,8 +3,8 @@ import { useParams, useNavigate, Routes, Route, useLocation } from 'react-router
 import { useProjectStore } from '../store/useProjectStore';
 import { useSessionStore } from '../store/session';
 import { dbService } from '../services/db.service';
-import { UploadView } from '../components/features/sessions/UploadView';
-import { SessionView } from '../components/features/sessions/SessionView';
+import { UploadView } from '../features/sessions/UploadView';
+import { SessionView } from '../features/sessions/SessionView';
 import { Icon } from '../components/ui/Icon';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, safeFormatDate } from '../lib/utils';

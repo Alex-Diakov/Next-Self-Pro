@@ -8,7 +8,7 @@ export function TypographyBlock() {
         <p className="text-sm text-subtle">Иерархия текста. Используется чистый гротеск (sans-serif) без засечек.</p>
       </div>
       
-      <div className="p-8 border border-border rounded-3xl bg-surface flex flex-col gap-8 shadow-sm">
+      <div className="p-8 border border-border rounded-3xl bg-surface-hover flex flex-col gap-8 shadow-sm">
         <div className="flex flex-col gap-2 border-b border-border/50 pb-6">
           <span className="text-xs font-mono text-subtle uppercase tracking-wider">Display 1 / 48px / Bold</span>
           <h1 className="text-5xl font-bold text-primary tracking-tight">Создаем будущее</h1>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Icon } from '../../../../components/ui/Icon';
-import { cn } from '../../../../lib/utils';
-import { SessionMarker } from '../../../../types';
+import { Icon } from '../../../components/ui/Icon';
+import { cn } from '../../../lib/utils';
+import { SessionMarker } from '../../../types';
 
 interface MarkersPanelProps {
   markers: SessionMarker[];

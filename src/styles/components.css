@@ -1,0 +1,133 @@
+/* ==========================================
+   4. Components (Using Tokens)
+   ========================================== */
+
+/* Interactive States (Hover, Active, Disabled) */
+.interactive-base {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-hover:hover {
+  background-color: var(--color-surface-highlight);
+  border-color: var(--color-border-hover);
+}
+
+.interactive-active:active {
+  transform: scale(0.98);
+  background-color: var(--color-surface-hover);
+}
+
+.interactive-disabled:disabled,
+.interactive-disabled[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Layer Utilities */
+.layer-base {
+  z-index: var(--z-base);
+}
+.layer-elevated {
+  z-index: var(--z-elevated);
+  box-shadow: var(--shadow-md);
+}
+.layer-floating {
+  z-index: var(--z-dropdown);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Layer Design System (Scalable Utility Classes) */
+@layer utilities {
+  .layer-0 {
+    background-color: var(--color-background);
+  }
+  
+  .layer-1 {
+    background-color: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .layer-2 {
+    background-color: var(--color-surface-hover);
+    border: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
+  }
+  
+  .layer-3 {
+    background-color: var(--color-surface-highlight);
+    border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  }
+  
+  .layer-4 {
+    background-color: var(--color-surface-active);
+    border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  }
+  
+  .layer-5 {
+    background-color: var(--color-surface-tab);
+    border: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
+  }
+}
+
+.glass-panel {
+  background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 1rem;
+}
+
+.card-premium {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-premium);
+  backdrop-filter: blur(var(--blur-premium));
+  -webkit-backdrop-filter: blur(var(--blur-premium));
+  box-shadow: var(--shadow-premium);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.card-premium:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-premium-hover);
+  transform: translateY(-2px);
+}
+
+/* Premium Gradients & Effects */
+.bg-premium-gradient {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-active) 100%);
+}
+
+.glow-accent {
+  box-shadow: 0 0 20px 0 color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.border-highlight {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Elite Focus State */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-accent);
+  border-radius: inherit;
+}
+
+/* Text Glow */
+.text-glow {
+  text-shadow: 0 0 20px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}

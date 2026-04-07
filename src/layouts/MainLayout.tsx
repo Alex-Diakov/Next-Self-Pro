@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Sidebar } from '../components/layout/Sidebar';
+import { Sidebar } from './Sidebar';
 import { Icon } from '../components/ui/Icon';
 import { cn } from '../lib/utils';
 import { AnimatePresence, motion } from 'motion/react';
@@ -94,18 +94,18 @@ export function MainLayout() {
             <input 
               type="text" 
               placeholder="Search..." 
-              className="bg-surface border border-border border-t-border-glass rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all w-64 placeholder:text-subtle text-secondary shadow-inner"
+              className="bg-surface-tab border border-border/40 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all w-64 placeholder:text-subtle text-secondary shadow-inner"
             />
           </div>
           
           {/* Notifications */}
-          <button className="p-2.5 text-muted hover:text-secondary rounded-xl relative bg-surface border border-border border-t-border-glass shadow-lg hover:scale-105 transition-all active:scale-95 flex items-center justify-center">
+          <button className="p-2.5 text-muted hover:text-secondary rounded-xl relative bg-surface-highlight border border-border/40 shadow-lg hover:scale-105 transition-all active:scale-95 flex items-center justify-center">
             <Icon name="notifications" className="text-xl" />
             <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full glow-accent"></span>
           </button>
           
           {/* Avatar */}
-          <div className="w-10 h-10 rounded-full bg-surface-hover border border-border-hover border-t-border-glass flex items-center justify-center text-accent font-bold text-sm shrink-0 shadow-xl overflow-hidden hover:ring-2 hover:ring-accent/30 transition-all cursor-pointer">
+          <div className="w-10 h-10 rounded-full bg-surface-active border border-border/60 flex items-center justify-center text-accent font-bold text-sm shrink-0 shadow-xl overflow-hidden hover:ring-2 hover:ring-accent/30 transition-all cursor-pointer">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" className="w-full h-full object-cover" />
           </div>
         </div>
@@ -122,7 +122,7 @@ export function MainLayout() {
         </aside>
 
         {/* Main Content Island */}
-        <main className="flex-1 h-full bg-white/[0.03] backdrop-blur-[24px] rounded-[32px] border border-white/5 shadow-2xl shadow-blue-950/20 relative transition-all duration-300 overflow-hidden">
+        <main className="flex-1 h-full bg-surface/40 backdrop-blur-[24px] rounded-[32px] border border-border/20 shadow-2xl shadow-blue-950/20 relative transition-all duration-300 overflow-hidden">
           {/* Subtle background glow */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[100px] pointer-events-none"></div>
           

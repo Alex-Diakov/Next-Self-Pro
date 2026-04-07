@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useTransition } from 'react';
 import { motion } from 'motion/react';
-import { Icon } from '../../../../components/ui/Icon';
-import { cn } from '../../../../lib/utils';
-import { useSessionStore } from '../../../../store/session';
+import { Icon } from '../../../components/ui/Icon';
+import { cn } from '../../../lib/utils';
+import { useSessionStore } from '../../../store/session';
 
-export const SpeechPanel = React.memo(function SpeechPanel() {
+export const EmotionsPanel = React.memo(function EmotionsPanel() {
   const markers = useSessionStore(state => state.markers);
   const currentTime = useSessionStore(state => state.currentTime);
   const isAnalyzing = useSessionStore(state => state.isAnalyzing);
@@ -12,36 +12,36 @@ export const SpeechPanel = React.memo(function SpeechPanel() {
   const resetTranscription = useSessionStore(state => state.resetTranscription);
   const analysisError = useSessionStore(state => state.analysisError);
 
-  const currentSpeech = useMemo(() => {
+  const currentEmotions = useMemo(() => {
     if (!markers.length) return [];
     return markers.filter(m => 
-      m.type === 'speech' && 
+      m.type === 'emotion' && 
       currentTime >= m.timestamp && 
       currentTime < m.timestamp + (m.duration || 1)
     );
   }, [markers, currentTime]);
 
-  const allMetrics = useMemo(() => {
-    const speechTypes = ['Stuttering', 'Rapid Speech', 'Long Pause', 'Whispering'];
-    return speechTypes.map(type => {
-      const active = currentSpeech.find(e => e.label === type);
+  const allEmotions = useMemo(() => {
+    const emotionTypes = ['Anxiety', 'Sadness', 'Anger', 'Relief', 'Fear', 'Joy', 'Confusion'];
+    return emotionTypes.map(type => {
+      const active = currentEmotions.find(e => e.label === type);
       return {
         label: type,
         intensity: active ? active.intensity : 0,
         isActive: !!active
       };
     });
-  }, [currentSpeech]);
+  }, [currentEmotions]);
 
   return (
     <div className="absolute inset-0 flex flex-col p-6 lg:p-8 overflow-y-auto custom-scrollbar">
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h3 className="text-lg font-bold text-primary mb-1 tracking-tight flex items-center gap-2">
-            <Icon name="record_voice_over" filled className="text-accent" />
-            Speech Metrics
+            <Icon name="mood" filled className="text-accent" />
+            Current Emotional State
           </h3>
-          <p className="text-xs text-subtle font-mono uppercase tracking-widest opacity-60">Real-time prosodic analysis</p>
+          <p className="text-xs text-subtle font-mono uppercase tracking-widest opacity-60">Real-time affective analysis</p>
         </div>
         {isAnalyzing ? (
           <div className="flex flex-col items-end gap-1">
@@ -59,7 +59,7 @@ export const SpeechPanel = React.memo(function SpeechPanel() {
         ) : (
           <div className="flex flex-col items-end gap-1">
             <button
-              onClick={() => runDeepAnalysis('speech')}
+              onClick={() => runDeepAnalysis('emotion')}
               disabled={isAnalyzing}
               className={cn(
                 "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
@@ -79,28 +79,28 @@ export const SpeechPanel = React.memo(function SpeechPanel() {
       </div>
 
       <div className="space-y-6">
-        {allMetrics.map((metric) => (
-          <div key={metric.label} className="space-y-2">
+        {allEmotions.map((emotion) => (
+          <div key={emotion.label} className="space-y-2">
             <div className="flex items-center justify-between text-xs font-mono">
               <span className={cn(
                 "font-bold transition-colors duration-300",
-                metric.isActive ? "text-accent" : "text-subtle"
+                emotion.isActive ? "text-accent" : "text-subtle"
               )}>
-                {metric.label}
+                {emotion.label}
               </span>
               <span className={cn(
                 "transition-colors duration-300",
-                metric.isActive ? "text-white" : "text-muted"
+                emotion.isActive ? "text-white" : "text-muted"
               )}>
-                {Math.round(metric.intensity * 100)}%
+                {Math.round(emotion.intensity * 100)}%
               </span>
             </div>
             <div className="h-2 bg-surface-hover rounded-full overflow-hidden border border-border/30">
               <motion.div 
                 initial={false}
                 animate={{ 
-                  width: `${metric.intensity * 100}%`,
-                  backgroundColor: metric.isActive ? 'var(--accent)' : 'rgba(255,255,255,0.1)'
+                  width: `${emotion.intensity * 100}%`,
+                  backgroundColor: emotion.isActive ? 'var(--accent)' : 'rgba(255,255,255,0.1)'
                 }}
                 className="h-full rounded-full shadow-sm"
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -110,7 +110,7 @@ export const SpeechPanel = React.memo(function SpeechPanel() {
         ))}
       </div>
 
-      {currentSpeech.length > 0 && (
+      {currentEmotions.length > 0 && (
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -121,15 +121,15 @@ export const SpeechPanel = React.memo(function SpeechPanel() {
             <span className="text-xs font-bold text-accent uppercase tracking-wider">Insight</span>
           </div>
           <p className="text-sm text-secondary leading-relaxed italic">
-            "{currentSpeech[0].description}"
+            "{currentEmotions[0].description}"
           </p>
         </motion.div>
       )}
 
-      {currentSpeech.length === 0 && (
+      {currentEmotions.length === 0 && (
         <div className="mt-10 p-8 border border-dashed border-border/40 rounded-3xl flex flex-col items-center justify-center text-center opacity-40">
           <Icon name="hourglass_empty" className="text-3xl mb-3" />
-          <p className="text-xs font-mono">No active speech markers at {Math.floor(currentTime)}s</p>
+          <p className="text-xs font-mono">No active emotional markers at {Math.floor(currentTime)}s</p>
         </div>
       )}
     </div>

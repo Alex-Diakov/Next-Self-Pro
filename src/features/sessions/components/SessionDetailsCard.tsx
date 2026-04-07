@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Icon } from '../../../ui/Icon';
-import { cn } from '../../../../lib/utils';
-import { SessionRecord } from '../../../../services/db.service';
-import { TranscriptionState } from '../../../../types';
+import { Icon } from '../../../components/ui/Icon';
+import { cn } from '../../../lib/utils';
+import { SessionRecord } from '../../../services/db.service';
+import { TranscriptionState } from '../../../types';
 
 interface SessionDetailsCardProps {
   session: SessionRecord | null;

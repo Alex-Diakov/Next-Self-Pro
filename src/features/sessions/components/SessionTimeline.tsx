@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Icon } from '../../../../components/ui/Icon';
-import { cn } from '../../../../lib/utils';
-import { useSessionStore } from '../../../../store/session';
+import { Icon } from '../../../components/ui/Icon';
+import { cn } from '../../../lib/utils';
+import { useSessionStore } from '../../../store/session';
 
 const formatTime = (seconds: number) => {
   if (!seconds || isNaN(seconds)) return '0:00';

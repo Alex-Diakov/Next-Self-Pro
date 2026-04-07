@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams, Routes, Route, useLocation } from 'react-router-dom';
-import { UploadView } from '../components/features/sessions/UploadView';
-import { SessionView } from '../components/features/sessions/SessionView';
+import { UploadView } from '../features/sessions/UploadView';
+import { SessionView } from '../features/sessions/SessionView';
 import { dbService, SessionRecord } from '../services/db.service';
 import { Icon } from '../components/ui/Icon';
 import { useSessionStore } from '../store/session';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, safeFormatDate } from '../lib/utils';
-import { StatsCard } from '../components/features/sessions/components/StatsCard';
+import { StatsCard } from '../features/sessions/components/StatsCard';
 import { Project } from '../types';
 
 const SessionAnalysisWrapper = ({ onBack }: { onBack: () => void }) => {

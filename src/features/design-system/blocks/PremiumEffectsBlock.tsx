@@ -12,7 +12,7 @@ export function PremiumEffectsBlock() {
         </p>
       </div>
       
-      <div className="p-10 border border-border rounded-[3rem] bg-surface/50 flex flex-col gap-16 shadow-inner">
+      <div className="p-10 border border-border rounded-[3rem] bg-surface-hover flex flex-col gap-16 shadow-inner">
         
         {/* 1. Gradients & Glows */}
         <div className="flex flex-col gap-6">

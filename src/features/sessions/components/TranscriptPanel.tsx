@@ -1,8 +1,8 @@
 import React, { useMemo, useEffect, useRef } from 'react';
-import { Icon } from '../../../../components/ui/Icon';
-import { cn } from '../../../../lib/utils';
-import { TranscriptionState } from '../../../../types';
-import { useSessionStore } from '../../../../store/session';
+import { Icon } from '../../../components/ui/Icon';
+import { cn } from '../../../lib/utils';
+import { TranscriptionState } from '../../../types';
+import { useSessionStore } from '../../../store/session';
 
 interface TranscriptPanelProps {
   transcriptionState: TranscriptionState;

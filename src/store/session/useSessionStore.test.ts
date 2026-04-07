@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useSessionStore } from './session';
-import { dbService, SessionRecord } from '../services/db.service';
+import { useSessionStore } from './index';
+import { dbService, SessionRecord } from '../../services/db.service';
 
 // Mock the services
-vi.mock('../services/db.service', () => ({
+vi.mock('../../services/db.service', () => ({
   dbService: {
     getSession: vi.fn(),
     saveSession: vi.fn(),
@@ -12,7 +12,7 @@ vi.mock('../services/db.service', () => ({
   }
 }));
 
-vi.mock('../services/ai.service', () => ({
+vi.mock('../../services/ai.service', () => ({
   aiService: {
     transcribeSession: vi.fn(),
     analyzeSession: vi.fn(),
@@ -20,7 +20,7 @@ vi.mock('../services/ai.service', () => ({
 }));
 
 // Mock the worker
-vi.mock('../workers/fileProcessor.worker?worker', () => {
+vi.mock('../../workers/fileProcessor.worker?worker', () => {
   return {
     default: class MockWorker {
       onmessage: ((ev: MessageEvent) => void) | null = null;

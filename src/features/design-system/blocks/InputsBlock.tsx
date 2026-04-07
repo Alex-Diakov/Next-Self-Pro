@@ -8,7 +8,7 @@ export function InputsBlock() {
         <p className="text-sm text-subtle">Элементы форм для чата, редактирования профиля и настроек.</p>
       </div>
       
-      <div className="p-8 border border-border rounded-3xl bg-surface flex flex-col gap-10 shadow-sm">
+      <div className="p-8 border border-border rounded-3xl bg-surface-hover flex flex-col gap-10 shadow-sm">
         
         {/* Standard Text Input */}
         <div className="flex flex-col gap-4 max-w-md">

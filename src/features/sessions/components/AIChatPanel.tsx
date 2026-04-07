@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
-import { Icon } from '../../../../components/ui/Icon';
-import { cn } from '../../../../lib/utils';
-import { ChatMessage } from '../../../../types';
+import { Icon } from '../../../components/ui/Icon';
+import { cn } from '../../../lib/utils';
+import { ChatMessage } from '../../../types';
 
 interface AIChatPanelProps {
   messages: ChatMessage[];

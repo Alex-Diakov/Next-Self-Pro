@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { Icon } from '../../../components/ui/Icon';
+import { Icon } from '../../components/ui/Icon';
 import { motion } from 'motion/react';
-import { cn } from '../../../lib/utils';
+import { cn } from '../../lib/utils';
 
 interface UploadViewProps {
   onUpload: (file: File) => void;

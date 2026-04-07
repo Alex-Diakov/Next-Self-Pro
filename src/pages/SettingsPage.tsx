@@ -40,7 +40,7 @@ export function SettingsPage() {
       </aside>
 
       {/* Settings Content Area */}
-      <main className="flex-1 bg-surface-highlight rounded-3xl border border-border/40 overflow-y-auto custom-scrollbar shadow-sm relative">
+      <main className="flex-1 bg-surface rounded-3xl border border-border/40 overflow-y-auto custom-scrollbar shadow-sm relative">
         <Outlet />
       </main>
     </div>

@@ -27,7 +27,7 @@ export function RecentActivity() {
 
   if (isLoading) {
     return (
-      <div className="bg-surface rounded-[2rem] p-5 lg:p-6 border border-border-glass h-full flex flex-col items-center justify-center">
+      <div className="layer-1 rounded-[2rem] p-5 lg:p-6 h-full flex flex-col items-center justify-center">
         <Icon name="sync" className="text-3xl animate-spin text-accent mb-4" />
         <p className="text-sm text-subtle font-mono">Loading sessions...</p>
       </div>
@@ -39,7 +39,7 @@ export function RecentActivity() {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.2 }}
-      className="bg-surface rounded-[2rem] p-5 lg:p-6 border border-border-glass h-full flex flex-col"
+      className="layer-1 rounded-[2rem] p-5 lg:p-6 h-full flex flex-col"
     >
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-primary tracking-tight">Recent Sessions</h2>
@@ -56,7 +56,7 @@ export function RecentActivity() {
             <motion.div 
               key={activity.id}
               onClick={() => navigate(`/sessions/${activity.id}`)}
-              className="flex items-center gap-3 p-3 rounded-2xl bg-surface-glass hover:bg-surface-highlight cursor-pointer transition-all duration-300 border border-border-highlight group relative"
+              className="flex items-center gap-3 p-3 rounded-2xl bg-surface-hover hover:bg-surface-highlight cursor-pointer transition-all duration-300 border border-border/40 group relative"
             >
               {/* 1. Thumbnail (Left) */}
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-border-highlight transition-all duration-300 ${

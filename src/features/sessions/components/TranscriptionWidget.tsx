@@ -1,12 +1,12 @@
 import React from 'react';
-import { Icon } from '../../../../components/ui/Icon';
-import { cn } from '../../../../lib/utils';
+import { Icon } from '../../../components/ui/Icon';
+import { cn } from '../../../lib/utils';
 import { TranscriptPanel } from './TranscriptPanel';
 import { AIChatPanel } from './AIChatPanel';
 import { EmotionsPanel } from './EmotionsPanel';
 import { SpeechPanel } from './SpeechPanel';
-import { TranscriptionState, ChatMessage } from '../../../../types';
-import { ErrorBoundary } from '../../../../components/ui/ErrorBoundary';
+import { TranscriptionState, ChatMessage } from '../../../types';
+import { ErrorBoundary } from '../../../components/ui/ErrorBoundary';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface TranscriptionWidgetProps {

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Icon } from '../../../components/ui/Icon';
-import { cn, safeFormatDate } from '../../../lib/utils';
-import { useSessionStore } from '../../../store/session';
+import { Icon } from '../../components/ui/Icon';
+import { cn, safeFormatDate } from '../../lib/utils';
+import { useSessionStore } from '../../store/session';
 import { VideoPlayerWidget } from './components/VideoPlayerWidget';
 import { TranscriptionWidget } from './components/TranscriptionWidget';
 import { SessionTimeline } from './components/SessionTimeline';
 import { SessionDetailsCard } from './components/SessionDetailsCard';
-import { ErrorBoundary } from '../../../components/ui/ErrorBoundary';
+import { ErrorBoundary } from '../../components/ui/ErrorBoundary';
 import { motion } from 'motion/react';
 
 interface SessionViewProps {

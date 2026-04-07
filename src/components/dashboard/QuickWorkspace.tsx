@@ -47,7 +47,7 @@ export function QuickWorkspace() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="bg-surface rounded-[2rem] p-5 lg:p-6 border border-border-glass h-full flex flex-col relative overflow-hidden"
+      className="layer-1 rounded-[2rem] p-5 lg:p-6 h-full flex flex-col relative overflow-hidden"
     >
       {/* Subtle background glow */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-accent/5 via-transparent to-transparent pointer-events-none"></div>
@@ -65,7 +65,7 @@ export function QuickWorkspace() {
           className={`flex-1 border-2 border-dashed rounded-3xl transition-all duration-500 group cursor-pointer flex flex-col items-center justify-center p-10 text-center min-h-[350px] w-full ${
             isDragging 
               ? "border-accent bg-accent/10 shadow-2xl shadow-accent/20" 
-              : "border-border-glass bg-background/50 hover:bg-surface-glass hover:border-accent/40"
+              : "border-border/40 bg-surface-tab hover:bg-surface-highlight hover:border-accent/40"
           }`}
         >
           <input 
@@ -92,11 +92,11 @@ export function QuickWorkspace() {
               <Icon name="cloud_upload" className="text-xl" />
               Upload Media
             </button>
-            <button className="w-full px-8 py-3.5 bg-surface-glass text-primary rounded-xl font-bold hover:bg-surface-highlight active:scale-[0.98] transition-all duration-300 border border-border-glass flex items-center justify-center gap-2">
+            <button className="w-full px-8 py-3.5 bg-surface-highlight text-primary rounded-xl font-bold hover:bg-surface-active active:scale-[0.98] transition-all duration-300 border border-border/40 flex items-center justify-center gap-2">
               <Icon name="mic" className="text-xl" />
               Dictate Memo
             </button>
-            <button className="w-full px-8 py-3.5 bg-surface-glass text-primary rounded-xl font-bold hover:bg-surface-highlight active:scale-[0.98] transition-all duration-300 border border-border-glass flex items-center justify-center gap-2">
+            <button className="w-full px-8 py-3.5 bg-surface-highlight text-primary rounded-xl font-bold hover:bg-surface-active active:scale-[0.98] transition-all duration-300 border border-border/40 flex items-center justify-center gap-2">
               <Icon name="screen_record" className="text-xl" />
               Record Screen
             </button>

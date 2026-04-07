@@ -1,8 +1,8 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Icon } from '../../../../components/ui/Icon';
-import { TranscriptionState } from '../../../../types';
-import { useSessionStore } from '../../../../store/session';
+import { Icon } from '../../../components/ui/Icon';
+import { TranscriptionState } from '../../../types';
+import { useSessionStore } from '../../../store/session';
 
 interface VideoPlayerWidgetProps {
   videoUrl: string | null;

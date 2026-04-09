@@ -1,22 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Icon } from '../components/ui/Icon';
 import { cn } from '../lib/utils';
 import { AnimatePresence, motion } from 'motion/react';
 
-// Import pages
-import { DashboardPage } from '../pages/DashboardPage';
-import { SessionsPage } from '../pages/SessionsPage';
-import { PatientsPage } from '../pages/PatientsPage';
-import { PatientProfilePage } from '../pages/PatientProfilePage';
-import { SettingsPage } from '../pages/SettingsPage';
+// Lazy load pages for Code Splitting
+const DashboardPage = React.lazy(() => import('@/pages/DashboardPage').then(module => ({ default: module.DashboardPage })));
+const SessionsPage = React.lazy(() => import('@/pages/SessionsPage').then(module => ({ default: module.SessionsPage })));
+const PatientsPage = React.lazy(() => import('@/pages/PatientsPage').then(module => ({ default: module.PatientsPage })));
+const PatientProfilePage = React.lazy(() => import('@/pages/PatientProfilePage').then(module => ({ default: module.PatientProfilePage })));
+const SettingsPage = React.lazy(() => import('@/pages/SettingsPage').then(module => ({ default: module.SettingsPage })));
 
-// Import Settings Tabs
+// Import Settings Tabs (can also be lazy loaded, but keeping static for now or lazy load them too)
 import { ProfileTab } from '../features/settings/tabs/ProfileTab';
 import { AIPreferencesTab } from '../features/settings/tabs/AIPreferencesTab';
 import { BillingTab } from '../features/settings/tabs/BillingTab';
 import { DesignSystemTab } from '../features/settings/tabs/DesignSystemTab';
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-full w-full">
+    <div className="flex flex-col items-center gap-4 text-muted">
+      <Icon name="progress_activity" className="text-4xl animate-spin text-accent" />
+      <span className="font-mono text-sm">Loading module...</span>
+    </div>
+  </div>
+);
 
 export function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -136,23 +145,25 @@ export function MainLayout() {
                 transition={{ duration: 0.2, ease: "easeInOut" }}
                 className="h-full"
               >
-                <Routes location={location}>
-                  <Route index element={<DashboardPage />} />
-                  <Route path="sessions/*" element={<SessionsPage />} />
-                  <Route path="patients" element={<PatientsPage />} />
-                  <Route path="patients/:projectId/*" element={<PatientProfilePage />} />
-                  <Route path="insights" element={<div className="p-8 text-muted font-mono">AI Insights Page (Coming Soon)</div>} />
-                  
-                  <Route path="settings" element={<SettingsPage />}>
-                    <Route index element={<Navigate to="profile" replace />} />
-                    <Route path="profile" element={<ProfileTab />} />
-                    <Route path="ai-preferences" element={<AIPreferencesTab />} />
-                    <Route path="billing" element={<BillingTab />} />
-                    <Route path="design-system" element={<DesignSystemTab />} />
-                  </Route>
-                  
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes location={location}>
+                    <Route index element={<DashboardPage />} />
+                    <Route path="sessions/*" element={<SessionsPage />} />
+                    <Route path="patients" element={<PatientsPage />} />
+                    <Route path="patients/:projectId/*" element={<PatientProfilePage />} />
+                    <Route path="insights" element={<div className="p-8 text-muted font-mono">AI Insights Page (Coming Soon)</div>} />
+                    
+                    <Route path="settings" element={<SettingsPage />}>
+                      <Route index element={<Navigate to="profile" replace />} />
+                      <Route path="profile" element={<ProfileTab />} />
+                      <Route path="ai-preferences" element={<AIPreferencesTab />} />
+                      <Route path="billing" element={<BillingTab />} />
+                      <Route path="design-system" element={<DesignSystemTab />} />
+                    </Route>
+                    
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </Suspense>
               </motion.div>
             </AnimatePresence>
           </div>

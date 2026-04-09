@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect, useRef } from 'react';
 import { Icon } from '../../../components/ui/Icon';
 import { cn } from '../../../lib/utils';
-import { TranscriptionState } from '../../../types';
+import { TranscriptionState, TranscriptLine } from '../../../types';
 import { useSessionStore } from '../../../store/session';
 
 interface TranscriptPanelProps {
@@ -25,7 +25,7 @@ const TranscriptLineItem = React.memo(({
   isTherapist, 
   onClick 
 }: { 
-  line: any, 
+  line: TranscriptLine, 
   index: number,
   isTherapist: boolean, 
   onClick: () => void 
@@ -65,7 +65,7 @@ export const TranscriptPanel = React.memo(function TranscriptPanel({
   setEditedTranscript,
 }: TranscriptPanelProps) {
   
-  const transcriptLines = useSessionStore(state => state.transcriptLines);
+  const transcriptLines = useSessionStore(state => state.transcriptLines, (old, next) => old.length === next.length);
   const transcriptLinesWithSeconds = useMemo(() => {
     return transcriptLines.map(line => ({
       ...line,

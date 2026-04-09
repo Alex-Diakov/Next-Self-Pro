@@ -30,7 +30,7 @@ export const saveToDb = (
   if (session && session.id === sessionId) {
     // Check if any value in updates is different from current session
     const hasChanges = Object.entries(updates).some(([key, value]) => {
-      return (session as any)[key] !== value;
+      return session[key as keyof SessionRecord] !== value;
     });
 
     if (hasChanges) {

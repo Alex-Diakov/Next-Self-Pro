@@ -1,8 +1,14 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '../../../components/ui/Icon';
 import { cn } from '../../../lib/utils';
 import { useSessionStore } from '../../../store/session';
+import { SessionMarker, AnalysisMarker } from '../../../types';
+
+interface ProcessedMarker extends Omit<SessionMarker, 'label'> {
+  label: string;
+  type: 'emotion' | 'speech' | 'insight';
+}
 
 const formatTime = (seconds: number) => {
   if (!seconds || isNaN(seconds)) return '0:00';
@@ -134,17 +140,86 @@ const ProgressFill = React.memo(({ duration }: { duration: number }) => {
   );
 });
 
+const MiniTimelineMarker = React.memo(({ marker, duration }: { marker: ProcessedMarker, duration: number }) => {
+  return (
+    <div 
+      className={cn("absolute top-0 h-full w-1 rounded-full shadow-[0_0_8px_rgba(var(--accent),0.3)]", marker.color)}
+      style={{ left: `${(marker.timestamp / (duration || 1)) * 100}%` }}
+    />
+  );
+});
+
+const TimelineMarker = React.memo(({ marker, duration, seekTo }: { marker: ProcessedMarker, duration: number, seekTo: (time: number) => void }) => {
+  const leftPercent = (marker.timestamp / (duration || 1)) * 100;
+  const widthPercent = marker.endTime ? ((marker.endTime - marker.timestamp) / (duration || 1)) * 100 : 0;
+  
+  const tooltipAlignClass = leftPercent < 20 ? 'left-0 translate-x-0' : leftPercent > 80 ? 'right-0 translate-x-0' : 'left-1/2 -translate-x-1/2';
+  const arrowAlignClass = leftPercent < 20 ? 'left-4 translate-x-0' : leftPercent > 80 ? 'right-4 translate-x-0' : 'left-1/2 -translate-x-1/2';
+
+  return (
+    <div 
+      className="absolute top-1/2 -translate-y-1/2 group cursor-pointer pointer-events-auto z-20"
+      style={{ left: `${leftPercent}%`, width: marker.endTime ? `${widthPercent}%` : 'auto' }}
+      onClick={(e) => { e.stopPropagation(); seekTo(marker.timestamp); }}
+    >
+      {marker.endTime ? (
+        <div className={cn("h-8 rounded-lg opacity-40 hover:opacity-80 transition-all border border-white/20 shadow-lg", marker.color)} />
+      ) : (
+        <div className={cn("w-4 h-10 rounded-full -ml-2 shadow-xl border-2 border-background hover:scale-110 transition-transform", marker.color)} />
+      )}
+      
+      {/* Premium Tooltip */}
+      <div className={cn(
+        "absolute bottom-full mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-[100] translate-y-2 group-hover:translate-y-0",
+        tooltipAlignClass
+      )}>
+        <div className="bg-surface/95 backdrop-blur-2xl border border-border/40 shadow-premium rounded-2xl p-4 w-72 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className={cn("w-3 h-3 rounded-full shadow-lg", marker.color)} />
+            <span className="text-sm font-bold text-primary tracking-tight">{marker.label}</span>
+            <span className="text-[10px] font-mono font-bold text-subtle ml-auto bg-background/50 px-2 py-1 rounded-lg border border-border/40">
+              {formatTime(marker.timestamp)} {marker.endTime && `- ${formatTime(marker.endTime)}`}
+            </span>
+          </div>
+          {marker.notes && (
+            <p className="text-xs text-muted leading-relaxed mt-1 font-medium">{marker.notes}</p>
+          )}
+          <div className="mt-2 pt-2 border-t border-border/40 flex items-center justify-between">
+            <span className="text-[10px] font-bold text-subtle uppercase tracking-widest">{marker.type}</span>
+            <span className="text-[10px] font-bold text-accent">Click to seek</span>
+          </div>
+        </div>
+        <div className={cn("absolute top-full -mt-1.5 border-[6px] border-transparent border-t-surface/95", arrowAlignClass)} />
+      </div>
+    </div>
+  );
+});
+
+const HeatmapMarker = React.memo(({ marker, duration, colorClass, shadowClass }: { marker: AnalysisMarker, duration: number, colorClass: string, shadowClass: string }) => {
+  const leftPercent = (marker.timestamp / (duration || 1)) * 100;
+  return (
+    <div 
+      className={cn("absolute top-0 h-full group/marker cursor-help", colorClass, shadowClass)}
+      style={{ 
+        left: `${leftPercent}%`, 
+        width: `${((marker.duration || 1) / (duration || 1)) * 100}%`,
+        opacity: 0.15 + (marker.intensity * 0.85)
+      }}
+    />
+  );
+});
+
 export const SessionTimeline = React.memo(function SessionTimeline() {
   const duration = useSessionStore(state => state.duration);
   const isPlaying = useSessionStore(state => state.isPlaying);
   const seekTo = useSessionStore(state => state.seekTo);
   const togglePlay = useSessionStore(state => state.togglePlay);
-  const storeMarkers = useSessionStore(state => state.markers);
+  const storeMarkers = useSessionStore(state => state.markers, (old, next) => old.length === next.length);
   
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  const markers = useMemo(() => {
+  const markers = useMemo((): ProcessedMarker[] => {
     return storeMarkers.map(m => ({
       id: m.id,
       timestamp: m.timestamp,
@@ -156,37 +231,37 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
     }));
   }, [storeMarkers]);
 
-  const handleSeekTo = (seconds: number) => {
+  const handleSeekTo = useCallback((seconds: number) => {
     seekTo(Math.max(0, Math.min(duration, seconds)));
-  };
+  }, [seekTo, duration]);
 
-  const handleTrackInteraction = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleTrackInteraction = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const x = clientX - rect.left - 8; // 8px padding
     const width = rect.width - 16; // 16px total padding
     const percent = Math.max(0, Math.min(1, x / width));
     handleSeekTo(percent * duration);
-  };
+  }, [duration, handleSeekTo]);
 
-  const handlePointerDown = (e: React.PointerEvent) => {
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
     setIsDragging(true);
-    handleTrackInteraction(e as any);
-  };
+    handleTrackInteraction(e as unknown as React.MouseEvent | React.TouchEvent);
+  }, [handleTrackInteraction]);
 
-  const handlePointerMove = (e: React.PointerEvent) => {
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (isDragging) {
-      handleTrackInteraction(e as any);
+      handleTrackInteraction(e as unknown as React.MouseEvent | React.TouchEvent);
     }
-  };
+  }, [isDragging, handleTrackInteraction]);
 
-  const handlePointerUp = (e: React.PointerEvent) => {
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
     if (isDragging) {
       (e.target as HTMLElement).releasePointerCapture(e.pointerId);
       setIsDragging(false);
     }
-  };
+  }, [isDragging]);
 
   return (
     <div className="w-full shrink-0 relative z-10 overflow-hidden">
@@ -215,11 +290,7 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
           >
             <PlayheadIndicator duration={duration} type="bar" id="header" />
             {markers.map(marker => (
-              <div 
-                key={marker.id}
-                className={cn("absolute top-0 h-full w-1 rounded-full shadow-[0_0_8px_rgba(var(--accent),0.3)]", marker.color)}
-                style={{ left: `${(marker.timestamp / (duration || 1)) * 100}%` }}
-              />
+              <MiniTimelineMarker key={marker.id} marker={marker} duration={duration} />
             ))}
             <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/progress:opacity-100 transition-opacity pointer-events-none"></div>
           </div>
@@ -280,52 +351,9 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
                   {/* Markers */}
                   <div className="absolute left-0 top-0 w-full h-full px-2 pointer-events-none">
                     <div className="relative w-full h-full">
-                      {markers.map(marker => {
-                        const leftPercent = (marker.timestamp / (duration || 1)) * 100;
-                        const widthPercent = marker.endTime ? ((marker.endTime - marker.timestamp) / (duration || 1)) * 100 : 0;
-                        
-                        const tooltipAlignClass = leftPercent < 20 ? 'left-0 translate-x-0' : leftPercent > 80 ? 'right-0 translate-x-0' : 'left-1/2 -translate-x-1/2';
-                        const arrowAlignClass = leftPercent < 20 ? 'left-4 translate-x-0' : leftPercent > 80 ? 'right-4 translate-x-0' : 'left-1/2 -translate-x-1/2';
-
-                        return (
-                          <div 
-                            key={marker.id}
-                            className="absolute top-1/2 -translate-y-1/2 group cursor-pointer pointer-events-auto z-20"
-                            style={{ left: `${leftPercent}%`, width: marker.endTime ? `${widthPercent}%` : 'auto' }}
-                            onClick={(e) => { e.stopPropagation(); seekTo(marker.timestamp); }}
-                          >
-                            {marker.endTime ? (
-                              <div className={cn("h-8 rounded-lg opacity-40 hover:opacity-80 transition-all border border-white/20 shadow-lg", marker.color)} />
-                            ) : (
-                              <div className={cn("w-4 h-10 rounded-full -ml-2 shadow-xl border-2 border-background hover:scale-110 transition-transform", marker.color)} />
-                            )}
-                            
-                            {/* Premium Tooltip */}
-                            <div className={cn(
-                              "absolute bottom-full mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-[100] translate-y-2 group-hover:translate-y-0",
-                              tooltipAlignClass
-                            )}>
-                              <div className="bg-surface/95 backdrop-blur-2xl border border-border/40 shadow-premium rounded-2xl p-4 w-72 flex flex-col gap-2">
-                                <div className="flex items-center gap-2">
-                                  <div className={cn("w-3 h-3 rounded-full shadow-lg", marker.color)} />
-                                  <span className="text-sm font-bold text-primary tracking-tight">{marker.label}</span>
-                                  <span className="text-[10px] font-mono font-bold text-subtle ml-auto bg-background/50 px-2 py-1 rounded-lg border border-border/40">
-                                    {formatTime(marker.timestamp)} {marker.endTime && `- ${formatTime(marker.endTime)}`}
-                                  </span>
-                                </div>
-                                {marker.notes && (
-                                  <p className="text-xs text-muted leading-relaxed mt-1 font-medium">{marker.notes}</p>
-                                )}
-                                <div className="mt-2 pt-2 border-t border-border/40 flex items-center justify-between">
-                                  <span className="text-[10px] font-bold text-subtle uppercase tracking-widest">{marker.type}</span>
-                                  <span className="text-[10px] font-bold text-accent">Click to seek</span>
-                                </div>
-                              </div>
-                              <div className={cn("absolute top-full -mt-1.5 border-[6px] border-transparent border-t-surface/95", arrowAlignClass)} />
-                            </div>
-                          </div>
-                        );
-                      })}
+                      {markers.map(marker => (
+                        <TimelineMarker key={marker.id} marker={marker} duration={duration} seekTo={seekTo} />
+                      ))}
                     </div>
                   </div>
 
@@ -342,20 +370,9 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
                       <span className="text-[9px] text-subtle font-medium">Intensity</span>
                     </div>
                     <div className="flex-1 h-4 bg-background/30 rounded-xl relative border border-border/20 overflow-hidden shadow-inner">
-                      {storeMarkers.filter(m => m.type === 'emotion').map(m => {
-                        const leftPercent = (m.timestamp / (duration || 1)) * 100;
-                        return (
-                          <div 
-                            key={m.id}
-                            className="absolute top-0 h-full bg-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.3)] group/marker cursor-help"
-                            style={{ 
-                              left: `${leftPercent}%`, 
-                              width: `${((m.duration || 1) / (duration || 1)) * 100}%`,
-                              opacity: 0.15 + (m.intensity * 0.85)
-                            }}
-                          />
-                        );
-                      })}
+                      {storeMarkers.filter(m => m.type === 'emotion').map(m => (
+                        <HeatmapMarker key={m.id} marker={m} duration={duration} colorClass="bg-purple-500" shadowClass="shadow-[0_0_12px_rgba(168,85,247,0.3)]" />
+                      ))}
                       <PlayheadIndicator duration={duration} type="track" id="emotions" />
                     </div>
                   </div>
@@ -367,20 +384,9 @@ export const SessionTimeline = React.memo(function SessionTimeline() {
                       <span className="text-[9px] text-subtle font-medium">Activity</span>
                     </div>
                     <div className="flex-1 h-4 bg-background/30 rounded-xl relative border border-border/20 overflow-hidden shadow-inner">
-                      {storeMarkers.filter(m => m.type === 'speech').map(m => {
-                        const leftPercent = (m.timestamp / (duration || 1)) * 100;
-                        return (
-                          <div 
-                            key={m.id}
-                            className="absolute top-0 h-full bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.3)] group/marker cursor-help"
-                            style={{ 
-                              left: `${leftPercent}%`, 
-                              width: `${((m.duration || 1) / (duration || 1)) * 100}%`,
-                              opacity: 0.15 + (m.intensity * 0.85)
-                            }}
-                          />
-                        );
-                      })}
+                      {storeMarkers.filter(m => m.type === 'speech').map(m => (
+                        <HeatmapMarker key={m.id} marker={m} duration={duration} colorClass="bg-orange-500" shadowClass="shadow-[0_0_12px_rgba(249,115,22,0.3)]" />
+                      ))}
                       <PlayheadIndicator duration={duration} type="track" id="speech" />
                     </div>
                   </div>

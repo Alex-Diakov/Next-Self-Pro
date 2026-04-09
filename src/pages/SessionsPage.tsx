@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams, Routes, Route, useLocation } from 'react-router-dom';
-import { UploadView } from '../features/sessions/UploadView';
 import { SessionView } from '../features/sessions/SessionView';
 import { dbService, SessionRecord } from '../services/db.service';
 import { Icon } from '../components/ui/Icon';
@@ -36,7 +35,7 @@ export function SessionsPage() {
   const clearSession = useSessionStore(state => state.clearSession);
 
   const loadData = useCallback(async () => {
-    console.log('SessionsPage: Loading data from DB...');
+
     const [loadedSessions, loadedProjects] = await Promise.all([
       dbService.getAllSessions(),
       dbService.getAllProjects()

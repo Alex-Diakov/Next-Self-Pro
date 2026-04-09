@@ -5,9 +5,7 @@ import { useSessionStore } from '../../store/session';
 import { VideoPlayerWidget } from './components/VideoPlayerWidget';
 import { TranscriptionWidget } from './components/TranscriptionWidget';
 import { SessionTimeline } from './components/SessionTimeline';
-import { SessionDetailsCard } from './components/SessionDetailsCard';
 import { ErrorBoundary } from '../../components/ui/ErrorBoundary';
-import { motion } from 'motion/react';
 
 interface SessionViewProps {
   file: File | null;
@@ -190,7 +188,6 @@ export function SessionView({ file, sessionId, projectId, onBack }: SessionViewP
             setIsEditingTranscript={setIsEditingTranscript}
             handleStartEdit={handleStartEdit}
             handleSaveTranscript={handleSaveTranscript}
-            transcript={transcript}
             editedTranscript={editedTranscript}
             setEditedTranscript={setEditedTranscript}
             messages={messages}

@@ -1,13 +1,13 @@
-import React, { useMemo, useTransition } from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Icon } from '../../../components/ui/Icon';
 import { cn } from '../../../lib/utils';
 import { useSessionStore } from '../../../store/session';
 
 export const EmotionsPanel = React.memo(function EmotionsPanel() {
-  const markers = useSessionStore(state => state.markers);
+  const markers = useSessionStore(state => state.markers, (old, next) => old.length === next.length);
   const currentTime = useSessionStore(state => state.currentTime);
-  const isAnalyzing = useSessionStore(state => state.isAnalyzing);
+  const isAnalyzing = useSessionStore(state => state.isAnalyzingEmotions);
   const runDeepAnalysis = useSessionStore(state => state.runDeepAnalysis);
   const resetTranscription = useSessionStore(state => state.resetTranscription);
   const analysisError = useSessionStore(state => state.analysisError);

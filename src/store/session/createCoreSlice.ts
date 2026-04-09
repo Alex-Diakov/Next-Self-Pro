@@ -87,7 +87,7 @@ export const createCoreSlice: SessionStateCreator<CoreSlice> = (set, get) => ({
     });
 
     // Initial save
-    console.log('useSessionStore: Queueing initial save for session:', newSession.id);
+
     queueSave(() => dbService.saveSession(newSession));
 
     // 100MB limit for inline base64 processing to stay within Gemini API limits
@@ -108,9 +108,9 @@ export const createCoreSlice: SessionStateCreator<CoreSlice> = (set, get) => ({
       set({ transcriptionState: { step: 'extracting_audio', progress: 10, message: 'Reading file...' } });
       saveToDb(get, set, newSession.id, { transcriptionState: { step: 'extracting_audio', progress: 10, message: 'Reading file...' } });
       
-      console.log('Starting file processing for session:', newSession.id);
+
       const base64data = await fileToBase64(file);
-      console.log('Base64 conversion complete, calling AI for transcription...');
+
       
       const finalTranscript = await aiService.transcribeSession(
         base64data, 
@@ -119,14 +119,14 @@ export const createCoreSlice: SessionStateCreator<CoreSlice> = (set, get) => ({
           const newState: TranscriptionState = { 
             step: step as TranscriptionState['step'], 
             progress, 
-            message: `AI Processing: ${progress}%` 
+            message: step === 'processing_ai' ? 'Analyzing audio with AI...' : `Processing: ${progress}%` 
           };
           set({ transcriptionState: newState });
           saveToDb(get, set, newSession.id, { transcriptionState: newState });
         }
       );
 
-      console.log('Transcription AI response received, length:', finalTranscript.length);
+
 
       // Parse transcript into lines with a more flexible regex
       const lines: TranscriptLine[] = finalTranscript.split('\n')
@@ -136,7 +136,7 @@ export const createCoreSlice: SessionStateCreator<CoreSlice> = (set, get) => ({
           const match = line.match(/\[(\d{1,2}:)?\d{1,2}:\d{2}\]?\s*([^:]+):\s*(.*)/);
           if (match) {
             const timestampMatch = line.match(/\[(\d{1,2}:)?\d{1,2}:\d{2}\]/);
-            const timestamp = timestampMatch ? timestampMatch[0].replace(/[\[\]]/g, '') : '0:00';
+            const timestamp = timestampMatch ? timestampMatch[0].replace(/\[|\]/g, '') : '0:00';
             const speaker = match[2].trim();
             const text = match[3].trim();
             return {
@@ -160,7 +160,7 @@ export const createCoreSlice: SessionStateCreator<CoreSlice> = (set, get) => ({
         })
         .filter((l): l is TranscriptLine => l !== null);
 
-      console.log('Parsed', lines.length, 'transcript lines');
+
 
       const completedState: TranscriptionState = { step: 'completed', progress: 100, message: 'Transcription complete' };
       set({ 

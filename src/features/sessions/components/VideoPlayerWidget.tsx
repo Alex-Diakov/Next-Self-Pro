@@ -48,7 +48,7 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
 
     // Schedule next frame if it's a video and playing
     if (isVideo && videoRef.current && !videoRef.current.paused && 'requestVideoFrameCallback' in videoRef.current) {
-      rvfcIdRef.current = (videoRef.current as any).requestVideoFrameCallback(updateTime);
+      rvfcIdRef.current = (videoRef.current as HTMLVideoElement & { requestVideoFrameCallback: (cb: FrameRequestCallback) => number }).requestVideoFrameCallback(updateTime);
     }
   }, [setCurrentTime, videoRef, audioRef, isVideo]);
 
@@ -85,14 +85,14 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
   const handlePlay = useCallback(() => {
     setIsPlaying(true);
     if (isVideo && videoRef.current && 'requestVideoFrameCallback' in videoRef.current) {
-      rvfcIdRef.current = (videoRef.current as any).requestVideoFrameCallback(updateTime);
+      rvfcIdRef.current = (videoRef.current as HTMLVideoElement & { requestVideoFrameCallback: (cb: FrameRequestCallback) => number }).requestVideoFrameCallback(updateTime);
     }
   }, [setIsPlaying, isVideo, videoRef, updateTime]);
 
   const handlePause = useCallback((e: Event) => {
     setIsPlaying(false);
     if (isVideo && videoRef.current && 'cancelVideoFrameCallback' in videoRef.current) {
-      (videoRef.current as any).cancelVideoFrameCallback(rvfcIdRef.current);
+      (videoRef.current as HTMLVideoElement & { cancelVideoFrameCallback: (id: number) => void }).cancelVideoFrameCallback(rvfcIdRef.current);
     }
     if (e.type === 'ended') {
       const mediaEl = e.target as HTMLMediaElement;
@@ -104,41 +104,6 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
   const handleError = useCallback((e: Event) => {
     const mediaEl = e.target as HTMLMediaElement;
     console.error('Media element error:', mediaEl.error);
-  }, []);
-  const lastMicroSeekRef = useRef<number>(0);
-
-  const handleWaiting = useCallback((e: Event) => {
-    console.log('Video is buffering/waiting for data...');
-    const mediaEl = e.target as HTMLMediaElement;
-    
-    // Workaround for Chromium/WebKit "duration minus five" bug
-    const now = Date.now();
-    if (mediaEl.duration && mediaEl.duration - mediaEl.currentTime < 6) {
-      // Only apply micro-seek once every 2 seconds to prevent infinite loops
-      if (now - lastMicroSeekRef.current > 2000) {
-        console.log('Applying micro-seek workaround for end-of-video freeze');
-        lastMicroSeekRef.current = now;
-        mediaEl.currentTime += 0.1;
-      }
-    }
-  }, []);
-
-  const handleStalled = useCallback((e: Event) => {
-    console.log('Video playback stalled');
-    const mediaEl = e.target as HTMLMediaElement;
-    
-    const now = Date.now();
-    if (mediaEl.duration && mediaEl.duration - mediaEl.currentTime < 6) {
-      if (now - lastMicroSeekRef.current > 2000) {
-        console.log('Applying micro-seek workaround for stalled playback near end');
-        lastMicroSeekRef.current = now;
-        mediaEl.currentTime += 0.1;
-      }
-    }
-  }, []);
-
-  const handlePlaying = useCallback(() => {
-    console.log('Video resumed playing');
   }, []);
 
   useEffect(() => {
@@ -152,9 +117,6 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
     mediaEl.addEventListener('pause', handlePause);
     mediaEl.addEventListener('ended', handlePause);
     mediaEl.addEventListener('error', handleError);
-    mediaEl.addEventListener('waiting', handleWaiting);
-    mediaEl.addEventListener('stalled', handleStalled);
-    mediaEl.addEventListener('playing', handlePlaying);
     
     if (mediaEl.readyState >= 1) {
       setDuration(mediaEl.duration);
@@ -168,11 +130,8 @@ export const VideoPlayerWidget = React.memo(function VideoPlayerWidget({
       mediaEl.removeEventListener('pause', handlePause);
       mediaEl.removeEventListener('ended', handlePause);
       mediaEl.removeEventListener('error', handleError);
-      mediaEl.removeEventListener('waiting', handleWaiting);
-      mediaEl.removeEventListener('stalled', handleStalled);
-      mediaEl.removeEventListener('playing', handlePlaying);
     };
-  }, [videoUrl, isVideo, updateTime, updateDuration, handlePlay, handlePause, handleError, handleWaiting, handleStalled, handlePlaying, setDuration, videoRef, audioRef]);
+  }, [videoUrl, isVideo, updateTime, updateDuration, handlePlay, handlePause, handleError, setDuration, videoRef, audioRef]);
 
   return (
     <div className="w-full flex flex-col shrink-0">

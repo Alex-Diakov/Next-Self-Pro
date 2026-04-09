@@ -1,4 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import { AnalysisMarker } from '../types';
+import { env } from '../env';
 
 class AIService {
   private _ai: GoogleGenAI | null = null;
@@ -10,10 +12,7 @@ class AIService {
 
   private get ai(): GoogleGenAI {
     if (!this._ai) {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("GEMINI_API_KEY is not set in the environment. Please check your configuration.");
-      }
+      const apiKey = env.GEMINI_API_KEY;
       this._ai = new GoogleGenAI({ apiKey });
     }
     return this._ai;
@@ -29,7 +28,15 @@ class AIService {
         return await Promise.race([operation(), timeoutPromise]) as T;
       } catch (error) {
         attempt++;
-        console.warn(`AI Operation failed (attempt ${attempt}/${maxRetries}):`, error);
+        console.error(`AI Operation failed (attempt ${attempt}/${maxRetries}):`, error);
+        
+        // Do not retry on 400 Bad Request or Payload Too Large errors
+        const errorMessage = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+        if (errorMessage.includes('400') || errorMessage.includes('too large') || errorMessage.includes('payload') || errorMessage.includes('invalid')) {
+          console.error('Fatal AI error, aborting retries:', errorMessage);
+          throw error;
+        }
+
         if (attempt >= maxRetries) {
           throw error;
         }
@@ -43,7 +50,7 @@ class AIService {
 
   async transcribeSession(base64Data: string, mimeType: string, onProgress?: (step: string, progress: number) => void): Promise<string> {
     try {
-      console.log('AIService: Starting transcription process...');
+
       if (onProgress) onProgress('processing_ai', 10);
 
       const prompt = `
@@ -61,7 +68,7 @@ class AIService {
 
       if (onProgress) onProgress('processing_ai', 30);
 
-      console.log('AIService: Sending request to Gemini API...');
+
       const response = await this.withRetry(() => this.ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [{
@@ -81,7 +88,7 @@ class AIService {
         }
       }));
 
-      console.log('AIService: Transcription response received successfully');
+
       if (onProgress) onProgress('processing_ai', 100);
 
       return response.text || "No transcript generated.";
@@ -111,7 +118,7 @@ class AIService {
     }
   }
 
-  private extractJson(text: string): any {
+  private extractJson(text: string): unknown {
     try {
       // Try parsing directly first
       return JSON.parse(text);
@@ -140,7 +147,7 @@ class AIService {
     }
   }
 
-  async analyzeMultimodal(base64Data: string, mimeType: string, analysisType?: 'emotion' | 'speech'): Promise<any[]> {
+  async analyzeMultimodal(base64Data: string, mimeType: string, analysisType?: 'emotion' | 'speech'): Promise<Partial<AnalysisMarker>[]> {
     try {
       let prompt = `Analyze the provided video/audio session. Focus on:
 1. Emotional shifts (micro-expressions, tone changes).
@@ -204,7 +211,7 @@ Output ONLY a JSON array of markers.`;
       }));
 
       const text = response.text || "[]";
-      return this.extractJson(text);
+      return this.extractJson(text) as Partial<AnalysisMarker>[];
     } catch (error) {
       console.error("Multimodal analysis error:", error);
       throw error;

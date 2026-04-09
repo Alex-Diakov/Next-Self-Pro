@@ -5,9 +5,9 @@ import { cn } from '../../../lib/utils';
 import { useSessionStore } from '../../../store/session';
 
 export const SpeechPanel = React.memo(function SpeechPanel() {
-  const markers = useSessionStore(state => state.markers);
+  const markers = useSessionStore(state => state.markers, (old, next) => old.length === next.length);
   const currentTime = useSessionStore(state => state.currentTime);
-  const isAnalyzing = useSessionStore(state => state.isAnalyzing);
+  const isAnalyzing = useSessionStore(state => state.isAnalyzingSpeech);
   const runDeepAnalysis = useSessionStore(state => state.runDeepAnalysis);
   const resetTranscription = useSessionStore(state => state.resetTranscription);
   const analysisError = useSessionStore(state => state.analysisError);

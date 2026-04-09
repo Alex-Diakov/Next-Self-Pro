@@ -52,7 +52,7 @@ class DBService {
           // Version 2: Added status index
           const store = transaction.objectStore('sessions');
           store.createIndex('by-status', 'status');
-          console.log('Upgraded database to version 2');
+
         }
         if (oldVersion < 3) {
           // Version 3: Added projects and projectId index
@@ -61,7 +61,7 @@ class DBService {
           
           const sessionStore = transaction.objectStore('sessions');
           sessionStore.createIndex('by-project', 'projectId');
-          console.log('Upgraded database to version 3');
+
         }
         if (oldVersion < 4) {
           // Version 4: Added files store for large blobs
@@ -80,7 +80,7 @@ class DBService {
             return cursor.continue().then(migrate);
           });
           
-          console.log('Upgraded database to version 4 and started file migration');
+
         }
       },
     });
@@ -90,7 +90,7 @@ class DBService {
     const db = await this.dbPromise;
     // Use getAll() instead of getAllFromIndex() to be robust against missing indexes
     const records = await db.getAll('sessions');
-    console.log(`DBService: Loaded ${records.length} raw session records from IndexedDB`);
+
     
     // Validate and migrate records using Zod
     const validRecords: SessionRecord[] = [];
@@ -99,13 +99,13 @@ class DBService {
       if (parsed.success) {
         validRecords.push(parsed.data as SessionRecord);
       } else {
-        console.warn(`DBService: Skipping invalid session record ${record.id}:`, parsed.error.format());
+        console.error(`DBService: Skipping invalid session record ${record.id}:`, parsed.error.format());
       }
     }
     
     // Sort manually by date descending
     const sorted = validRecords.sort((a, b) => b.date - a.date);
-    console.log(`DBService: Returning ${sorted.length} valid session records`);
+
     return sorted;
   }
 
@@ -138,7 +138,7 @@ class DBService {
 
   async saveSession(session: SessionRecord): Promise<void> {
     try {
-      console.log('DBService: Saving session:', session.id, session.title);
+
       const db = await this.dbPromise;
       
       // Extract the file before saving to the sessions store to avoid large blob serialization issues
@@ -153,11 +153,11 @@ class DBService {
         
         if (file) {
           await tx.objectStore('files').put(file, session.id);
-          console.log('DBService: File saved for session:', session.id);
+
         }
         
         await tx.done;
-        console.log('DBService: Session saved successfully:', session.id);
+
       } else {
         console.error(`DBService: Failed to validate session data for ${session.id}:`, parsedResult.error.format());
         throw new Error(`Invalid session data: ${session.id}`);
@@ -174,7 +174,7 @@ class DBService {
 
   async updateSession(id: string, updates: Partial<SessionRecord>): Promise<void> {
     try {
-      console.log('DBService: Updating session:', id, Object.keys(updates));
+
       const db = await this.dbPromise;
       const tx = db.transaction(['sessions', 'files'], 'readwrite');
       const store = tx.objectStore('sessions');
@@ -183,7 +183,7 @@ class DBService {
       if (existing) {
         const updated = { ...existing, ...updates };
         // Remove file from updated object if it exists to avoid saving it in the sessions store
-        const { file, ...sessionWithoutFile } = updated as any;
+        const { file, ...sessionWithoutFile } = updated as SessionRecord;
         
         // Use safeParse to avoid crashing if updates are invalid
         const parsedResult = SessionRecordSchema.safeParse(sessionWithoutFile);
@@ -194,13 +194,13 @@ class DBService {
           if (file && !(await tx.objectStore('files').get(id))) {
             await tx.objectStore('files').put(file, id);
           }
-          console.log('DBService: Session updated successfully:', id);
+
         } else {
           console.error(`DBService: Failed to validate session updates for ${id}:`, parsedResult.error.format());
           throw new Error(`Invalid session data for update: ${id}`);
         }
       } else {
-        console.warn(`DBService: Cannot update session ${id} - not found`);
+        console.error(`DBService: Cannot update session ${id} - not found`);
       }
       await tx.done;
     } catch (error) {
@@ -228,7 +228,7 @@ class DBService {
       if (parsed.success) {
         validRecords.push(parsed.data as Project);
       } else {
-        console.warn(`Skipping invalid project record ${record.id}:`, parsed.error);
+        console.error(`Skipping invalid project record ${record.id}:`, parsed.error);
       }
     }
     return validRecords.reverse(); // Newest first

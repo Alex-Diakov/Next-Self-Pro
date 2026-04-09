@@ -7,25 +7,37 @@ import { AnalysisMarker, ChatMessage } from '../../types';
 export const createAnalysisSlice: SessionStateCreator<AnalysisSlice> = (set, get) => ({
   markers: [],
   isAnalyzing: false,
+  isAnalyzingEmotions: false,
+  isAnalyzingSpeech: false,
   analysisError: null,
   messages: [],
 
   runDeepAnalysis: async (type?: 'emotion' | 'speech') => {
     const { sessionFile, session } = get();
     if (!sessionFile || !session) {
-      console.warn('Cannot run analysis: Missing session or file');
+      console.error('Cannot run analysis: Missing session or file');
       return;
     }
 
-    set({ isAnalyzing: true, analysisError: null });
+    if (type === 'emotion') set({ isAnalyzingEmotions: true, analysisError: null });
+    else if (type === 'speech') set({ isAnalyzingSpeech: true, analysisError: null });
+    else set({ isAnalyzingEmotions: true, isAnalyzingSpeech: true, analysisError: null });
+
     try {
       const file = sessionFile as File;
-      console.log(`Starting deep analysis for: ${file.name || 'session-media'} (type: ${type || 'all'})`);
+      
+      // 20MB limit for inline multimodal analysis (Gemini API limit for inline data)
+      const MAX_FILE_SIZE = 20 * 1024 * 1024; 
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error(`File size (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds the 20MB limit for deep multimodal analysis. Please use a smaller file.`);
+      }
+
+
       const base64data = await fileToBase64(file);
-      console.log('Base64 conversion complete, calling AI...');
+
       const rawMarkers = await aiService.analyzeMultimodal(base64data, file.type, type);
       
-      console.log('AI response received:', rawMarkers);
+
 
       if (!Array.isArray(rawMarkers)) {
         throw new Error('Invalid analysis result format: expected array');
@@ -46,7 +58,7 @@ export const createAnalysisSlice: SessionStateCreator<AnalysisSlice> = (set, get
         };
       });
 
-      console.log('Processed markers for store:', newMarkers);
+
 
       // If a specific type was requested, merge with existing markers of other types
       const { markers: currentMarkers } = get();
@@ -57,12 +69,18 @@ export const createAnalysisSlice: SessionStateCreator<AnalysisSlice> = (set, get
         finalMarkers = [...otherMarkers, ...newMarkers];
       }
 
-      set({ markers: finalMarkers, isAnalyzing: false, analysisError: null });
+      if (type === 'emotion') set({ markers: finalMarkers, isAnalyzingEmotions: false, analysisError: null });
+      else if (type === 'speech') set({ markers: finalMarkers, isAnalyzingSpeech: false, analysisError: null });
+      else set({ markers: finalMarkers, isAnalyzingEmotions: false, isAnalyzingSpeech: false, analysisError: null });
+      
       saveToDb(get, set, session.id, { markers: finalMarkers });
-      console.log('Deep analysis completed successfully with', finalMarkers.length, 'markers');
+
     } catch (error) {
       console.error('Deep analysis error:', error);
-      set({ isAnalyzing: false, analysisError: error instanceof Error ? error.message : 'Unknown error' });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (type === 'emotion') set({ isAnalyzingEmotions: false, analysisError: errorMessage });
+      else if (type === 'speech') set({ isAnalyzingSpeech: false, analysisError: errorMessage });
+      else set({ isAnalyzingEmotions: false, isAnalyzingSpeech: false, analysisError: errorMessage });
     }
   },
 

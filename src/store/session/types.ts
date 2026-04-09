@@ -27,6 +27,8 @@ export interface TranscriptSlice {
 export interface AnalysisSlice {
   markers: AnalysisMarker[];
   isAnalyzing: boolean;
+  isAnalyzingEmotions: boolean;
+  isAnalyzingSpeech: boolean;
   analysisError?: string | null;
   messages: ChatMessage[];
   runDeepAnalysis: (type?: 'emotion' | 'speech') => Promise<void>;

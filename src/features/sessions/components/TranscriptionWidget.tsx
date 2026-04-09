@@ -18,7 +18,6 @@ interface TranscriptionWidgetProps {
   setIsEditingTranscript: (editing: boolean) => void;
   handleStartEdit: () => void;
   handleSaveTranscript: () => void;
-  transcript: string;
   editedTranscript: string;
   setEditedTranscript: (text: string) => void;
   messages: ChatMessage[];
@@ -38,7 +37,6 @@ export const TranscriptionWidget = React.memo(function TranscriptionWidget({
   setIsEditingTranscript,
   handleStartEdit,
   handleSaveTranscript,
-  transcript,
   editedTranscript,
   setEditedTranscript,
   messages,

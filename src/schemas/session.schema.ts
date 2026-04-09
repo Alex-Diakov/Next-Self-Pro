@@ -50,7 +50,7 @@ export const SessionRecordSchema = z.object({
   date: z.union([z.number(), z.string()]).transform(val => 
     typeof val === 'string' ? new Date(val).getTime() : val
   ).catch(() => Date.now()),
-  file: z.any().optional().catch(undefined),
+  file: z.custom<File | Blob>().optional().catch(undefined),
   fileName: z.string().catch('unknown_file'),
   fileType: z.string().catch('audio/mpeg'),
   fileSize: z.number().catch(0),
